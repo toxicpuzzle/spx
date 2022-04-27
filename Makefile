@@ -1,11 +1,25 @@
 CC=gcc
-CFLAGS=-Wall -Werror -Wvla -O0 -std=c11 -g -fsanitize=address,leak
-LDFLAGS=-lm
-BINARIES=spx_exchange spx_trader
+# CFLAGS=-Wall -Werror -Wvla -O0 -std=c11 -g -fsanitize=address,leak
+CFLAGS=-Wall -Wvla -O0 -std=c11 -g -fsanitize=address,leak
+OFLAGS=-c $(CFLAGS)
+LDFLAGS=-lm # List of link/load directives
+LIBS=data_types/ds.a
+BINARIES=spx_exchange spx_trader test_trader
 
-all: $(BINARIES)
+all: spx_exchange.o test_trader.o
+	$(CC) $(CFLAGS) $(LDFLAGS) spx_exchange.o $(LIBS) -o spx_exchange
+	$(CC) $(CFLAGS) $(LDFLAGS) test_trader.o $(LIBS) -o test_trader  
+
+spx_exchange.o: spx_exchange.c
+	$(CC) $(OFLAGS) spx_exchange.c -o spx_exchange.o
+
+test_trader.o: test_trader.c
+	$(CC) $(OFLAGS) test_trader.c -o test_trader.o
+# all: $(BINARIES)
+
+
 
 .PHONY: clean
 clean:
-	rm -f $(BINARIES)
+	rm -f $(BINARIES) *.o
 

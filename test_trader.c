@@ -1,16 +1,32 @@
 #include "spx_trader.h" // Order of inclusion matters to sa_sigaction and siginfo_t
 #define PREFIX_CHILD(CHILD_ID) printf("[CHILD %d] ", CHILD_ID);
+// #define TEST
 
 volatile int msgs_to_read = 0;
+int child_id = 0;
 int ppid = 0;
 bool market_is_open = 0;
 
+void set_handler(int signal, void (*handler) (int, siginfo_t*, void*)){
+    struct sigaction sig;
+    memset(&sig, 0, sizeof(struct sigaction));
+    sig.sa_sigaction = handler;
+
+    
+    if (sigaction(signal, &sig, NULL)){
+        perror("sigaction failed\n");
+        exit(1);
+    }
+}
+
 void signal_parent(){
-    // kill(pid, SIGUSR1);
+    kill(ppid, SIGUSR1);
 }
 
 // Read char until ";" char is encountered
 void read_exch_handler(int signo, siginfo_t *sinfo, void *context){
+    PREFIX_CHILD(child_id);
+    printf("received signal from parent\n");
     msgs_to_read++;
 }
 
@@ -48,6 +64,21 @@ void cancel(int order_id, int fd_write){
     free(cmd);
 }
 
+// TODO: Add test cases in here!
+void place_orders(int* order_id, int fd_write, int pid){
+
+    sell((*order_id)++, "GPU", 10, 100, fd_write);
+    PREFIX_CHILD(pid)
+    printf("GPU order sent\n");
+    sleep(1);
+    sell((*order_id)++, "Router", 5, 10, fd_write);
+    PREFIX_CHILD(pid)
+    printf("Router order sent\n");
+    sleep(5);
+    buy((*order_id)++, "Router", 6, 11, fd_write);
+
+}
+
 // When you use exec to execute a program, the first arg becomes arg[0] instead of arg[0]
 int main(int argc, char ** argv) {
     if (argc < 1) {
@@ -55,74 +86,74 @@ int main(int argc, char ** argv) {
         return 1;
     }
 
+    
+
     // register signal handler 
     set_handler(SIGUSR1, &read_exch_handler);
 
     // connect to named pipes
     ppid = getppid();
     int id = atoi(argv[0]);
+    child_id = id;
     char* fifo_exch = malloc(sizeof(char) * 128);
     char* fifo_trader = malloc(sizeof(char) * 128);
     sprintf(fifo_exch, FIFO_EXCHANGE, id);
     sprintf(fifo_trader, FIFO_TRADER, id);
-    int fd_write = open(fifo_trader, O_WRONLY);
     int fd_read = open(fifo_exch, O_RDONLY);
-    PREFIX_CHILD(id)
-    printf("Child file descriptors: [read] %d [write] %d\n", fd_read, fd_write);
-    while (true){
-        //! Process will not terminate even if you close terminal, must shut down parent process.
-        if (msgs_to_read == 0) {
-            continue;
-        }
+    int fd_write = open(fifo_trader, O_WRONLY);
+    #ifdef TEST
+        PREFIX_CHILD(id)
+        printf("Child file descriptors: [read] %d [write] %d\n", fd_read, fd_write);
+    #endif
 
-
-
-           //     // wait for exchange update (MARKET message)
-    //     // send order   
-    //     // wait for exchange confirmation (ACCEPTED message)
-
-        // char* result = fifo_read(fd_read);
-        // PREFIX_CHILD(id);
-        // printf("Received message: %s\n", result); -> I think the IO method call 
-        
-        // Keep reading from stream until null
-        // ensures you handle stacked signals are handled;
-        while (true){
-            char* result = fifo_read(fd_read);
-            if (strlen(result) == 0) {
-                free(result);
-                break;
-            }
-            PREFIX_CHILD(id);
-            printf("Received message: %s\n", result); //TODO: Replace this with processing the command;
-
-        }
-
-        msgs_to_read = 0;
-    }
+    // Launch message
+    PREFIX_CHILD(id);
+    printf("Launching child id\n");
 
     // Testing 
-    // int order_id = 0;
-    // sell(order_id++, "GPU", 10, 100, fd_write);
-    // sell(order_id++, "Router", 5, 10, fd_write);
+    //! Wait for market open message before placing order!
 
-    // event loop:
-    // while (1){
-    //     if (!has_updated) continue;
-            // If has_updated then keep reading until the end of the pipe? i.e. EOF because you can have multiple signals stacked together.
-                // Need to close pipe after you have successfully written to pipe (to ensure read side can see EOF);
-                // For reading, stop reading when you reach EOF, but keep read end open at ALL times (unless child process has quit);
+    int order_id = 0;
+    // sleep(100); //sleep does not work
+    while (true){
 
+		// Pause CPU until we receive another signal
+        if (msgs_to_read == 0) {
+			PREFIX_CHILD(id);
+			printf("pausing\n");
+            pause();
+        }
 
-            // while (strlen(str = fifo_read()) != 0) {execute_command(str) OR command_queue.enqueue(str)}
+        char* result = fifo_read(fd_read);
+            // printf("msgs to read: %d, reading\n", msgs_to_read);			
+
+        if (strlen(result) > 0) {
+            msgs_to_read--;
+            PREFIX_CHILD(id);
+            printf("Received message: %s\n", result);
+            if (strcmp(result, "MARKET OPEN") == 0){
+                //TODO: Replace this with processing the command;
+                //! You must sleep your trader here before they place the order 
+                //! This ensures the sleep() method is not interrupted by a signal
+                // sleep(3);
+                place_orders(&order_id, fd_write, id);                
+            }
+        }
+
+        free(result);
+
+        // Keep reading from stream until null
+        // ensures you handle stacked signals are handled;
+        // while (msgs_to_read > 0){
 
             
- 
+        // }
 
-    //     // What happens if exchange updates whilst you're printing things out.
+    }
+    
+    
+    
 
-    //     has_updated = false;
-    // }
     free(fifo_exch);
     free(fifo_trader);
     return 1;
