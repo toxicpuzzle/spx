@@ -83,6 +83,10 @@ void place_orders(int* order_id, int fd_write, int pid){
         amend(0, 3, 9999, fd_write);
         sleep(2);
         cancel(0, fd_write);
+        sleep(1);
+        fifo_write(fd_write, "INVALID COMMAND;");
+        signal_parent();
+        
     #endif
 }
 

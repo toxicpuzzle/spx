@@ -11,6 +11,10 @@
 // #define TEST
 #define PREFIX_EXCH printf("[SPX] ");
 
+#define AMEND_CMD_SIZE 4
+#define BUYSELL_CMD_SIZE 5
+#define CANCEL_CMD_SIZE 2
+
 
 // volatile int msgs_to_read = 0;
 
@@ -332,18 +336,7 @@ void trader_message_all(dyn_arr* traders, char* msg){
 	trader_signal_all(traders);
 }
 
-void teardown_traders(dyn_arr* traders){
-	trader* t = calloc(1, sizeof(trader));
-	for (int i = 0; i < traders->used; i++){
-		dyn_array_get(traders, i, t);
-		int status = 0;
-		if (waitpid(t->process_id, &status, WNOHANG) == 0){
-			kill(t->process_id, SIGKILL);
-		};
-		// kill(t->process_id, SIGKILL);
-	}
-	free(t);
-}
+
 
 
 // SECTION: Methods for reporting order book and traders
@@ -799,32 +792,138 @@ void process_cancel(char* msg, dyn_arr* buy_books, dyn_arr* sell_books, trader* 
 
 void process_message(char* msg, trader* t, int* order_uid, int* fees,
 dyn_arr* buy_books, dyn_arr* sell_books, dyn_arr* traders){
-	if (strlen(msg) < 6) {
-		// Send invalid signal
-		return;
-	}
+	// // Since you used strtok to check the args you cannot rely on strlen anymore
+	// if (strlen(msg) < 6) {
+	// 	printf("COULD NOT PROCESS\n");
+	// 	trader_message(t, "INVALID;");
+	// 	return;
+	// }
 	
-	// TODO: Check for sufficient args length for each of these.
-		// i.e. have validatebuy, validatesell, validateamend, validatecancel and checks for order id, args length.
+	
 	if (!strncmp(msg, "BUY", 3) || !strncmp(msg, "SELL", 4)){
 		order* new_order = order_init_from_msg(msg, t, order_uid, buy_books, sell_books);
 		(*order_uid)++;
-		// PREFIX_EXCH
-		// printf("Order: [product: %s] [price: %d] [qty: %d] [is_buy: %d] [trader: %d]\n", 
-		// new_order->product, new_order->price, new_order->qty, new_order->is_buy, new_order->trader->id);
-		
 		process_order(new_order, buy_books, sell_books, traders, fees);
 		free(new_order); //! Don't order_free as it free(t);  -> already freed by main()
 	} else if (!strncmp(msg, "AMEND", 5)){
 		process_amend(msg, buy_books, sell_books, t, fees);
 	} else if (!strncmp(msg, "CANCEL", 6)){ //TODO: turn into macros to avoid magic nums
 		process_cancel(msg, buy_books, sell_books, t);
-	} else {
-
-		// Send invalid command signal
-	}
+	} 
 
 	report(buy_books, sell_books, traders); //TODO: Only report if NOT invalid
+}
+
+// SECTION: Command line validation
+bool str_check_for_each(char* str, int (*check)(int c)){
+	int len = strlen(str);
+	for (int i = 0; i < len; i++) {
+		// printf("checking result: %d\n", check(str[i]));
+		if (check(str[i]) == 0) return false; 
+	}
+	return true;
+}
+
+bool is_valid_price_qty(int price, int qty){
+	if (qty > MAX_INT || qty < 0) return false;
+	if (price > MAX_INT || price < 0) return false;
+	return true;
+}
+
+bool is_existing_order(int oid, trader* t, dyn_arr* buy_books, dyn_arr* sell_books){
+	order* o = get_order_by_id(oid, t, buy_books);
+	if (o == NULL){
+		o = get_order_by_id(oid, t, sell_books);
+	}
+	free(o);
+
+	if (o == NULL) return false;
+	return true;		
+}
+
+bool is_valid_product(char* p, dyn_arr* books){
+	order_book* o = calloc(1, sizeof(order_book));
+	memmove(o->product, p, strlen(p)+1);
+	int idx = dyn_array_find(books, o, obook_cmp);
+	free(o);
+	// printf("idx is %d\n", idx);
+	if (idx == -1) return false;
+	return true;
+}
+
+bool is_valid_command(char* msg, dyn_arr* buy_books, dyn_arr* sell_books, trader* t){
+	
+	if (strlen(msg) < 6) return false;
+
+	char** args;
+	char* copy_msg = calloc(strlen(msg)+1, sizeof(char));
+	memmove(copy_msg, msg, strlen(msg)+1);
+	int args_size = get_args_from_msg(copy_msg, &args);
+	bool ret = true;
+
+	
+	// TODO: Check ends in ";";
+
+	char* cmd = args[0];
+
+	if (!strcmp(cmd, "BUY") || !strcmp(cmd, "SELL")){
+		// printf("here\n");
+		if (args_size != BUYSELL_CMD_SIZE) ret = false;
+
+		// Args are of the right type
+		if (!str_check_for_each(args[1], &isdigit)) ret = false;
+		if (!str_check_for_each(args[2], &isalnum)) ret = false;
+		if (!str_check_for_each(args[3], &isdigit)) ret = false;
+		if (!str_check_for_each(args[4], &isdigit)) ret = false;
+
+		// Product exists
+		if (!is_valid_product(args[2], buy_books)) ret = false;
+
+		// Qty and price in range
+		if (!is_valid_price_qty(atoi(args[4]), atoi(args[3]))) ret = false;
+
+	} else if (!strcmp(cmd, "AMEND")){
+		
+		if (args_size != AMEND_CMD_SIZE) ret = false;
+		
+		// Args are of the right type
+		if (!str_check_for_each(args[1], &isdigit)) ret = false;
+		if (!str_check_for_each(args[2], &isdigit)) ret = false;
+		if (!str_check_for_each(args[3], &isdigit)) ret = false;
+
+		// Order exists
+		if (!is_existing_order(atoi(args[1]), t, buy_books, sell_books)) ret = false;
+
+		// Qty and price in range
+		if (!is_valid_price_qty(atoi(args[3]), atoi(args[2]))) ret = false;
+	
+	} else if (!strcmp(cmd, "CANCEL")){
+		if (args_size != CANCEL_CMD_SIZE) ret = false;
+		// Order exists
+		if (!is_existing_order(atoi(args[1]), t, buy_books, sell_books)) ret = false;
+	} else {
+		ret = false;
+	}
+
+	free(args);
+	free(copy_msg);
+	return ret;
+}
+
+// SECTION: Shutdown functions
+
+// Terminates/waits for all child processes to close
+void teardown_traders(dyn_arr* traders){
+	trader* t = calloc(1, sizeof(trader));
+	for (int i = 0; i < traders->used; i++){
+		dyn_array_get(traders, i, t);
+		int status = 0;
+		if (waitpid(t->process_id, &status, WNOHANG) == 0){
+			kill(t->process_id, SIGKILL);
+		};
+		// kill(t->process_id, SIGKILL);
+	}
+	free(t);
 }
 
 // Frees all relevant memory for the program
@@ -915,7 +1014,7 @@ int main(int argc, char **argv) {
 			
 		// Pause CPU until we receive another signal
         if (sig_info_list->size == 0) {
-			PREFIX_EXCH
+			// PREFIX_EXCH
 			// printf("pausing\n");
             // TODO: if trader disconnects before we get to poll will poll detect disconnection?
 			// TODO: I think it will because the poll says revents is FILLED BY THE KERNEL i.e. even if you set it to 0 it just gets refilled 
@@ -963,15 +1062,21 @@ int main(int argc, char **argv) {
 			
 			// Read message from the trader
 			char* msg = fifo_read(t->fd_read);
-			PREFIX_EXCH
-			printf("[T%d] Parsing command <%s>\n", t->id, msg);
+			// char** args;
+			// int args_size = get_args_from_msg(msg, &args);
+
 			
-			if (t->connected){
-				// TODO: Distinguish between amend/cancel and buy/sell orders;
+			//! using is_valid_command() check causes process_message to not be fully run
+			if (!is_valid_command(msg, buy_order_books, sell_order_books, t) ||
+				t->connected == false){
+				PREFIX_EXCH
+				printf("Received invalid command\n");
+				trader_message(t, "INVALID;");
+			} else {
+				PREFIX_EXCH
+				printf("[T%d] Parsing command <%s>\n", t->id, msg);
 				process_message(msg, t, &order_uid, &fees_collected,
 							buy_order_books, sell_order_books, traders);
-			} else {
-				// Reject order? send invalid needed?
 			}
 
 			free(ret);

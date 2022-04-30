@@ -19,11 +19,13 @@
 #include "data_types/linked_list.h"
 #include <poll.h>
 #include <sys/wait.h>
+#include <ctype.h>
 
 #define FIFO_EXCHANGE "/tmp/spx_exchange_%d"
 #define FIFO_TRADER "/tmp/spx_trader_%d"
 #define FEE_PERCENTAGE 1
 #define MAX_LINE 128
+#define MAX_INT 999999
 #define INDENT printf("\t");
 
 //! Don't put function definition in header files since then you'll have to clean and compile every time 

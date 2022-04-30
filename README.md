@@ -11,3 +11,6 @@ https://stackoverflow.com/questions/11457670/where-are-the-headers-of-the-c-stan
 
 To get intellisense for sigaction, use gnu 99 as the c standard
 https://stackoverflow.com/questions/6491019/struct-sigaction-incomplete-error
+
+Why have buy and s ell books -> lots of args and impedes on readability
+Because of easier order matching process -> remove_min for dynamic array
