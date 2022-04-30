@@ -155,6 +155,7 @@ dyn_arr* _create_traders_setup_trader_balances(char* product_file_path){
 		balance* b = calloc(1, sizeof(balance));
 		memmove(b->product, buf, PRODUCT_STRING_LEN);
 		dyn_array_append(balances, b);
+		free(b);
 	}
 	return balances;
 }
@@ -468,60 +469,6 @@ void report_book_for_product(order_book* buy, order_book* sell){
 	}
 	free(curr);
 	dyn_array_free(all_orders);
-	
-
-	// for (int i = 0; i < buy->orders->used; i++){
-	// 	dyn_array_cop
-	// 	dyn_array_remove_max(buy->orders, i, curr);
-
-
-
-	// 	// TODO: Implement dynamica array copy method 
-	// 	// TODO: Keep removing max from the copies and to construct order book with levels
-	// 	// TODO: Might still be better to keep a central order book? 
-	// 		//! SO that you don't need to create central order book everytime some report is made?
-	// 		//! But tradeoff is that you need to update in two locations with amends/cancels.
-	// 		//! Implement dyn_array_sort method based on comparator -> use qsort(), once sorted, you can just
-	// 		//! Look at the next element to see if there is a level -> i.e. first sweep to count levels
-	// 		//! 2nd sweep to print out levels from buy and sell books?
-
-	// 	if (prev != NULL && prev->price == curr->price){
-	// 		prev->qty += curr->qty;
-	// 		prev->_num_orders++;
-	// 		continue;
-	// 	}
-		
-	// 	dyn_array_append(all_orders, curr);
-	// 	prev = curr;
-	// }
-	// free(curr);
-	// free(all_orders);
-
-
-	// Peek buy and sell books for the maximum price
-	// int buy_levels = 0;
-	// int sell_levels = 0;
-	// order* buy_max = NULL;
-	// order* sell_max = NULL;	
-	// while (true){
-	// 	if (buy->orders->used == 0 && sell->orders->used == 0) break;
-
-	// 	if (buy_max == NULL){
-	// 		dyn_array_remove_max(buy->orders, buy_max, &order_cmp);
-	// 	}
-	// 	if (sell_max == NULL){
-	// 		dyn_array_remove_max(sell->orders, sell_max, &order_cmp);
-	// 	}
-
-	// 	if (buy_max->price < sell_max->price){
-			
-	// 	} else {
-			
-	// 	}
-
-
-
-	// }
 
 }
 
@@ -653,7 +600,8 @@ void _process_trade_signal_trader(order* o, int amt_filled){
 
 // Offsets buy and sell order against each other and signals traders about
 // Trade that was executed
-void process_trade(order* buy, order* sell, order_book* buy_book, order_book* sell_book){
+void process_trade(order* buy, order* sell, 
+	order_book* buy_book, order_book* sell_book, int* fees){
 
 	// Note orders are already removed from the books, so we 
 	// insert them back if there is a residual amount on the order
@@ -668,7 +616,7 @@ void process_trade(order* buy, order* sell, order_book* buy_book, order_book* se
 		dyn_array_append(buy_book->orders, buy);
 	} 
 
-	// TODO: Charge 1% transaction fee (1%*order order price) to trader placing order last
+	// Decide the closing price of the bid/ask and the fee
 	int fee = 0;
 	int value = 0;
 	order* old_order;
@@ -683,21 +631,25 @@ void process_trade(order* buy, order* sell, order_book* buy_book, order_book* se
 		new_order = buy;
 	}
 	fee = value * 0.01;
+
+	// Charge fee to trader placing latest order.
 	_process_trade_add_to_trader(old_order, amt_filled, value);
-	// TODO: To charge fee to trader, deduct it from its total balance relating to a specific product.
-	_process_trade_add_to_trader(new_order, amt_filled, value-fee);
+	int residual = new_order->is_buy ? value+fee : value-fee;
+	_process_trade_add_to_trader(new_order, amt_filled, residual);
+	*fees += fee;
 
 	PREFIX_EXCH
 	printf("Match: Order %d [T%d], New Order %d [T%d], value: $%d, fee: $%d.\n",
 			old_order->order_id, old_order->trader->id, 
 			new_order->order_id, new_order->trader->id, value, fee);
 
+	// Signal traders that their order was filled
 	_process_trade_signal_trader(sell, amt_filled);
 	_process_trade_signal_trader(buy, amt_filled);	
 }
 
 // Reruns the order books against each other to see if any new trades are made for that product
-void run_orders(order_book* ob, order_book* os){
+void run_orders(order_book* ob, order_book* os, int* fees){
 	order* buy_max = calloc(1, sizeof(order));
 	order* sell_min = calloc(1, sizeof(order));
 	while (true){
@@ -706,7 +658,7 @@ void run_orders(order_book* ob, order_book* os){
 		dyn_array_remove_min(os->orders, sell_min, &order_cmp);
 		
 		if (buy_max->price >= sell_min->price){
-			process_trade(buy_max, sell_min, ob, os);
+			process_trade(buy_max, sell_min, ob, os, fees);
 			// residual buy/max will have modified copy inserted into pq
 			// original that was not in the pq should be removed.
 		} else {
@@ -720,7 +672,8 @@ void run_orders(order_book* ob, order_book* os){
 }
 
 // Processes buy/sell order
-void process_order(order* order_added, dyn_arr* buy_books, dyn_arr* sell_books, dyn_arr* traders){
+void process_order(order* order_added, dyn_arr* buy_books, 
+dyn_arr* sell_books, dyn_arr* traders, int* fees){
 	// Find the product sell/buy books with the product matching the orders
 	// Perform processing in books
 	
@@ -746,7 +699,7 @@ void process_order(order* order_added, dyn_arr* buy_books, dyn_arr* sell_books, 
 		dyn_array_append(os->orders, (void *) order_added);
 	}
 
-	run_orders(ob, os);
+	run_orders(ob, os, fees);
 
 	free(ob);
 	free(os);
@@ -757,8 +710,7 @@ void process_order(order* order_added, dyn_arr* buy_books, dyn_arr* sell_books, 
 order* get_order_by_id(int oid, trader* t, dyn_arr* books){
 	order* o = calloc(1, sizeof(order));
 	o->order_id = oid;
-	o->trader = calloc(1, sizeof(trader));
-	memmove(o->trader, t, sizeof(trader)); //Store copy of trader so parent freeing t does not affect order
+	o->trader = t; //! t here is the original t passed by main
 	order_book* curr = calloc(1, sizeof(order_book));
 	int idx = -1;
 	for (int i = 0; i < books->used; i++){
@@ -792,7 +744,8 @@ order* get_order_by_id(int oid, trader* t, dyn_arr* books){
 // }
 
 // TODO: Refactor with function pointers
-void process_amend(char* msg, dyn_arr* buy_books, dyn_arr* sell_books, trader* t){
+void process_amend(char* msg, dyn_arr* buy_books, dyn_arr* sell_books, 
+trader* t, int* fees){
 	// Order needs to be processed again after amending.
 	
 	// Get values from message
@@ -829,7 +782,7 @@ void process_amend(char* msg, dyn_arr* buy_books, dyn_arr* sell_books, trader* t
 	dyn_array_set(contains->orders, order_idx, o);
 
 	// Run order book for trades
-	run_orders(ob, os);	
+	run_orders(ob, os, fees);	
 
 	free(args);
 	free(o);
@@ -873,7 +826,7 @@ void process_cancel(char* msg, dyn_arr* buy_books, dyn_arr* sell_books, trader* 
 	free(os);
 }
 
-void process_message(char* msg, trader* t, int* order_uid, 
+void process_message(char* msg, trader* t, int* order_uid, int* fees,
 dyn_arr* buy_books, dyn_arr* sell_books, dyn_arr* traders){
 	if (strlen(msg) < 6) {
 		// Send invalid signal
@@ -889,10 +842,10 @@ dyn_arr* buy_books, dyn_arr* sell_books, dyn_arr* traders){
 		// printf("Order: [product: %s] [price: %d] [qty: %d] [is_buy: %d] [trader: %d]\n", 
 		// new_order->product, new_order->price, new_order->qty, new_order->is_buy, new_order->trader->id);
 		
-		process_order(new_order, buy_books, sell_books, traders);
+		process_order(new_order, buy_books, sell_books, traders, fees);
 		free(new_order); //! Don't order_free as it free(t);  -> already freed by main()
 	} else if (!strncmp(msg, "AMEND", 5)){
-		process_amend(msg, buy_books, sell_books, t);
+		process_amend(msg, buy_books, sell_books, t, fees);
 	} else if (!strncmp(msg, "CANCEL", 6)){ //TODO: turn into macros to avoid magic nums
 		process_cancel(msg, buy_books, sell_books, t);
 	} else {
@@ -903,6 +856,34 @@ dyn_arr* buy_books, dyn_arr* sell_books, dyn_arr* traders){
 	report(buy_books, sell_books, traders); //TODO: Only report if NOT invalid
 }
 
+// Frees all relevant memory for the program
+void free_program(dyn_arr* buy_order_books, dyn_arr* sell_order_books, 
+				dyn_arr* traders, struct pollfd* poll_fds){
+	// Teardown
+	free(poll_fds);
+	teardown_traders(traders);
+	
+	// Free traders
+	trader* t = calloc(1, sizeof(trader));
+	for (int i = 0; i < traders->used; i++){ 
+		dyn_array_get(traders, i, t);
+		dyn_array_free(t->balances);
+	}
+	free(t);
+	dyn_array_free(traders);
+
+	// Free orderbooks
+	order_book* ob = calloc(1, sizeof(order_book));
+	for (int i = 0; i < buy_order_books->used; i++){
+		dyn_array_get(buy_order_books, i, ob);
+		dyn_array_free(ob->orders);
+		dyn_array_get(sell_order_books, i, ob);
+		dyn_array_free(ob->orders);
+	}
+	free(ob);
+	dyn_array_free(buy_order_books);
+	dyn_array_free(sell_order_books);
+}
 
 int main(int argc, char **argv) {
 
@@ -918,6 +899,7 @@ int main(int argc, char **argv) {
 
 	sig_info_list = linked_list_init(sizeof(siginfo_t));
 	int order_uid = 0; // Unique id for the product, indicates its time priority.
+	int fees_collected = 0;
 
 	// Read in product files from command line
 	char* product_file = argv[1];
@@ -935,7 +917,8 @@ int main(int argc, char **argv) {
 
 	// Create and message traders that the market has opened
 	dyn_arr* traders = create_traders(traders_bins, product_file);
-	
+	dyn_array_free(traders_bins);
+
 	// Construct poll data structure
 	struct pollfd *poll_fds = calloc(traders->used, sizeof(struct pollfd));
 	int connected_traders = traders->used;
@@ -961,11 +944,6 @@ int main(int argc, char **argv) {
         if (sig_info_list->size == 0) {
 			PREFIX_EXCH
 			printf("pausing\n");
-			// TODO: Use poll/select to pause cpu until some child exits (will)
-			//? Poll blocks until call is interrupted by signal handler -> basically like
-			//? pause execept it intersects...
-			//? -> Store array of traders fds structs just for polling purposes
-			//? once we have file descriptor that is closed e.g. POLLHUP to check peer closed end of channel
             // TODO: if trader disconnects before we get to poll will poll detect disconnection?
 			// TODO: I think it will because the poll says revents is FILLED BY THE KERNEL i.e. even if you set it to 0 it just gets refilled 
 			// TODO: consider order of disconnection, will it print in order if multiple trader disconnect at the same time
@@ -1017,7 +995,7 @@ int main(int argc, char **argv) {
 			
 			if (t->connected){
 				// TODO: Distinguish between amend/cancel and buy/sell orders;
-				process_message(msg, t, &order_uid, 
+				process_message(msg, t, &order_uid, &fees_collected,
 							buy_order_books, sell_order_books, traders);
 			} else {
 				// Reject order? send invalid needed?
@@ -1027,50 +1005,14 @@ int main(int argc, char **argv) {
 			free(msg);
 		}
 
-		
-
-
-
-
-		// // Find the calling child and read from their pipe, 
-		// // or read from every child's pipe if it is not empty			
-		// trader* t = malloc(sizeof(trader));
+	}
+	free_program(buy_order_books, sell_order_books, traders, poll_fds);
 	
-		// for (int i = 0; i < traders->used; i++){
-
-		// 	if (msgs_to_read == 0) break;
-			
-		// 	dyn_array_get(traders, i, t);
-		// 	char* result = fifo_read(t->fd_read);
-		// 	// printf("msgs to read: %d, reading\n", msgs_to_read);			
-
-		// 	if (strlen(result) > 0) {
-		// 		--msgs_to_read;
-		// 		PREFIX_EXCH
-		// 		printf("Received message: %s from [CHILD %d]\n", result, t->id);
-		// 		PREFIX_EXCH
-		// 		printf("msgs to read: %d, reading\n", msgs_to_read);
-		// 		fflush(stdout);		
-		// 		//TODO: Replace this with processing the command;
-		// 	}
-
-		// 	free(result);
-
-		// }
-		// free(t);
-
-
-    }
-
-	
-	// Teardown
-	sleep(5);
-	free(poll_fds);
+	// Print termination message
 	PREFIX_EXCH
-	printf("Teardown\n");
-	teardown_traders(traders);
-	// TODO: Implement free() function that is passed during array init? to allow for easy freeing of objects
-	dyn_array_free(traders_bins);
-	dyn_array_free(traders);
+	printf("Trading completed\n");
+	PREFIX_EXCH
+	printf("Exchange fees collected: $%d\n", fees_collected);
+
 	return 0;
 }
