@@ -17,6 +17,9 @@
 // Queue containing most recent signals received from child processes
 linked_list* sig_info_list;
 
+// SECTION: Data structures used
+
+// SECTION: Signal handlers
 
 /**
  * @brief Creates signal handler using sigaction struct
@@ -37,33 +40,13 @@ void set_handler(int si, void (*handler) (int, siginfo_t*, void*)){
     }
 }
 //! I think set_handler must be defined within this c so that context is valid?
-// SECTION: Freeing functions (only frees internal memory of object if any exists)
 
-void free_order(void* a){free((order*)a);}
-
-void free_order_book(void* a){
-	dyn_array_free(((order_book*)a)->orders);
-	free(((order_book*)a));
+void sig_handler(int signal, siginfo_t *siginfo, void *context){
+	linked_list_queue(sig_info_list, siginfo);
 }
-
-
-void free_balance(void* a) {free(((balance*) a));}
-
-void free_trader(void*a){
-	dyn_array_free(((trader*)a)->balances);
-	free(((trader*)a));
-}
-
-void free_trader_bin(void*a){free((char*)a);}
-
-void free_siginfo(void*a){free((siginfo_t*)a);}
 
 
 // SECTION: Comparator functions
-
-// TODO: Ensure prio queue implementation lets first inserted elements be deleted first.
-// order a is smaller than order b if its price is smaller. if they're the same then 
-// order a is smaller if it's order id is bigger
 
 /**
  * @brief Price time priority implementation of sorting orders
@@ -86,9 +69,7 @@ int order_cmp(const void* a, const void* b){
 
 // Compares the orders based on ids;
 int order_id_cmp(const void* a, const void* b){
-	order* oa = (order*) a;
-	order* ob = (order*) b;
-	return oa->order_id-oa->order_id;
+	return ((order*)a)->order_id-((order*)b)->order_id;
 }
 
 int int_cmp(const void* a, const void* b){
@@ -102,9 +83,7 @@ int obook_cmp(const void* a, const void* b){
 }
 
 int trader_cmp(const void* a, const void* b){
-	trader* t1 = (trader*) a;
-	trader* t2 = (trader*) b;
-	return t1->id - t2->id;
+	return ((trader*)a)->id - ((trader*)b)->id;
 }
 
 int find_order_by_trader_cmp(const void* a, const void* b){
@@ -114,23 +93,11 @@ int find_order_by_trader_cmp(const void* a, const void* b){
 }
 
 int trader_cmp_by_process_id(const void* a, const void* b){
-	trader* t1 = (trader*) a;
-	trader* t2 = (trader*) b;
-	return t1->process_id- t2->process_id;
+	return ((trader*)a)->process_id - ((trader*)b)->process_id;
 }
 
 int trader_cmp_by_fdread(const void* a, const void* b){
-	trader* t1 = (trader*) a;
-	trader* t2 = (trader*) b;
-	return t1->fd_read- t2->fd_read;
-}
-
-void str_tostr(void* element){
-	printf("%s ", *(char**)element);
-}
-
-void sig_handler(int signal, siginfo_t *siginfo, void *context){
-	linked_list_queue(sig_info_list, siginfo);
+	return ((trader*)a)->fd_read - ((trader*)b)->fd_read;
 }
 
 int balance_cmp(const void* a, const void* b){
@@ -138,6 +105,9 @@ int balance_cmp(const void* a, const void* b){
 	balance* second = (balance*) b;
 	return strcmp(first->product, second->product);
 }
+
+
+// SECTION: SETUP FUNCTIONS
 
 // Creates trader balances from product file
 dyn_arr* _create_traders_setup_trader_balances(char* product_file_path){
@@ -244,6 +214,41 @@ dyn_arr* create_traders(dyn_arr* traders_bins, char* product_file){
 	return traders;
 }
 
+// Creates new order book for product and inserts into books
+void _setup_product_order_book(dyn_arr* books, char* product_name, bool is_buy){
+	order_book* b = calloc(1, sizeof(order_book));
+	strncpy(b->product, product_name, PRODUCT_STRING_LEN);
+	b->orders = dyn_array_init(sizeof(order), &order_cmp);
+	b->is_buy = is_buy;
+	dyn_array_append(books, b);
+	free(b);
+}
+
+// Creates dynamic array storing orderbooks
+void setup_product_order_books(dyn_arr* buy_order_books, 
+dyn_arr* sell_order_books, char* product_file_path){
+	char buf[PRODUCT_STRING_LEN];
+	FILE* f = fopen(product_file_path, "r");
+	fgets(buf, PRODUCT_STRING_LEN, f); // Do this to get rid of the number of items line;
+	int num_products = atoi(buf);
+	PREFIX_EXCH
+	printf("Trading %d products: ", num_products);
+	while (fgets(buf, PRODUCT_STRING_LEN, f) != NULL){
+		
+		for (int i = 0; i < PRODUCT_STRING_LEN; i++){
+			if (buf[i] == '\n'){
+				buf[i] = '\0';
+			}
+		}
+		printf("%s ", buf);
+		
+		_setup_product_order_book(buy_order_books, buf, true);
+		_setup_product_order_book(sell_order_books, buf, false);
+	}
+	printf("\n");
+}
+
+// SECTION: Trader communication functions
 
 /**
  * @brief Writes to the pipe of a single trader
@@ -338,40 +343,6 @@ void teardown_traders(dyn_arr* traders){
 		// kill(t->process_id, SIGKILL);
 	}
 	free(t);
-}
-
-// Creates new order book for product and inserts into books
-void _setup_product_order_book(dyn_arr* books, char* product_name, bool is_buy){
-	order_book* b = calloc(1, sizeof(order_book));
-	strncpy(b->product, product_name, PRODUCT_STRING_LEN);
-	b->orders = dyn_array_init(sizeof(order), &order_cmp);
-	b->is_buy = is_buy;
-	dyn_array_append(books, b);
-	free(b);
-}
-
-// Creates dynamic array storing orderbooks
-void setup_product_order_books(dyn_arr* buy_order_books, 
-dyn_arr* sell_order_books, char* product_file_path){
-	char buf[PRODUCT_STRING_LEN];
-	FILE* f = fopen(product_file_path, "r");
-	fgets(buf, PRODUCT_STRING_LEN, f); // Do this to get rid of the number of items line;
-	int num_products = atoi(buf);
-	PREFIX_EXCH
-	printf("Trading %d products: ", num_products);
-	while (fgets(buf, PRODUCT_STRING_LEN, f) != NULL){
-		
-		for (int i = 0; i < PRODUCT_STRING_LEN; i++){
-			if (buf[i] == '\n'){
-				buf[i] = '\0';
-			}
-		}
-		printf("%s ", buf);
-		
-		_setup_product_order_book(buy_order_books, buf, true);
-		_setup_product_order_book(sell_order_books, buf, false);
-	}
-	printf("\n");
 }
 
 
@@ -858,7 +829,7 @@ dyn_arr* buy_books, dyn_arr* sell_books, dyn_arr* traders){
 
 // Frees all relevant memory for the program
 void free_program(dyn_arr* buy_order_books, dyn_arr* sell_order_books, 
-				dyn_arr* traders, struct pollfd* poll_fds){
+				dyn_arr* traders, struct pollfd* poll_fds, linked_list* siglist){
 	// Teardown
 	free(poll_fds);
 	teardown_traders(traders);
@@ -883,6 +854,8 @@ void free_program(dyn_arr* buy_order_books, dyn_arr* sell_order_books,
 	free(ob);
 	dyn_array_free(buy_order_books);
 	dyn_array_free(sell_order_books);
+
+	linked_list_free(siglist);
 }
 
 int main(int argc, char **argv) {
@@ -943,7 +916,7 @@ int main(int argc, char **argv) {
 		// Pause CPU until we receive another signal
         if (sig_info_list->size == 0) {
 			PREFIX_EXCH
-			printf("pausing\n");
+			// printf("pausing\n");
             // TODO: if trader disconnects before we get to poll will poll detect disconnection?
 			// TODO: I think it will because the poll says revents is FILLED BY THE KERNEL i.e. even if you set it to 0 it just gets refilled 
 			// TODO: consider order of disconnection, will it print in order if multiple trader disconnect at the same time
@@ -979,7 +952,7 @@ int main(int argc, char **argv) {
 		// Walk through
 		while (sig_info_list->size > 0) {
 			siginfo_t* ret = calloc(1, sizeof(siginfo_t));
-			linked_list_pop(sig_info_list, ret, &free_siginfo);
+			linked_list_pop(sig_info_list, ret);
 	
 			// find literal location of child with same process id
 			trader* t = calloc(1, sizeof(trader));
@@ -1006,7 +979,8 @@ int main(int argc, char **argv) {
 		}
 
 	}
-	free_program(buy_order_books, sell_order_books, traders, poll_fds);
+	free_program(buy_order_books, sell_order_books, 
+					traders, poll_fds, sig_info_list);
 	
 	// Print termination message
 	PREFIX_EXCH
