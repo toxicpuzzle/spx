@@ -24,7 +24,8 @@ struct node{
 linked_list* linked_list_init(size_t memb_size);
 void linked_list_push(linked_list* list, void* element);
 void linked_list_queue(linked_list* list, void* element);
-int linked_list_pop(linked_list* list, void* ret);
+int linked_list_pop(linked_list* list, void* ret, void(*free_elem)(void*));
 bool linked_list_isempty(linked_list* list);
+bool linked_list_free(linked_list* list);
 
 #endif

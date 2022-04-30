@@ -1,6 +1,7 @@
 #include "spx_trader.h" // Order of inclusion matters to sa_sigaction and siginfo_t
 #define PREFIX_CHILD(CHILD_ID) printf("[CHILD %d] ", CHILD_ID);
 // #define TEST
+# define TRADER1
 
 volatile int msgs_to_read = 0;
 int child_id = 0;
@@ -74,10 +75,18 @@ void place_orders(int* order_id, int fd_write, int pid){
     sell((*order_id)++, "Router", 5, 10, fd_write);
     PREFIX_CHILD(pid)
     printf("Router order sent\n");
-    sleep(5);
-    buy((*order_id)++, "Router", 6, 11, fd_write);
-
+    // Trader one only orders
+    #ifdef TRADER1
+        sleep(5);
+        buy((*order_id)++, "Router", 6, 11, fd_write);
+        sleep(2);
+        amend(0, 3, 9999, fd_write);
+        sleep(2);
+        cancel(0, fd_write);
+    #endif
 }
+
+
 
 // When you use exec to execute a program, the first arg becomes arg[0] instead of arg[0]
 int main(int argc, char ** argv) {
@@ -135,8 +144,15 @@ int main(int argc, char ** argv) {
                 //TODO: Replace this with processing the command;
                 //! You must sleep your trader here before they place the order 
                 //! This ensures the sleep() method is not interrupted by a signal
-                // sleep(3);
-                place_orders(&order_id, fd_write, id);                
+                #ifndef TRADER1
+                    sleep(3);
+                #endif
+                place_orders(&order_id, fd_write, id);   
+                // Disconnnect
+                sleep(1);
+                close(fd_read);
+                close(fd_write);
+                // exit();             
             }
         }
 

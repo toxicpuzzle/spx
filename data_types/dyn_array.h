@@ -28,6 +28,7 @@ void dyn_array_print(dyn_arr* dyn, void (*elem_to_string) (void* element));
 int dyn_array_swap(dyn_arr* dyn, int idx1, int idx2);
 int dyn_array_sort(dyn_arr* dyn, int (*cmp) (const void* a, const void* b));
 dyn_arr* dyn_array_init_copy(dyn_arr* dyn);
+void* dyn_array_get_literal(dyn_arr* dyn, int idx);
 
 // Priority queue methods
 int dyn_array_remove_min(dyn_arr* dyn, void* ret, int (*cmp) (const void* a, const void* b));

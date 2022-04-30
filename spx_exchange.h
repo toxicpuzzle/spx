@@ -16,14 +16,16 @@ typedef struct balance balance;
 // TODO: Create method for freeing order books
 struct order_book{
     char product[PRODUCT_STRING_LEN];
+    bool is_buy;
     dyn_arr* orders;
 };
 
 struct order{
     int order_id;
     int order_uid;
-    trader* trader; // Trader that made the order
-    order_book* book; // Order book to which order belongs
+    int trader_list_idx;
+    trader* trader; // Trader that made the order //! a copy of original trader. must be freed //! Problematic as the copie's connected attribute is not updatd
+    int order_book_idx;// index of order book to which order belongs //! A copy of the order book. must be freed
     bool is_buy;
     char product[PRODUCT_STRING_LEN];
     int qty;
@@ -37,8 +39,8 @@ struct order{
  */
 struct balance{
     char product[PRODUCT_STRING_LEN];
-    int buy_bal;
-    int sell_bal;
+    int balance;
+    int qty;
 };
 
 /**
@@ -48,7 +50,7 @@ struct balance{
  * @param process_id the trader's process id
  * @param fd_write file descriptor for write pipe to trader
  * @param fd_read file descriptor for read pipe from trader
- * @param connected true if the trader has not logged out
+ * @param connected true if the trader has not logged out //! This is a mutable attribute? Store separately.
  * @param balances trader's balances for each product
  * 
  */
@@ -58,7 +60,7 @@ struct trader{
     int fd_write;
     int fd_read;
     bool connected;
-    dyn_arr* balances;
+    dyn_arr* balances; // Stores balance objects for every product.
 };
 
 
