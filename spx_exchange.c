@@ -369,9 +369,7 @@ dyn_arr* _create_traders_setup_trader_balances(char* product_file_path){
 	FILE* f = fopen(product_file_path, "r");
 	fgets(buf, PRODUCT_STRING_LEN, f); // Do this to get rid of the number of items line;
 	// int num_products = atoi(buf);"
-	printf("setting up balance for trader\n");
 	while (fgets(buf, PRODUCT_STRING_LEN, f) != NULL){	
-		printf("adding for trader %s\n", buf);
 		for (int i = 0; i < PRODUCT_STRING_LEN; i++){
 			if (buf[i] == '\n'){
 				buf[i] = '\0';
@@ -800,6 +798,7 @@ order* order_init_from_msg(char* msg, trader* t, exch_data* exch){
 // Adds residual amount from ordedr to trader's positions if there is amount remaining.
 void _process_trade_add_to_trader(order* order_added, int amt_filled, int value){
 	balance* b = calloc(1, sizeof(balance));
+	// printf("Trader has balances: %s\n", order_added->trader->)
 	dyn_arr* balances = order_added->trader->balances;
 	memmove(b->product, order_added->product, PRODUCT_STRING_LEN);
 	int idx = dyn_array_find(balances, b, balance_cmp);
@@ -910,6 +909,7 @@ void process_order(char* msg, trader* t, exch_data* exch){
 
 	// Create order from message
 	order* order_added = order_init_from_msg(msg, t, exch);
+	printf("order added has trader id %d\n", order_added->trader->id);
 	
 	// Find the order books for the order
 	order_book* ob = calloc(1, sizeof(order_book));
@@ -1055,7 +1055,6 @@ void process_message(char* msg, trader* t, exch_data* exch){
 
 	if (!strncmp(msg, "BUY", 3) || !strncmp(msg, "SELL", 4)){
 		process_order(msg, t, exch);
-		// free(new_order); //! Don't order_free as it free(t);  -> already freed by main()
 	} else if (!strncmp(msg, "AMEND", 5)){
 		process_amend(msg, t, exch);
 	} else if (!strncmp(msg, "CANCEL", 6)){ //TODO: turn into macros to avoid magic nums
