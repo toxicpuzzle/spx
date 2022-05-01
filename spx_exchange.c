@@ -1337,7 +1337,7 @@ int main(int argc, char **argv) {
 			// Read message from the trader
 			char* msg = fifo_read(t->fd_read);
 			PREFIX_EXCH
-			printf("[T%d] Parsing command <%s>\n", t->id, msg);
+			printf("[T%d] Parsing command: <%s>\n", t->id, msg);
 
 			if (!is_valid_command(msg, t, exch) ||
 				t->connected == false){
