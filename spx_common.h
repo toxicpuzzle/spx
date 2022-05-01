@@ -14,9 +14,9 @@
 #include <sys/stat.h>
 #include <stdbool.h>
 #include <errno.h>
-#include "data_types/dyn_array.h"
-#include "data_types/prio_queue.h"
-#include "data_types/linked_list.h"
+// #include "data_types/dyn_array.h"
+// #include "data_types/prio_queue.h"
+// #include "data_types/linked_list.h"
 #include <poll.h>
 #include <sys/wait.h>
 #include <ctype.h>

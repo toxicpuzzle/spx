@@ -23,6 +23,252 @@ linked_list* sig_info_list;
 
 // SECTION: Data structures used
 
+// SUBSECTION: DYNAMIC ARRAY
+
+// Creates the dynamic array
+dyn_arr *dyn_array_init(size_t memb_size, int (*cmp) (const void* a, const void* b)){
+    dyn_arr* da = malloc(sizeof(dyn_arr));
+    da->used = 0;
+    da->capacity = INIT_CAPACITY;
+    da->memb_size = memb_size;
+    da->array = malloc(memb_size*da->capacity);
+    da->cmp = cmp;
+    
+    return da;
+}
+
+// Returns copy of item placed in index, returns 0 on success, else -1;
+int dyn_array_get(dyn_arr *dyn, int index, void* ret){
+    if (!_dyn_array_is_valid_idx(dyn, index)) return -1;
+    memcpy(ret, (char*)dyn->array + index*dyn->memb_size, dyn->memb_size);
+    return 0;
+}
+
+// Insert value to the array and resizes it;
+int dyn_array_insert(dyn_arr* dyn, void* value, int idx){
+    if (idx > dyn->used && !_dyn_array_is_valid_idx(dyn, idx)) return -1;
+    if (dyn->used == dyn->capacity){
+        dyn->capacity *= 2;
+        dyn->array = realloc(dyn->array, dyn->capacity*dyn->memb_size);
+    }
+    memmove(dyn->array + (idx + 1) * dyn->memb_size, 
+            dyn->array + idx * dyn->memb_size,
+            (dyn->used - idx) * dyn->memb_size);
+    memcpy(dyn->array + idx * dyn->memb_size, value, dyn->memb_size);    
+    dyn->used++;
+    return 0;
+}
+
+// Adds the value to the end of the array
+void dyn_array_append(dyn_arr* dyn, void* value){
+    dyn_array_insert(dyn, value, dyn->used);
+}
+
+// Returns index of a specific element, -1 if not found
+int dyn_array_find(dyn_arr* dyn, void* target, int (*cmp) (const void* a, const void* b)){
+    void *ret = malloc(dyn->memb_size);
+	for (int idx = 0; idx < dyn->used; idx++){
+        dyn_array_get(dyn, idx, ret);
+		if (cmp(target, ret) == 0)	{
+            free(ret);
+            return idx;
+        }
+	}
+    free(ret);
+    return -1;
+}
+
+// Delete the value at index from an array, returns 0 if successful else -1
+int dyn_array_delete(dyn_arr* dyn, int idx){
+    if (idx != -1){
+        memmove(dyn->array + idx * dyn->memb_size, 
+            dyn->array + (idx + 1) * dyn->memb_size, 
+            (dyn->used - idx) * dyn->memb_size);
+        dyn->used--;
+        return 0;
+    } else {
+        return -1;
+    }
+}   
+
+// Checks if the index is within the current used array
+bool _dyn_array_is_valid_idx(dyn_arr* dyn, int idx){
+    return idx >= 0 && idx < dyn->used;
+}
+
+// Sets the element at a specific index to be equal to element, returns -1 if index is out of range
+int dyn_array_set(dyn_arr* dyn, int idx, void* element){
+    if (!_dyn_array_is_valid_idx(dyn, idx)) return -1;
+    memmove(dyn->array + idx * dyn->memb_size, element, dyn->memb_size);
+	return idx;
+}
+
+// Frees the dynamic array storing whatever entirely. (only the array elements not what they link to)
+void dyn_array_free(dyn_arr *dyn){
+    free(dyn->array);
+    free(dyn);
+}
+
+// Prints out elements of array using to_string method;
+void dyn_array_print(dyn_arr* dyn, void (*elem_to_string) (void* element)){
+    void *ret = malloc(dyn->memb_size);
+    printf("[ ");
+    for (int idx = 0; idx < dyn->used; idx++){
+        dyn_array_get(dyn, idx, ret);
+        elem_to_string(ret);
+        if (idx != dyn->used - 1) printf(", ");
+	}
+    printf(" ]\n");
+    free(ret);
+}
+
+// Remove the element with the minimum priority from the dynamic array;
+int dyn_array_remove_min(dyn_arr* dyn, void* ret, int (*cmp) (const void* a, const void* b)){
+    if (dyn->used == 0) return -1;
+    void* curr = calloc(1, dyn->memb_size);
+    int min_index = 0;
+    dyn_array_get(dyn, 0, ret);
+    for (int i = 1; i < dyn->used; i++){
+        dyn_array_get(dyn, i, curr);
+        if (cmp(curr, ret) < 0){
+            memmove(ret, curr, dyn->memb_size);
+            min_index = i;
+        }
+    }
+
+    dyn_array_delete(dyn, min_index);
+    free(curr);
+    return 1;
+}
+
+// Remove the element with the maximum priority from the dynamic array;
+int dyn_array_remove_max(dyn_arr* dyn, void* ret, int (*cmp) (const void* a, const void* b)){
+    if (dyn->used == 0) return -1;
+    void* curr = calloc(1, dyn->memb_size);
+    int max_index = 0;
+    dyn_array_get(dyn, 0, ret);
+    for (int i = 1; i < dyn->used; i++){
+        dyn_array_get(dyn, i, curr);
+        if (cmp(curr, ret) > 0){
+            memmove(ret, curr, dyn->memb_size);
+            max_index = i;
+        }
+    }
+
+    dyn_array_delete(dyn, max_index);
+    free(curr);
+    return 1;
+}
+
+// Sorts the dynamic array using qsort, returns -1 if dyn array is empty
+int dyn_array_sort(dyn_arr* dyn, int (*cmp) (const void* a, const void* b)){
+    if (dyn->used == 0) return -1;
+    qsort(dyn->array, dyn->used, dyn->memb_size, cmp);
+    return 1;
+}
+
+// Returns a copy of the dynamic array (memory of elements is not shared);
+dyn_arr* dyn_array_init_copy(dyn_arr* dyn){
+    dyn_arr* new = calloc(1, sizeof(dyn_arr));
+    memmove(new, dyn, sizeof(dyn_arr));
+    new->array = calloc(dyn->capacity, dyn->memb_size);
+    memmove(new->array, dyn->array, dyn->memb_size*dyn->used);
+    return new;
+}
+
+// Returns pointer to literal location in dynamic array (modifies in place)
+void* dyn_array_get_literal(dyn_arr* dyn, int idx){
+    if (!_dyn_array_is_valid_idx(dyn, idx)) return NULL;
+    return dyn->array + idx * dyn->memb_size;
+}
+
+// SUBSECTION: LINKED LISTS
+
+linked_list* linked_list_init(size_t memb_size){
+    linked_list* list = calloc(1, sizeof(linked_list));
+    list->memb_size = memb_size;
+    list->head = NULL;
+    list->tail = NULL;
+    list->size = 0;
+    return list;
+}
+
+void node_free(node* n){
+    free(n->object);
+    free(n);
+}
+
+void linked_list_push(linked_list* list, void* element){
+    // Create new node
+    node* new = calloc(1, sizeof(node));
+    new->next = list->head;
+    new->object = calloc(1, list->memb_size);
+    memmove(new->object, element, list->memb_size);
+
+    list->head = new;
+    if (list->size == 0){
+        list->tail = list->head;
+    }
+
+    list->size++;
+}
+
+void linked_list_queue(linked_list* list, void* element){
+    // Create new node
+    node* new = calloc(1, sizeof(node));
+    new->next = NULL;
+    new->object = calloc(1, list->memb_size);
+    memmove(new->object, element, list->memb_size);
+
+    // Append it to tail
+    if (list->size == 0){
+        list->tail = new;
+        list->head = list->tail; 
+    } else {
+        list->tail->next = new;
+        list->tail = list->tail->next;
+    }
+
+    list->size++;
+}
+
+int linked_list_pop(linked_list* list, void* ret){
+    if (list->size == 0) return -1;
+    memmove(ret, list->head->object, list->memb_size);
+    node* old_head = list->head;
+    list->head = list->head->next;
+    node_free(old_head);
+
+    if (list->head == NULL){
+        list->tail = NULL;
+    }
+
+    list->size--;
+    return 1;
+}
+
+bool linked_list_isempty(linked_list* list){
+    return list->size == 0;
+}
+
+void linked_list_free(linked_list* list){
+    if (list->size > 0){
+        node* cursor = list->head;
+        node* old_cursor = NULL;
+        
+        while (cursor != NULL){
+            if (old_cursor != NULL) node_free(old_cursor);
+            
+            old_cursor = cursor;
+            cursor = cursor->next;
+        }
+
+        if (old_cursor != NULL) node_free(old_cursor);
+    }
+    free(list);
+}
+
+
 // SECTION: Signal handlers
 
 /**
@@ -45,6 +291,7 @@ void set_handler(int si, void (*handler) (int, siginfo_t*, void*)){
 }
 //! I think set_handler must be defined within this c so that context is valid?
 
+// TODO: Remove malloc/use of linked list from sig_handler.
 void sig_handler(int signal, siginfo_t *siginfo, void *context){
 	linked_list_queue(sig_info_list, siginfo);
 }
@@ -113,13 +360,15 @@ int balance_cmp(const void* a, const void* b){
 
 // SECTION: SETUP FUNCTIONS
 
+// TODO: Check product file validity
+
 // Creates trader balances from product file
 dyn_arr* _create_traders_setup_trader_balances(char* product_file_path){
 	dyn_arr* balances = dyn_array_init(sizeof(balance), balance_cmp);
 	char buf[PRODUCT_STRING_LEN];
 	FILE* f = fopen(product_file_path, "r");
 	fgets(buf, PRODUCT_STRING_LEN, f); // Do this to get rid of the number of items line;
-	int num_products = atoi(buf);
+	// int num_products = atoi(buf);
 	while (fgets(buf, PRODUCT_STRING_LEN, f) != NULL){	
 		for (int i = 0; i < PRODUCT_STRING_LEN; i++){
 			if (buf[i] == '\n'){
@@ -501,7 +750,8 @@ order* order_init_from_msg(char* msg, trader* t, int* order_uid, dyn_arr* buy_bo
 	o->trader = t;
 
 	char** args = NULL;
-	int args_size = get_args_from_msg(msg, &args);
+	// int args_size = 
+	get_args_from_msg(msg, &args);
 
 	// Initiate attributes
 	o->order_uid = *(order_uid)++;
@@ -714,7 +964,8 @@ trader* t, int* fees){
 	
 	// Get values from message
 	char** args = NULL;
-	int args_size = get_args_from_msg(msg, &args);
+	// int args_size = 
+	get_args_from_msg(msg, &args);
 	int order_id = atoi(args[1]);
 	int qty = atoi(args[2]);
 	int price = atoi(args[3]);
@@ -757,7 +1008,8 @@ trader* t, int* fees){
 void process_cancel(char* msg, dyn_arr* buy_books, dyn_arr* sell_books, trader* t){
 	// Get values from message
 	char** args = NULL;
-	int args_size = get_args_from_msg(msg, &args);
+	// int args_size = 
+	get_args_from_msg(msg, &args);
 	int order_id = atoi(args[1]);
 
 	// TODO: Check arg validity
@@ -792,14 +1044,7 @@ void process_cancel(char* msg, dyn_arr* buy_books, dyn_arr* sell_books, trader* 
 
 void process_message(char* msg, trader* t, int* order_uid, int* fees,
 dyn_arr* buy_books, dyn_arr* sell_books, dyn_arr* traders){
-	// // Since you used strtok to check the args you cannot rely on strlen anymore
-	// if (strlen(msg) < 6) {
-	// 	printf("COULD NOT PROCESS\n");
-	// 	trader_message(t, "INVALID;");
-	// 	return;
-	// }
-	
-	
+
 	if (!strncmp(msg, "BUY", 3) || !strncmp(msg, "SELL", 4)){
 		order* new_order = order_init_from_msg(msg, t, order_uid, buy_books, sell_books);
 		(*order_uid)++;
@@ -854,15 +1099,13 @@ bool is_valid_product(char* p, dyn_arr* books){
 bool is_valid_command(char* msg, dyn_arr* buy_books, dyn_arr* sell_books, trader* t){
 	
 	if (strlen(msg) < 6) return false;
+	// if (msg[strlen(msg)-1] != ';') return false; //TODO: Pass raw message to this function in main()
 
 	char** args;
 	char* copy_msg = calloc(strlen(msg)+1, sizeof(char));
 	memmove(copy_msg, msg, strlen(msg)+1);
 	int args_size = get_args_from_msg(copy_msg, &args);
 	bool ret = true;
-
-	
-	// TODO: Check ends in ";";
 
 	char* cmd = args[0];
 
@@ -1062,11 +1305,7 @@ int main(int argc, char **argv) {
 			
 			// Read message from the trader
 			char* msg = fifo_read(t->fd_read);
-			// char** args;
-			// int args_size = get_args_from_msg(msg, &args);
 
-			
-			//! using is_valid_command() check causes process_message to not be fully run
 			if (!is_valid_command(msg, buy_order_books, sell_order_books, t) ||
 				t->connected == false){
 				PREFIX_EXCH
