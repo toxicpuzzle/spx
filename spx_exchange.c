@@ -884,7 +884,7 @@ void run_orders(order_book* ob, order_book* os, exch_data* exch){
 	order* buy_max = calloc(1, sizeof(order));
 	order* sell_min = calloc(1, sizeof(order));
 	while (true){
-		if (ob->orders->used == 0 || ob->orders->used == 0) break;
+		if (ob->orders->used == 0 || os->orders->used == 0) break;
 		dyn_array_remove_max(ob->orders, buy_max, &order_cmp);
 		dyn_array_remove_min(os->orders, sell_min, &order_cmp);
 		
@@ -894,7 +894,7 @@ void run_orders(order_book* ob, order_book* os, exch_data* exch){
 			// original that was not in the pq should be removed.
 		} else {
 			dyn_array_append(ob->orders, buy_max); 
-			dyn_array_append(ob->orders, sell_min);
+			dyn_array_append(os->orders, sell_min);
 			break;
 		}
 	}
