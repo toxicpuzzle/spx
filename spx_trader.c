@@ -48,6 +48,10 @@
 //     free(cmd);
 // }
 
+int main(int argc, char** argv){
+    return -1;
+}
+
 // // When you use exec to execute a program, the first arg becomes arg[0] instead of arg[0]
 // int main(int argc, char ** argv) {
 //     if (argc < 1) {
