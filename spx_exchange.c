@@ -598,11 +598,12 @@ void success_msg(trader* t, char* msg, int order_id){
 	trader_message(t, buf);
 }
 
-// void success_msg_all_traders(trader* traders, char* order_type, char* product, char* price){
-// 	char* msg[MAX_LINE];
-// 	sprintf(msg, "MARKET %s %s %s;", msg, order_id);
-// 	trader_message(t, msg);
-// }
+void success_msg_all_traders(dyn_arr* traders, 
+	char* order_type, char* product, int qty, int price){
+	char msg[MAX_LINE];
+	sprintf(msg, "MARKET %s %s %d %d;", order_type, product, qty, price);
+	trader_message_all(traders, msg);
+}
 
 // SECTION: Methods for reporting order book and traders
 
@@ -690,7 +691,7 @@ void report_book_for_product(order_book* buy, order_book* sell){
 			printf("SELL ");
 		}
 
-		if (curr->qty > 1){
+		if (curr->_num_orders > 1){
 			printf("%d @ $%d (%d orders)\n", curr->qty, curr->price, curr->_num_orders);
 		} else {
 			printf("%d @ $%d (1 order)\n", curr->qty, curr->price);
@@ -933,8 +934,15 @@ void process_order(char* msg, trader* t, exch_data* exch){
 	}
 
 	success_msg(order_added->trader, "ACCEPTED", order_added->order_id);
-	printf("order added has trader id %d, products in balance array: %d\n", order_added->trader->id, order_added->trader->balances->used);
-	
+	if (order_added->is_buy){
+		success_msg_all_traders(exch->traders, "BUY", 
+						order_added->product, order_added->qty, 
+						order_added->price);
+	} else {
+		success_msg_all_traders(exch->traders, "SELL",
+						order_added->product, order_added->qty,
+						order_added->price);
+	}
 	run_orders(ob, os, exch);
 
 	free(ob);
@@ -1010,6 +1018,7 @@ void process_amend(char* msg, trader* t, exch_data* exch){
 	o->price = price;
 	dyn_array_set(contains->orders, order_idx, o);
 	success_msg(t, "AMENDED", order_id);
+	success_msg_all_traders(exch->traders, "AMEND", o->product, o->qty, o->price);
 
 	// Run order book for trades
 	run_orders(ob, os, exch);	
@@ -1043,6 +1052,7 @@ void process_cancel(char* msg, trader* t, exch_data* exch){
 	int order_idx = dyn_array_find(contains->orders, o, &find_order_by_trader_cmp);
 	dyn_array_delete(contains->orders, order_idx);
 	success_msg(t, "CANCELLED", order_id);
+	success_msg_all_traders(exch->traders, "CANCEL", o->product, 0, 0);
 
 	free(args);
 	free(o);
@@ -1314,7 +1324,7 @@ int main(int argc, char **argv) {
 						close(t->fd_write);
 						poll_fds[i].fd = -1;
 						PREFIX_EXCH
-						printf("Trader %d Disconnected\n", t->id);
+						printf("Trader %d disconnected\n", t->id);
 						connected_traders--;
 						no_fd_events--;		
 						free(t);
