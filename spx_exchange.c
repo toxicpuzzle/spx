@@ -909,7 +909,6 @@ void process_order(char* msg, trader* t, exch_data* exch){
 
 	// Create order from message
 	order* order_added = order_init_from_msg(msg, t, exch);
-	printf("order added has trader id %d, products in balance array: %d\n", order_added->trader->id, order_added->trader->balances->used);
 	
 	// Find the order books for the order
 	order_book* ob = calloc(1, sizeof(order_book));
@@ -934,6 +933,7 @@ void process_order(char* msg, trader* t, exch_data* exch){
 	}
 
 	success_msg(order_added->trader, "ACCEPTED", order_added->order_id);
+	printf("order added has trader id %d, products in balance array: %d\n", order_added->trader->id, order_added->trader->balances->used);
 	
 	run_orders(ob, os, exch);
 
