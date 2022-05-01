@@ -430,7 +430,7 @@ dyn_arr* create_traders(dyn_arr* traders_bins, char* product_file){
 		// Child case: execute trader binary
 		if (pid == 0){ 
 			// TODO: Fix inconsistnecy of sometimes child not being launched
-			if (execl(curr, id, NULL) == -1){
+			if (execl(curr, curr, id, NULL) == -1){
 				perror("Could not execute binary\n");
 				return NULL;
 			}
