@@ -368,8 +368,10 @@ dyn_arr* _create_traders_setup_trader_balances(char* product_file_path){
 	char buf[PRODUCT_STRING_LEN];
 	FILE* f = fopen(product_file_path, "r");
 	fgets(buf, PRODUCT_STRING_LEN, f); // Do this to get rid of the number of items line;
-	// int num_products = atoi(buf);
+	// int num_products = atoi(buf);"
+	printf("setting up balance for trader\n");
 	while (fgets(buf, PRODUCT_STRING_LEN, f) != NULL){	
+		printf("adding for trader %s\n", buf);
 		for (int i = 0; i < PRODUCT_STRING_LEN; i++){
 			if (buf[i] == '\n'){
 				buf[i] = '\0';
@@ -1235,7 +1237,7 @@ int main(int argc, char **argv) {
 	}	
 
 	PREFIX_EXCH
-	printf("Starting.\n");
+	printf("Starting\n");
 
 	sig_info_list = linked_list_init(sizeof(siginfo_t));
 
