@@ -492,18 +492,25 @@ dyn_arr* sell_order_books, char* product_file_path){
 	int num_products = atoi(buf);
 	PREFIX_EXCH
 	printf("Trading %d products: ", num_products);
-	while (fgets(buf, PRODUCT_STRING_LEN, f) != NULL){
-		
+	for (int i = 0; i < num_products; i++){
+		fgets(buf, PRODUCT_STRING_LEN, f);
+		if (buf == NULL) {
+			PREFIX_EXCH
+			printf("ERROR: Product file is incorrect\n");
+			exit(1);
+		}
 		for (int i = 0; i < PRODUCT_STRING_LEN; i++){
 			if (buf[i] == '\n'){
 				buf[i] = '\0';
 			}
 		}
-		printf("%s ", buf);
-		
+		if (i < num_products-1) printf("%s ", buf);
+		else printf("%s", buf);
+
 		_setup_product_order_book(buy_order_books, buf, true);
 		_setup_product_order_book(sell_order_books, buf, false);
 	}
+
 	printf("\n");
 }
 
@@ -598,6 +605,7 @@ void success_msg(trader* t, char* msg, int order_id){
 	trader_message(t, buf);
 }
 
+// MESSAGES all traders in the list
 void success_msg_all_traders(dyn_arr* traders, 
 	char* order_type, char* product, int qty, int price){
 	char msg[MAX_LINE];
@@ -744,6 +752,12 @@ void report(exch_data* exch){
 }
 
 // SECTION: Transaction Handling functions
+
+// Gets dynamic array without trader
+dyn_arr* get_arr_without_trader(dyn_arr* ts, trader* t){
+	dyn_array_delete(ts, dyn_array_find(ts, t, &trader_cmp));
+	return ts;
+} 
 
 // Returns args in ret and length of args via int, allocates mem for args, 
 // Caller has responsibility t ofree the return value
@@ -903,11 +917,10 @@ void run_orders(order_book* ob, order_book* os, exch_data* exch){
 	free(sell_min);
 }
 
-// Processes buy/sell order
+// Find the product sell/buy books with the product matching the orders
+// Perform processing in books
 void process_order(char* msg, trader* t, exch_data* exch){
-	// Find the product sell/buy books with the product matching the orders
-	// Perform processing in books
-
+	
 	// Create order from message
 	order* order_added = order_init_from_msg(msg, t, exch);
 	
@@ -933,16 +946,22 @@ void process_order(char* msg, trader* t, exch_data* exch){
 		dyn_array_append(os->orders, (void *) order_added);
 	}
 
+	// Message order maker and other traders
 	success_msg(order_added->trader, "ACCEPTED", order_added->order_id);
+	dyn_arr* other_traders = dyn_array_init_copy(exch->traders);
+	other_traders = get_arr_without_trader(other_traders, order_added->trader);
 	if (order_added->is_buy){
-		success_msg_all_traders(exch->traders, "BUY", 
+		success_msg_all_traders(other_traders, "BUY", 
 						order_added->product, order_added->qty, 
 						order_added->price);
 	} else {
-		success_msg_all_traders(exch->traders, "SELL",
+		success_msg_all_traders(other_traders, "SELL",
 						order_added->product, order_added->qty,
 						order_added->price);
 	}
+	dyn_array_free(other_traders);
+
+
 	run_orders(ob, os, exch);
 
 	free(ob);
@@ -1017,8 +1036,13 @@ void process_amend(char* msg, trader* t, exch_data* exch){
 	o->qty = qty;
 	o->price = price;
 	dyn_array_set(contains->orders, order_idx, o);
+
+	/// Message t and other traders
 	success_msg(t, "AMENDED", order_id);
-	success_msg_all_traders(exch->traders, "AMEND", o->product, o->qty, o->price);
+	dyn_arr* other_traders = dyn_array_init_copy(exch->traders);
+	other_traders = get_arr_without_trader(other_traders, t);
+	success_msg_all_traders(other_traders, "AMEND", o->product, o->qty, o->price);
+	dyn_array_free(other_traders);
 
 	// Run order book for trades
 	run_orders(ob, os, exch);	
@@ -1051,8 +1075,14 @@ void process_cancel(char* msg, trader* t, exch_data* exch){
 	// Remove order in order_book
 	int order_idx = dyn_array_find(contains->orders, o, &find_order_by_trader_cmp);
 	dyn_array_delete(contains->orders, order_idx);
+
+	// TODO: Only message other traders, not the trader who made the trad
+	// Message t and other traders
 	success_msg(t, "CANCELLED", order_id);
-	success_msg_all_traders(exch->traders, "CANCEL", o->product, 0, 0);
+	dyn_arr* other_traders = dyn_array_init_copy(exch->traders);
+	other_traders = get_arr_without_trader(other_traders, t);
+	success_msg_all_traders(other_traders, "CANCEL", o->product, 0, 0);
+	dyn_array_free(other_traders);
 
 	free(args);
 	free(o);
