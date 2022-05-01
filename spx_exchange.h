@@ -41,11 +41,6 @@ void* dyn_array_get_literal(dyn_arr* dyn, int idx);
 int dyn_array_remove_min(dyn_arr* dyn, void* ret, int (*cmp) (const void* a, const void* b));
 int dyn_array_remove_max(dyn_arr* dyn, void* ret, int (*cmp) (const void* a, const void* b));
 
-
-
-
-
-
 // Linked list
 typedef struct node node;
 typedef struct linked_list linked_list;
