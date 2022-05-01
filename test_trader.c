@@ -86,7 +86,7 @@ void place_orders(int* order_id, int fd_write, int pid){
         sleep(1);
         fifo_write(fd_write, "INVALID COMMAND;");
         signal_parent();
-        
+
     #endif
 }
 
@@ -106,7 +106,7 @@ int main(int argc, char ** argv) {
 
     // connect to named pipes
     ppid = getppid();
-    int id = atoi(argv[0]);
+    int id = atoi(argv[1]);
     child_id = id;
     char* fifo_exch = malloc(sizeof(char) * 128);
     char* fifo_trader = malloc(sizeof(char) * 128);

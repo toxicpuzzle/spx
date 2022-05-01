@@ -415,7 +415,13 @@ dyn_arr* create_traders(dyn_arr* traders_bins, char* product_file){
 				return NULL;
 			}
 		}
-		
+		memmove(temp->fd_read_name, fifo_exch, MAX_LINE);
+		memmove(temp->fd_write_name, fifo_trader, MAX_LINE);
+		PREFIX_EXCH
+		printf("Created FIFO %s\n", fifo_exch);
+		PREFIX_EXCH
+		printf("Created FIFO %s\n", fifo_trader);
+
 		// Launch child processes for each trader
 		PREFIX_EXCH
 		printf("Starting trader %s (%s)\n", id, curr);
@@ -586,7 +592,17 @@ void trader_message_all(dyn_arr* traders, char* msg){
 }
 
 
+void success_msg(trader* t, char* msg, int order_id){
+	char buf[MAX_LINE];
+	sprintf(buf, "%s %d;", msg, order_id);
+	trader_message(t, buf);
+}
 
+// void success_msg_all_traders(trader* traders, char* order_type, char* product, char* price){
+// 	char* msg[MAX_LINE];
+// 	sprintf(msg, "MARKET %s %s %s;", msg, order_id);
+// 	trader_message(t, msg);
+// }
 
 // SECTION: Methods for reporting order book and traders
 
@@ -701,15 +717,15 @@ void report_position_for_trader(trader* t){
 	free(curr);
 }
 
-void report(dyn_arr* buy_order_books, dyn_arr* sell_order_books, dyn_arr* traders){
+void report(exch_data* exch){
 	PREFIX_EXCH
 	INDENT
 	printf("--ORDERBOOK--\n");
 	order_book* buy_book = calloc(1, sizeof(order_book));
 	order_book* sell_book = calloc(1, sizeof(order_book));
-	for (int i = 0; i < buy_order_books->used; i++){
-		dyn_array_get(buy_order_books, i, buy_book);
-		dyn_array_get(sell_order_books, i, sell_book);
+	for (int i = 0; i < exch->buy_books->used; i++){
+		dyn_array_get(exch->buy_books, i, buy_book);
+		dyn_array_get(exch->sell_books, i, sell_book);
 		report_book_for_product(buy_book, sell_book);
 	}
 	free(buy_book);
@@ -719,8 +735,8 @@ void report(dyn_arr* buy_order_books, dyn_arr* sell_order_books, dyn_arr* trader
 	INDENT
 	printf("--POSITIONS--\n");
 	trader* t = calloc(1, sizeof(trader));
-	for (int i = 0; i < traders->used; i++){
-		dyn_array_get(traders, i, t);
+	for (int i = 0; i < exch->traders->used; i++){
+		dyn_array_get(exch->traders, i, t);
 		report_position_for_trader(t);
 	}
 	free(t);
@@ -745,7 +761,7 @@ int get_args_from_msg(char* msg, char*** ret){
 }
 
 // Creates an order object from the string message sent by the child (has copy of trader)
-order* order_init_from_msg(char* msg, trader* t, int* order_uid, dyn_arr* buy_books, dyn_arr* sell_books){
+order* order_init_from_msg(char* msg, trader* t, exch_data* exch){
 	order* o = calloc(1, sizeof(order));
 	o->trader = t;
 
@@ -754,7 +770,7 @@ order* order_init_from_msg(char* msg, trader* t, int* order_uid, dyn_arr* buy_bo
 	get_args_from_msg(msg, &args);
 
 	// Initiate attributes
-	o->order_uid = *(order_uid)++;
+	o->order_uid = (exch->order_uid)++; 
 	o->order_id = atoi(args[1]);
 	memmove(o->product, args[2], strlen(args[2])+1);
 	o->qty = atoi(args[3]);
@@ -767,10 +783,10 @@ order* order_init_from_msg(char* msg, trader* t, int* order_uid, dyn_arr* buy_bo
 	memmove(b->product, o->product, PRODUCT_STRING_LEN);
 	if (strcmp(cmd_type, "BUY") == 0){
 		o->is_buy = true;
-		idx = dyn_array_find(buy_books, b, obook_cmp);
+		idx = dyn_array_find(exch->buy_books, b, obook_cmp);
 	} else if (strcmp(cmd_type, "SELL") == 0){
 		o->is_buy = false;
-		idx = dyn_array_find(sell_books, b, obook_cmp);
+		idx = dyn_array_find(exch->sell_books, b, obook_cmp);
 	} 	
 	o->order_book_idx = idx;
 
@@ -815,7 +831,7 @@ void _process_trade_signal_trader(order* o, int amt_filled){
 // Offsets buy and sell order against each other and signals traders about
 // Trade that was executed
 void process_trade(order* buy, order* sell, 
-	order_book* buy_book, order_book* sell_book, int* fees){
+	order_book* buy_book, order_book* sell_book, exch_data* exch){
 
 	// Note orders are already removed from the books, so we 
 	// insert them back if there is a residual amount on the order
@@ -850,7 +866,7 @@ void process_trade(order* buy, order* sell,
 	_process_trade_add_to_trader(old_order, amt_filled, value);
 	int residual = new_order->is_buy ? value+fee : value-fee;
 	_process_trade_add_to_trader(new_order, amt_filled, residual);
-	*fees += fee;
+	exch->fees += fee;
 
 	PREFIX_EXCH
 	printf("Match: Order %d [T%d], New Order %d [T%d], value: $%d, fee: $%d.\n",
@@ -863,7 +879,7 @@ void process_trade(order* buy, order* sell,
 }
 
 // Reruns the order books against each other to see if any new trades are made for that product
-void run_orders(order_book* ob, order_book* os, int* fees){
+void run_orders(order_book* ob, order_book* os, exch_data* exch){
 	order* buy_max = calloc(1, sizeof(order));
 	order* sell_min = calloc(1, sizeof(order));
 	while (true){
@@ -872,7 +888,7 @@ void run_orders(order_book* ob, order_book* os, int* fees){
 		dyn_array_remove_min(os->orders, sell_min, &order_cmp);
 		
 		if (buy_max->price >= sell_min->price){
-			process_trade(buy_max, sell_min, ob, os, fees);
+			process_trade(buy_max, sell_min, ob, os, exch);
 			// residual buy/max will have modified copy inserted into pq
 			// original that was not in the pq should be removed.
 		} else {
@@ -886,16 +902,18 @@ void run_orders(order_book* ob, order_book* os, int* fees){
 }
 
 // Processes buy/sell order
-void process_order(order* order_added, dyn_arr* buy_books, 
-dyn_arr* sell_books, dyn_arr* traders, int* fees){
+void process_order(char* msg, trader* t, exch_data* exch){
 	// Find the product sell/buy books with the product matching the orders
 	// Perform processing in books
+
+	// Create order from message
+	order* order_added = order_init_from_msg(msg, t, exch);
 	
 	// Find the order books for the order
 	order_book* ob = calloc(1, sizeof(order_book));
 	order_book* os = calloc(1, sizeof(order_book));
 	memmove(ob->product, order_added->product, PRODUCT_STRING_LEN);
-	int idx = dyn_array_find(buy_books, ob, &obook_cmp);
+	int idx = dyn_array_find(exch->buy_books, ob, &obook_cmp);
 	if (idx == -1) {
 		// TODO: broadcast invalid if product of order added does not exist;
 		printf("Book not found!\n");
@@ -903,8 +921,8 @@ dyn_arr* sell_books, dyn_arr* traders, int* fees){
 		free(os);
 		return;
 	}
-	dyn_array_get(buy_books, idx, ob);
-	dyn_array_get(sell_books, idx, os);
+	dyn_array_get(exch->buy_books, idx, ob);
+	dyn_array_get(exch->sell_books, idx, os);
 
 	// Process the order
 	if (order_added->is_buy){
@@ -913,10 +931,13 @@ dyn_arr* sell_books, dyn_arr* traders, int* fees){
 		dyn_array_append(os->orders, (void *) order_added);
 	}
 
-	run_orders(ob, os, fees);
+	success_msg(order_added->trader, "ACCEPTED", order_added->order_id);
+	
+	run_orders(ob, os, exch);
 
 	free(ob);
 	free(os);
+	free(order_added);
 }
 
 // Returns order if it exists, else NULL, allocates memory and must be freed by parent
@@ -957,36 +978,27 @@ order* get_order_by_id(int oid, trader* t, dyn_arr* books){
 // 	int price = atoi(args[3]);
 // }
 
+
 // TODO: Refactor with function pointers
-void process_amend(char* msg, dyn_arr* buy_books, dyn_arr* sell_books, 
-trader* t, int* fees){
-	// Order needs to be processed again after amending.
-	
+void process_amend(char* msg, trader* t, exch_data* exch){
+
 	// Get values from message
 	char** args = NULL;
-	// int args_size = 
 	get_args_from_msg(msg, &args);
 	int order_id = atoi(args[1]);
 	int qty = atoi(args[2]);
 	int price = atoi(args[3]);
 
-	// TODO: Check args
-
 	// Get relevant order book(s) and order from order id
 	order_book* ob = calloc(1, sizeof(order_book));
 	order_book* os = calloc(1, sizeof(order_book));
-	order* o = get_order_by_id(order_id, t, buy_books);
+	order* o = get_order_by_id(order_id, t, exch->buy_books);
 	if (o == NULL) {
 		free(o);
-		o = get_order_by_id(order_id, t, sell_books);
+		o = get_order_by_id(order_id, t, exch->sell_books);
 	} 
-	if (o == NULL) {
-		free(o);
-		printf("Could not find order during amend!\n");
-		return;
-	}; //TODO: Case where order does not exist handled by args checker function
-	dyn_array_get(buy_books, o->order_book_idx, ob);		
-	dyn_array_get(sell_books, o->order_book_idx, os);
+	dyn_array_get(exch->buy_books, o->order_book_idx, ob);		
+	dyn_array_get(exch->sell_books, o->order_book_idx, os);
 
 	order_book* contains = o->is_buy ? ob : os;	
 
@@ -995,9 +1007,10 @@ trader* t, int* fees){
 	o->qty = qty;
 	o->price = price;
 	dyn_array_set(contains->orders, order_idx, o);
+	success_msg(t, "AMENDED", order_id);
 
 	// Run order book for trades
-	run_orders(ob, os, fees);	
+	run_orders(ob, os, exch);	
 
 	free(args);
 	free(o);
@@ -1005,80 +1018,70 @@ trader* t, int* fees){
 	free(os);
 }
 
-void process_cancel(char* msg, dyn_arr* buy_books, dyn_arr* sell_books, trader* t){
+void process_cancel(char* msg, trader* t, exch_data* exch){
 	// Get values from message
 	char** args = NULL;
-	// int args_size = 
 	get_args_from_msg(msg, &args);
 	int order_id = atoi(args[1]);
-
-	// TODO: Check arg validity
 
 	// Get relevant order book(s) and order from order id
 	order_book* ob = calloc(1, sizeof(order_book));
 	order_book* os = calloc(1, sizeof(order_book));
-	order* o = get_order_by_id(order_id, t, buy_books);
+	order* o = get_order_by_id(order_id, t, exch->buy_books);
 	if (o == NULL) {
 		free(o);
-		o = get_order_by_id(order_id, t, sell_books);
+		o = get_order_by_id(order_id, t, exch->sell_books);
 	}
-	if (o == NULL) {
-		free(o);
-		printf("CANCEL failed: could not find order\n");
-		return; //TODO: Case where order does not exist handled by args checker function
-	} 
-	dyn_array_get(buy_books, o->order_book_idx, ob);		
-	dyn_array_get(sell_books, o->order_book_idx, os);
+	dyn_array_get(exch->buy_books, o->order_book_idx, ob);		
+	dyn_array_get(exch->sell_books, o->order_book_idx, os);
 
 	order_book* contains = o->is_buy ? ob : os;	
 
-	// Remove order in ordr_book
+	// Remove order in order_book
 	int order_idx = dyn_array_find(contains->orders, o, &find_order_by_trader_cmp);
 	dyn_array_delete(contains->orders, order_idx);
+	success_msg(t, "CANCELLED", order_id);
 
 	free(args);
 	free(o);
 	free(ob);
 	free(os);
 }
-
-void process_message(char* msg, trader* t, int* order_uid, int* fees,
-dyn_arr* buy_books, dyn_arr* sell_books, dyn_arr* traders){
+// int* order_uid, int* fees,
+// dyn_arr* buy_books, dyn_arr* sell_books, dyn_arr* traders){
+void process_message(char* msg, trader* t, exch_data* exch){ 
 
 	if (!strncmp(msg, "BUY", 3) || !strncmp(msg, "SELL", 4)){
-		order* new_order = order_init_from_msg(msg, t, order_uid, buy_books, sell_books);
-		(*order_uid)++;
-		process_order(new_order, buy_books, sell_books, traders, fees);
-		free(new_order); //! Don't order_free as it free(t);  -> already freed by main()
+		process_order(msg, t, exch);
+		// free(new_order); //! Don't order_free as it free(t);  -> already freed by main()
 	} else if (!strncmp(msg, "AMEND", 5)){
-		process_amend(msg, buy_books, sell_books, t, fees);
+		process_amend(msg, t, exch);
 	} else if (!strncmp(msg, "CANCEL", 6)){ //TODO: turn into macros to avoid magic nums
-		process_cancel(msg, buy_books, sell_books, t);
+		process_cancel(msg, t, exch);
 	} 
 
-	report(buy_books, sell_books, traders); //TODO: Only report if NOT invalid
+	report(exch); //TODO: Only report if NOT invalid
 }
 
 // SECTION: Command line validation
 bool str_check_for_each(char* str, int (*check)(int c)){
 	int len = strlen(str);
 	for (int i = 0; i < len; i++) {
-		// printf("checking result: %d\n", check(str[i]));
 		if (check(str[i]) == 0) return false; 
 	}
 	return true;
 }
 
 bool is_valid_price_qty(int price, int qty){
-	if (qty > MAX_INT || qty < 0) return false;
-	if (price > MAX_INT || price < 0) return false;
+	if (qty > MAX_INT || qty <= 0) return false;
+	if (price > MAX_INT || price <= 0) return false;
 	return true;
 }
 
-bool is_existing_order(int oid, trader* t, dyn_arr* buy_books, dyn_arr* sell_books){
-	order* o = get_order_by_id(oid, t, buy_books);
+bool is_existing_order(int oid, trader* t, exch_data* exch){
+	order* o = get_order_by_id(oid, t, exch->buy_books);
 	if (o == NULL){
-		o = get_order_by_id(oid, t, sell_books);
+		o = get_order_by_id(oid, t, exch->sell_books);
 	}
 	free(o);
 
@@ -1091,12 +1094,11 @@ bool is_valid_product(char* p, dyn_arr* books){
 	memmove(o->product, p, strlen(p)+1);
 	int idx = dyn_array_find(books, o, obook_cmp);
 	free(o);
-	// printf("idx is %d\n", idx);
 	if (idx == -1) return false;
 	return true;
 }
 
-bool is_valid_command(char* msg, dyn_arr* buy_books, dyn_arr* sell_books, trader* t){
+bool is_valid_command(char* msg, trader* t, exch_data* exch){
 	
 	if (strlen(msg) < 6) return false;
 	// if (msg[strlen(msg)-1] != ';') return false; //TODO: Pass raw message to this function in main()
@@ -1110,40 +1112,30 @@ bool is_valid_command(char* msg, dyn_arr* buy_books, dyn_arr* sell_books, trader
 	char* cmd = args[0];
 
 	if (!strcmp(cmd, "BUY") || !strcmp(cmd, "SELL")){
-		// printf("here\n");
-		if (args_size != BUYSELL_CMD_SIZE) ret = false;
 
-		// Args are of the right type
-		if (!str_check_for_each(args[1], &isdigit)) ret = false;
-		if (!str_check_for_each(args[2], &isalnum)) ret = false;
-		if (!str_check_for_each(args[3], &isdigit)) ret = false;
-		if (!str_check_for_each(args[4], &isdigit)) ret = false;
-
-		// Product exists
-		if (!is_valid_product(args[2], buy_books)) ret = false;
-
-		// Qty and price in range
-		if (!is_valid_price_qty(atoi(args[4]), atoi(args[3]))) ret = false;
+		ret = args_size == BUYSELL_CMD_SIZE &&
+			str_check_for_each(args[1], &isdigit) &&
+			str_check_for_each(args[2], &isalnum) &&
+			str_check_for_each(args[2], &isalnum) &&
+			str_check_for_each(args[3], &isdigit) &&
+			str_check_for_each(args[4], &isdigit) &&
+			is_valid_product(args[2], exch->buy_books) &&
+			is_valid_price_qty(atoi(args[4]), atoi(args[3]));
 
 	} else if (!strcmp(cmd, "AMEND")){
 		
-		if (args_size != AMEND_CMD_SIZE) ret = false;
-		
-		// Args are of the right type
-		if (!str_check_for_each(args[1], &isdigit)) ret = false;
-		if (!str_check_for_each(args[2], &isdigit)) ret = false;
-		if (!str_check_for_each(args[3], &isdigit)) ret = false;
-
-		// Order exists
-		if (!is_existing_order(atoi(args[1]), t, buy_books, sell_books)) ret = false;
-
-		// Qty and price in range
-		if (!is_valid_price_qty(atoi(args[3]), atoi(args[2]))) ret = false;
+		ret = args_size == AMEND_CMD_SIZE &&
+			str_check_for_each(args[1], &isdigit) &&
+			str_check_for_each(args[2], &isdigit) &&
+			str_check_for_each(args[3], &isdigit) &&
+			is_existing_order(atoi(args[1]), t, exch) &&
+			is_valid_price_qty(atoi(args[3]), atoi(args[2]));
 	
 	} else if (!strcmp(cmd, "CANCEL")){
-		if (args_size != CANCEL_CMD_SIZE) ret = false;
-		// Order exists
-		if (!is_existing_order(atoi(args[1]), t, buy_books, sell_books)) ret = false;
+
+		ret = args_size == CANCEL_CMD_SIZE &&
+			is_existing_order(atoi(args[1]), t, exch);
+	
 	} else {
 		ret = false;
 	}
@@ -1164,41 +1156,74 @@ void teardown_traders(dyn_arr* traders){
 		if (waitpid(t->process_id, &status, WNOHANG) == 0){
 			kill(t->process_id, SIGKILL);
 		};
+		unlink(t->fd_read_name);
+		unlink(t->fd_write_name);
 		// kill(t->process_id, SIGKILL);
 	}
 	free(t);
 }
 
 // Frees all relevant memory for the program
-void free_program(dyn_arr* buy_order_books, dyn_arr* sell_order_books, 
-				dyn_arr* traders, struct pollfd* poll_fds, linked_list* siglist){
+void free_program(exch_data* exch, struct pollfd* poll_fds, linked_list* siglist){
 	// Teardown
 	free(poll_fds);
-	teardown_traders(traders);
+	teardown_traders(exch->traders);
 	
 	// Free traders
 	trader* t = calloc(1, sizeof(trader));
-	for (int i = 0; i < traders->used; i++){ 
-		dyn_array_get(traders, i, t);
+	for (int i = 0; i < exch->traders->used; i++){ 
+		dyn_array_get(exch->traders, i, t);
 		dyn_array_free(t->balances);
 	}
 	free(t);
-	dyn_array_free(traders);
+	dyn_array_free(exch->traders);
 
 	// Free orderbooks
 	order_book* ob = calloc(1, sizeof(order_book));
-	for (int i = 0; i < buy_order_books->used; i++){
-		dyn_array_get(buy_order_books, i, ob);
+	for (int i = 0; i < exch->buy_books->used; i++){
+		dyn_array_get(exch->buy_books, i, ob);
 		dyn_array_free(ob->orders);
-		dyn_array_get(sell_order_books, i, ob);
+		dyn_array_get(exch->sell_books, i, ob);
 		dyn_array_free(ob->orders);
 	}
 	free(ob);
-	dyn_array_free(buy_order_books);
-	dyn_array_free(sell_order_books);
+	dyn_array_free(exch->buy_books);
+	dyn_array_free(exch->sell_books);
 
 	linked_list_free(siglist);
+
+	// Free exch
+	free(exch);
 }
+// void free_program(dyn_arr* buy_order_books, dyn_arr* sell_order_books, 
+// 				dyn_arr* traders, struct pollfd* poll_fds, linked_list* siglist){
+// 	// Teardown
+// 	free(poll_fds);
+// 	teardown_traders(traders);
+	
+// 	// Free traders
+// 	trader* t = calloc(1, sizeof(trader));
+// 	for (int i = 0; i < traders->used; i++){ 
+// 		dyn_array_get(traders, i, t);
+// 		dyn_array_free(t->balances);
+// 	}
+// 	free(t);
+// 	dyn_array_free(traders);
+
+// 	// Free orderbooks
+// 	order_book* ob = calloc(1, sizeof(order_book));
+// 	for (int i = 0; i < buy_order_books->used; i++){
+// 		dyn_array_get(buy_order_books, i, ob);
+// 		dyn_array_free(ob->orders);
+// 		dyn_array_get(sell_order_books, i, ob);
+// 		dyn_array_free(ob->orders);
+// 	}
+// 	free(ob);
+// 	dyn_array_free(buy_order_books);
+// 	dyn_array_free(sell_order_books);
+
+// 	linked_list_free(siglist);
+// }
 
 int main(int argc, char **argv) {
 
@@ -1213,8 +1238,11 @@ int main(int argc, char **argv) {
 	printf("Starting.\n");
 
 	sig_info_list = linked_list_init(sizeof(siginfo_t));
-	int order_uid = 0; // Unique id for the product, indicates its time priority.
-	int fees_collected = 0;
+
+	// Setup exchange data packet for all functions to use
+	exch_data* exch = calloc(1, sizeof(exch_data));
+	exch->order_uid = 0; // Unique id for the product, indicates its time priority.
+	exch->fees = 0;
 
 	// Read in product files from command line
 	char* product_file = argv[1];
@@ -1227,12 +1255,15 @@ int main(int argc, char **argv) {
 	dyn_arr* buy_order_books = dyn_array_init(sizeof(order_book), &obook_cmp);
 	dyn_arr* sell_order_books = dyn_array_init(sizeof(order_book), &obook_cmp);
 	setup_product_order_books(buy_order_books, sell_order_books, product_file);
+	exch->buy_books = buy_order_books;
+	exch->sell_books = sell_order_books;
 
 	set_handler(SIGUSR1, sig_handler);
 
 	// Create and message traders that the market has opened
 	dyn_arr* traders = create_traders(traders_bins, product_file);
 	dyn_array_free(traders_bins);
+	exch->traders = traders;
 
 	// Construct poll data structure
 	struct pollfd *poll_fds = calloc(traders->used, sizeof(struct pollfd));
@@ -1282,7 +1313,7 @@ int main(int argc, char **argv) {
 						close(t->fd_write);
 						poll_fds[i].fd = -1;
 						PREFIX_EXCH
-						printf("Trader <%d> Disconnected\n", t->id);
+						printf("Trader %d Disconnected\n", t->id);
 						connected_traders--;
 						no_fd_events--;		
 						free(t);
@@ -1305,17 +1336,15 @@ int main(int argc, char **argv) {
 			
 			// Read message from the trader
 			char* msg = fifo_read(t->fd_read);
+			PREFIX_EXCH
+			printf("[T%d] Parsing command <%s>\n", t->id, msg);
 
-			if (!is_valid_command(msg, buy_order_books, sell_order_books, t) ||
+			if (!is_valid_command(msg, t, exch) ||
 				t->connected == false){
 				PREFIX_EXCH
-				printf("Received invalid command\n");
 				trader_message(t, "INVALID;");
 			} else {
-				PREFIX_EXCH
-				printf("[T%d] Parsing command <%s>\n", t->id, msg);
-				process_message(msg, t, &order_uid, &fees_collected,
-							buy_order_books, sell_order_books, traders);
+				process_message(msg, t, exch);
 			}
 
 			free(ret);
@@ -1323,14 +1352,14 @@ int main(int argc, char **argv) {
 		}
 
 	}
-	free_program(buy_order_books, sell_order_books, 
-					traders, poll_fds, sig_info_list);
 	
 	// Print termination message
 	PREFIX_EXCH
 	printf("Trading completed\n");
 	PREFIX_EXCH
-	printf("Exchange fees collected: $%d\n", fees_collected);
+	printf("Exchange fees collected: $%d\n", exch->fees);
+
+	free_program(exch, poll_fds, sig_info_list);
 
 	return 0;
 }

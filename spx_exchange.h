@@ -66,20 +66,13 @@ bool linked_list_isempty(linked_list* list);
 void linked_list_free(linked_list* list);
 
 
-
-
-
-
-
-
-
-
 // Exchange headers 
 
 typedef struct trader trader;
 typedef struct order order;
 typedef struct order_book order_book;
 typedef struct balance balance;
+typedef struct exch_data exch_data;
 
 // TODO: Create method for freeing order books
 struct order_book{
@@ -127,8 +120,18 @@ struct trader{
     int process_id; 
     int fd_write;
     int fd_read;
+    char fd_write_name[MAX_LINE];
+    char fd_read_name[MAX_LINE];
     bool connected;
     dyn_arr* balances; // Stores balance objects for every product.
+};
+
+struct exch_data{
+    dyn_arr* traders;
+    dyn_arr* buy_books;
+    dyn_arr* sell_books;
+    int fees;
+    int order_uid;
 };
 
 
