@@ -333,6 +333,10 @@ int obook_cmp(const void* a, const void* b){
 	return strcmp(oa->product, ob->product);
 }
 
+int descending_order_cmp(const void* a, const void* b){
+	return -order_cmp(a, b);
+}
+
 int trader_cmp(const void* a, const void* b){
 	return ((trader*)a)->id - ((trader*)b)->id;
 }
@@ -679,7 +683,7 @@ void report_book_for_product(order_book* buy, order_book* sell){
 		dyn_array_append(all_orders, curr);
 	}
 	dyn_array_free(new_sell_orders);
-	dyn_array_sort(all_orders, order_cmp);
+	dyn_array_sort(all_orders, &descending_order_cmp);
 
 	// Print output
 	PREFIX_EXCH
@@ -689,7 +693,6 @@ void report_book_for_product(order_book* buy, order_book* sell){
 		dyn_array_get(all_orders, i, curr);
 		
 		PREFIX_EXCH
-		INDENT
 		INDENT
 		INDENT
 		
