@@ -612,10 +612,13 @@ void success_msg(trader* t, char* msg, int order_id){
 }
 
 // MESSAGES all traders in the list
-void success_msg_all_traders(dyn_arr* traders, 
-	char* order_type, char* product, int qty, int price){
+void success_msg_all_traders(dyn_arr* traders, order* o){
 	char msg[MAX_LINE];
-	sprintf(msg, "MARKET %s %s %d %d;", order_type, product, qty, price);
+	if (o->is_buy){
+		sprintf(msg, "MARKET BUY %s %d %d;", o->product, o->qty, o->price);
+	} else {
+		sprintf(msg, "MARKET SELL %s %d %d;", o->product, o->qty, o->price);
+	}
 	trader_message_all(traders, msg);
 }
 
@@ -950,15 +953,16 @@ void process_order(char* msg, trader* t, exch_data* exch){
 	success_msg(order_added->trader, "ACCEPTED", order_added->order_id);
 	dyn_arr* other_traders = dyn_array_init_copy(exch->traders);
 	other_traders = get_arr_without_trader(other_traders, order_added->trader);
-	if (order_added->is_buy){
-		success_msg_all_traders(other_traders, "BUY", 
-						order_added->product, order_added->qty, 
-						order_added->price);
-	} else {
-		success_msg_all_traders(other_traders, "SELL",
-						order_added->product, order_added->qty,
-						order_added->price);
-	}
+	success_msg_all_traders(other_traders, order_added);
+	// if (order_added->is_buy){
+	// 	success_msg_all_traders(other_traders, "BUY", 
+	// 					order_added->product, order_added->qty, 
+	// 					order_added->price);
+	// } else {
+	// 	success_msg_all_traders(other_traders, "SELL",
+	// 					order_added->product, order_added->qty,
+	// 					order_added->price);
+	// }
 	dyn_array_free(other_traders);
 
 
@@ -1046,7 +1050,8 @@ void process_amend(char* msg, trader* t, exch_data* exch){
 	success_msg(t, "AMENDED", order_id);
 	dyn_arr* other_traders = dyn_array_init_copy(exch->traders);
 	other_traders = get_arr_without_trader(other_traders, t);
-	success_msg_all_traders(other_traders, "AMEND", o->product, o->qty, o->price);
+	success_msg_all_traders(other_traders, o);
+	// success_msg_all_traders(other_traders, "AMEND", o->product, o->qty, o->price);
 	dyn_array_free(other_traders);
 
 
@@ -1084,12 +1089,14 @@ void process_cancel(char* msg, trader* t, exch_data* exch){
 	// Remove order in order_book
 	int order_idx = dyn_array_find(contains->orders, o, &find_order_by_trader_cmp);
 	dyn_array_delete(contains->orders, order_idx);
+	o->qty = 0;
+	o->price = 0;
 
 	// Message t and other traders
 	success_msg(t, "CANCELLED", order_id);
 	dyn_arr* other_traders = dyn_array_init_copy(exch->traders);
 	other_traders = get_arr_without_trader(other_traders, t);
-	success_msg_all_traders(other_traders, "CANCEL", o->product, 0, 0);
+	success_msg_all_traders(other_traders, o);
 	dyn_array_free(other_traders);
 
 	free(args);

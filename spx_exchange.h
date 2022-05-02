@@ -73,6 +73,14 @@ typedef struct order order;
 typedef struct order_book order_book;
 typedef struct balance balance;
 typedef struct exch_data exch_data;
+typedef enum command_type command_type;
+
+enum command_type{
+    BUY,
+    SELL,
+    AMEND,
+    CANCEl
+};
 
 // TODO: Create method for freeing order books
 struct order_book{
