@@ -118,6 +118,7 @@ struct balance{
 struct trader{
     int id; 
     int process_id; 
+    int last_order_id;
     int fd_write;
     int fd_read;
     char fd_write_name[MAX_LINE];

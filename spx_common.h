@@ -14,6 +14,7 @@
 #include <sys/stat.h>
 #include <stdbool.h>
 #include <errno.h>
+#include <math.h>
 // #include "data_types/dyn_array.h"
 // #include "data_types/prio_queue.h"
 // #include "data_types/linked_list.h"

@@ -7,14 +7,14 @@ LIBS=data_types/ds.a
 BINARIES=spx_exchange spx_trader test_trader
 
 all: spx_exchange.o test_trader.o
-	$(CC) $(CFLAGS) spx_exchange.o -o spx_exchange
-	$(CC) $(CFLAGS) test_trader.o -o test_trader  
+	$(CC) $(LDFLAGS) $(CFLAGS) spx_exchange.o -o spx_exchange
+	$(CC) $(LDFLAGS) $(CFLAGS) test_trader.o -o test_trader  
 
 spx_exchange.o: spx_exchange.c
-	$(CC) $(OFLAGS) spx_exchange.c -o spx_exchange.o
+	$(CC) $(LDFLAGS) $(OFLAGS) spx_exchange.c -o spx_exchange.o
 
 test_trader.o: test_trader.c
-	$(CC) $(OFLAGS) test_trader.c -o test_trader.o
+	$(CC) $(LDFLAGS) $(OFLAGS) test_trader.c -o test_trader.o
 # all: $(BINARIES)
 
 
