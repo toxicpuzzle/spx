@@ -790,7 +790,7 @@ order* order_init_from_msg(char* msg, trader* t, exch_data* exch){
 	memmove(o->product, args[2], strlen(args[2])+1);
 	o->qty = atoi(args[3]);
 	o->price = atoi(args[4]);
-
+	
 	// Set is buy and link to buy/sell books
 	char* cmd_type = args[0];
 	int idx = -1;
@@ -980,7 +980,10 @@ order* get_order_by_id(int oid, trader* t, dyn_arr* books){
 	for (int i = 0; i < books->used; i++){
 		dyn_array_get(books, i ,curr);
 		idx = dyn_array_find(curr->orders, o, &find_order_by_trader_cmp);
-		if (idx >= 0) break;
+		if (idx >= 0) {
+			dyn_array_get(curr->orders, idx, o);
+			break;
+		}
 	}
 	free(curr);
 
@@ -1026,6 +1029,7 @@ void process_amend(char* msg, trader* t, exch_data* exch){
 		free(o);
 		o = get_order_by_id(order_id, t, exch->sell_books);
 	} 
+	// TODO: I think the process is getting the wrong book! -> mistake in both amend/cancel
 	dyn_array_get(exch->buy_books, o->order_book_idx, ob);		
 	dyn_array_get(exch->sell_books, o->order_book_idx, os);
 
@@ -1047,7 +1051,7 @@ void process_amend(char* msg, trader* t, exch_data* exch){
 
 
 	//TODO: REmove this
-	report(exch);
+	// report(exch);
 
 	// Run order book for trades
 	run_orders(ob, os, exch);	
