@@ -521,6 +521,11 @@ dyn_arr* sell_order_books, char* product_file_path){
 			printf("ERROR: Product file is incorrect\n");
 			exit(1);
 		}
+		if (buf[0] == '\n'){
+			// printf("continuing\n");
+			i--;
+			continue;
+		}
 		for (int i = 0; i < PRODUCT_STRING_LEN; i++){
 			if (buf[i] == '\n'){
 				buf[i] = '\0';
@@ -1070,12 +1075,7 @@ void process_amend(char* msg, trader* t, exch_data* exch){
 	dyn_arr* other_traders = dyn_array_init_copy(exch->traders);
 	other_traders = get_arr_without_trader(other_traders, t);
 	success_msg_all_traders(other_traders, o);
-	// success_msg_all_traders(other_traders, "AMEND", o->product, o->qty, o->price);
 	dyn_array_free(other_traders);
-
-
-	//TODO: REmove this
-	// report(exch);
 
 	// Run order book for trades
 	run_orders(ob, os, exch);	

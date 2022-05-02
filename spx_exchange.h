@@ -94,7 +94,7 @@ struct order{
     int order_uid;
     int trader_list_idx;
     trader* trader; // Trader that made the order //! a copy of original trader. must be freed //! Problematic as the copie's connected attribute is not updatd
-    int order_book_idx;// index of order book to which order belongs //! A copy of the order book. must be freed
+    int order_book_idx;// index of order book in ob dyn_arr to which order belongs //! A copy of the order book. must be freed
     bool is_buy;
     char product[PRODUCT_STRING_LEN];
     int qty;

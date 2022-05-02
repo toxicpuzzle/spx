@@ -68,26 +68,60 @@ void cancel(int order_id, int fd_write){
 // TODO: Add test cases in here!
 void place_orders(int* order_id, int fd_write, int pid){
 
-    sell((*order_id)++, "GPU", 10, 10000, fd_write);
-    PREFIX_CHILD(pid)
-    printf("GPU order sent\n");
-    sleep(1);
-    sell((*order_id)++, "Router", 999000, 888888, fd_write);
+    // sell((*order_id)++, "GPU", 10, 10000, fd_write);
+    // PREFIX_CHILD(pid)
+    // printf("GPU order sent\n");
+    // sleep(1);
+    sell((*order_id)++, "Router", 10, 20, fd_write);
     PREFIX_CHILD(pid)
     printf("Router order sent\n");
-    // Trader one only orders
-    #ifdef TRADER1
-        sleep(5);
-        buy((*order_id)++, "Router", 888888, 999000, fd_write);
-        sleep(2);
-        amend(0, 3, 9999, fd_write);
-        sleep(2);
-        cancel(0, fd_write);
-        sleep(1);
-        fifo_write(fd_write, "INVALID COMMAND;");
-        signal_parent();
+    sleep(1);
+    sell((*order_id)++, "Router", 20, 15, fd_write);
+    PREFIX_CHILD(pid)
+    printf("Router order sent\n");
+    sleep(1);
+    sell((*order_id)++, "Router", 30, 17, fd_write);
+    PREFIX_CHILD(pid)
+    printf("Router order sent\n");
+    sleep(1);
 
-    #endif
+    buy((*order_id)++, "Router", 51, 20, fd_write);
+    PREFIX_CHILD(pid)
+    printf("Router order sent\n");
+
+    // sleep(1);
+
+    // buy((*order_id)++, "Router", 10, 19, fd_write);
+    // PREFIX_CHILD(pid)
+    // printf("Router order sent\n");
+
+    // sleep(1);
+
+    // buy((*order_id)++, "Router", 10, 29, fd_write);
+    // PREFIX_CHILD(pid)
+    // printf("Router order sent\n");
+
+    // sleep(1);
+    // buy((*order_id)++, "Router", 10, 18, fd_write);
+    // PREFIX_CHILD(pid)
+    // printf("Router order sent\n");
+    
+
+    // // Trader one only orders
+    // #ifdef TRADER1
+    //     sleep(5);
+    //     buy((*order_id)++, "Router", 2, 500, fd_write);
+    //     // sleep(2);
+    //     // buy((*order_id)++, "Router", 12, 150, fd_write);
+    //     sleep(2);
+    //     amend(0, 3, 9999, fd_write);
+    //     sleep(2);
+    //     cancel(0, fd_write);
+    //     sleep(1);
+    //     fifo_write(fd_write, "INVALID COMMAND;");
+    //     signal_parent();
+
+    // #endif
 }
 
 
