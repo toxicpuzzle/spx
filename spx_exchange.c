@@ -880,7 +880,6 @@ void process_trade(order* buy, order* sell,
 		old_order = sell;
 		new_order = buy;
 	}
-	printf("VALUE IS: %ld\n", value);
 	fee = round((int64_t)value * 0.01);
 	
 	// Charge fee to trader placing latest order.
