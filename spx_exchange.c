@@ -785,7 +785,7 @@ order* order_init_from_msg(char* msg, trader* t, exch_data* exch){
 
 	// Initiate attributes
 	o->order_uid = (exch->order_uid)++; 
-	t->last_order_id++;
+	t->next_order_id++;
 	o->order_id = atoi(args[1]);
 	memmove(o->product, args[2], strlen(args[2])+1);
 	o->qty = atoi(args[3]);
@@ -1045,6 +1045,8 @@ void process_amend(char* msg, trader* t, exch_data* exch){
 	success_msg_all_traders(other_traders, "AMEND", o->product, o->qty, o->price);
 	dyn_array_free(other_traders);
 
+
+	//TODO: REmove this
 	report(exch);
 
 	// Run order book for trades
@@ -1142,8 +1144,7 @@ bool is_valid_product(char* p, dyn_arr* books){
 }
 
 bool is_valid_buy_sell_order_id(int oid, trader* t){
-	if (oid == 0 && t->last_order_id == 0) return true;
-	if (oid != t->last_order_id + 1) return false;
+	if (oid != t->next_order_id) return false;
 	return true;
 }
 
