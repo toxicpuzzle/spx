@@ -866,8 +866,8 @@ void process_trade(order* buy, order* sell,
 	} 
 
 	// Decide the closing price of the bid/ask and the fee
-	int fee = 0;
-	int value = 0;
+	u_int64_t fee = 0;
+	u_int64_t value = 0;
 	order* old_order;
 	order* new_order;
 	if (buy->order_uid < sell->order_uid){
@@ -888,7 +888,7 @@ void process_trade(order* buy, order* sell,
 	exch->fees += fee;
 
 	PREFIX_EXCH
-	printf("Match: Order %d [T%d], New Order %d [T%d], value: $%d, fee: $%d.\n",
+	printf("Match: Order %d [T%d], New Order %d [T%d], value: $%ld, fee: $%ld.\n",
 			old_order->order_id, old_order->trader->id, 
 			new_order->order_id, new_order->trader->id, value, fee);
 
@@ -1393,7 +1393,7 @@ int main(int argc, char **argv) {
 	PREFIX_EXCH
 	printf("Trading completed\n");
 	PREFIX_EXCH
-	printf("Exchange fees collected: $%d\n", exch->fees);
+	printf("Exchange fees collected: $%ld\n", exch->fees);
 
 	free_program(exch, poll_fds, sig_info_list);
 

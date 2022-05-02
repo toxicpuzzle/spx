@@ -139,7 +139,7 @@ struct exch_data{
     dyn_arr* traders;
     dyn_arr* buy_books;
     dyn_arr* sell_books;
-    int fees;
+    u_int64_t fees;
     int order_uid;
 };
 
