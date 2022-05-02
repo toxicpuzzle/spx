@@ -872,15 +872,16 @@ void process_trade(order* buy, order* sell,
 	order* old_order;
 	order* new_order;
 	if (buy->order_uid < sell->order_uid){
-		value = buy->price*amt_filled;
+		value = (int64_t)(buy->price)*(int64_t)amt_filled;
 		old_order = buy;
 		new_order = sell;
 	} else {
-		value = sell->price*amt_filled;
+		value = (int64_t)(sell->price)*(int64_t)amt_filled;
 		old_order = sell;
 		new_order = buy;
 	}
-	fee = round(value * 0.01);
+	printf("VALUE IS: %ld\n", value);
+	fee = round((int64_t)value * 0.01);
 	
 	// Charge fee to trader placing latest order.
 	_process_trade_add_to_trader(old_order, amt_filled, value);

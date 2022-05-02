@@ -72,13 +72,13 @@ void place_orders(int* order_id, int fd_write, int pid){
     PREFIX_CHILD(pid)
     printf("GPU order sent\n");
     sleep(1);
-    sell((*order_id)++, "Router", 5, 1000, fd_write);
+    sell((*order_id)++, "Router", 999000, 888888, fd_write);
     PREFIX_CHILD(pid)
     printf("Router order sent\n");
     // Trader one only orders
     #ifdef TRADER1
         sleep(5);
-        buy((*order_id)++, "Router", 6, 1100, fd_write);
+        buy((*order_id)++, "Router", 888888, 999000, fd_write);
         sleep(2);
         amend(0, 3, 9999, fd_write);
         sleep(2);
