@@ -863,7 +863,9 @@ void process_trade(order* buy, order* sell,
 		buy->qty -= sell->qty;
 		amt_filled = sell->qty;
 		dyn_array_append(buy_book->orders, buy);
-	} 
+	} else {
+		amt_filled = sell->qty;
+	}
 
 	// Decide the closing price of the bid/ask and the fee
 	
