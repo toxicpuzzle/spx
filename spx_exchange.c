@@ -549,7 +549,7 @@ void trader_write_to(trader*t, char* msg){
 		PREFIX_EXCH
 		printf("Sending msg to child %d\n", t->id);
 	#endif
-	fifo_write(t->fd_write, msg);
+	if (t->connected) fifo_write(t->fd_write, msg);
 
 	#ifdef TEST
 		PREFIX_EXCH
@@ -925,10 +925,10 @@ void run_orders(order_book* ob, order_book* os, exch_data* exch){
 		dyn_array_remove_max(ob->orders, buy_max, &order_cmp_buy_book);
 		dyn_array_remove_min(os->orders, sell_min, &order_cmp_sell_book);
 		
+		// residual buy/max will have modified copy inserted into pq
+		// original that was not in the pq should be removed.
 		if (buy_max->price >= sell_min->price){
 			process_trade(buy_max, sell_min, ob, os, exch);
-			// residual buy/max will have modified copy inserted into pq
-			// original that was not in the pq should be removed.
 		} else {
 			dyn_array_append(ob->orders, buy_max); 
 			dyn_array_append(os->orders, sell_min);
