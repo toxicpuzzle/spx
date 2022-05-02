@@ -722,11 +722,11 @@ void report_position_for_trader(trader* t){
 	balance* curr = calloc(1, sizeof(balance));
 	for (int i = 0; i < t->balances->used-1; i++){
 		dyn_array_get(t->balances, i, curr);
-		printf("%s %d ($%d), ", curr->product, curr->qty, curr->balance);
+		printf("%s %d ($%ld), ", curr->product, curr->qty, curr->balance);
 	}
 	//TODO: edge case of no traders
 	dyn_array_get(t->balances, t->balances->used-1, curr);
-	printf("%s %d ($%d)\n", curr->product, curr->qty, curr->balance);
+	printf("%s %d ($%ld)\n", curr->product, curr->qty, curr->balance);
 	free(curr);
 }
 
