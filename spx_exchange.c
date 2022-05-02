@@ -311,10 +311,25 @@ void sig_handler(int signal, siginfo_t *siginfo, void *context){
  * @param b 
  * @return < 0 if a < b;
  */
-int order_cmp(const void* a, const void* b){
+// TODO: Replace order_cmp as you must first find the max/min prices for each,
+// TODO: and both should get the one with the earliest price time priority;
+// i.e. from sellbook -> get min price order with min order_uid
+// i.e. from buybook -> get max price order with min order_uid;
+int order_cmp_sell_book(const void* a, const void* b){
 	order* oa = (order*) a;
 	order* ob = (order*) b;
 	if (oa->price == ob->price){
+		// remove_min uses cmp(curr, ret) < 0 -> ret = curr
+		return oa->order_uid - ob->order_uid;
+	}
+	return oa->price - ob->price;
+}
+
+int order_cmp_buy_book(const void* a, const void* b){
+	order* oa = (order*) a;
+	order* ob = (order*) b;
+	if (oa->price == ob->price){
+		// remove_max uses cmp(curr, ret) > 0 -> ret = curr
 		return -(oa->order_uid - ob->order_uid);
 	}
 	return oa->price - ob->price;
@@ -336,7 +351,8 @@ int obook_cmp(const void* a, const void* b){
 }
 
 int descending_order_cmp(const void* a, const void* b){
-	return -order_cmp(a, b);
+	// Sell book comparator for trading also = ascending order cmp
+	return -order_cmp_sell_book(a, b);
 }
 
 int trader_cmp(const void* a, const void* b){
@@ -483,7 +499,7 @@ dyn_arr* create_traders(dyn_arr* traders_bins, char* product_file){
 void _setup_product_order_book(dyn_arr* books, char* product_name, bool is_buy){
 	order_book* b = calloc(1, sizeof(order_book));
 	strncpy(b->product, product_name, PRODUCT_STRING_LEN);
-	b->orders = dyn_array_init(sizeof(order), &order_cmp);
+	b->orders = dyn_array_init(sizeof(order), NULL);
 	b->is_buy = is_buy;
 	dyn_array_append(books, b);
 	free(b);
@@ -863,7 +879,7 @@ void process_trade(order* buy, order* sell,
 		buy->qty -= sell->qty;
 		amt_filled = sell->qty;
 		dyn_array_append(buy_book->orders, buy);
-	} else {
+	} else { // Buy quantity = sell quantity
 		amt_filled = sell->qty;
 	}
 
@@ -906,8 +922,8 @@ void run_orders(order_book* ob, order_book* os, exch_data* exch){
 	order* sell_min = calloc(1, sizeof(order));
 	while (true){
 		if (ob->orders->used == 0 || os->orders->used == 0) break;
-		dyn_array_remove_max(ob->orders, buy_max, &order_cmp);
-		dyn_array_remove_min(os->orders, sell_min, &order_cmp);
+		dyn_array_remove_max(ob->orders, buy_max, &order_cmp_buy_book);
+		dyn_array_remove_min(os->orders, sell_min, &order_cmp_sell_book);
 		
 		if (buy_max->price >= sell_min->price){
 			process_trade(buy_max, sell_min, ob, os, exch);
