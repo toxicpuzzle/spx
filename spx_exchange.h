@@ -108,7 +108,7 @@ struct order{
  */
 struct balance{
     char product[PRODUCT_STRING_LEN];
-    int balance;
+    u_int64_t balance;
     int qty;
 };
 

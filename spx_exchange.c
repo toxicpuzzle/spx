@@ -814,7 +814,7 @@ order* order_init_from_msg(char* msg, trader* t, exch_data* exch){
 }
 
 // Adds residual amount from ordedr to trader's positions if there is amount remaining.
-void _process_trade_add_to_trader(order* order_added, int amt_filled, int value){
+void _process_trade_add_to_trader(order* order_added, int amt_filled, u_int64_t value){
 	balance* b = calloc(1, sizeof(balance));
 	// printf("Trader has balances: %s\n", order_added->trader->)
 	dyn_arr* balances = order_added->trader->balances;
@@ -883,7 +883,7 @@ void process_trade(order* buy, order* sell,
 	
 	// Charge fee to trader placing latest order.
 	_process_trade_add_to_trader(old_order, amt_filled, value);
-	int residual = new_order->is_buy ? value+fee : value-fee;
+	u_int64_t residual = new_order->is_buy ? value+fee : value-fee;
 	_process_trade_add_to_trader(new_order, amt_filled, residual);
 	exch->fees += fee;
 
