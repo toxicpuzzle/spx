@@ -108,7 +108,7 @@ struct order{
  */
 struct balance{
     char product[PRODUCT_STRING_LEN];
-    u_int64_t balance;
+    int64_t balance;
     int qty;
 };
 
@@ -139,7 +139,7 @@ struct exch_data{
     dyn_arr* traders;
     dyn_arr* buy_books;
     dyn_arr* sell_books;
-    u_int64_t fees;
+    int64_t fees;
     int order_uid;
 };
 
