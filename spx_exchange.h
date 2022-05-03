@@ -4,7 +4,7 @@
 #include "spx_common.h"
 
 
-#define PRODUCT_STRING_LEN 17
+#define PRODUCT_STRING_LEN 18
 #define LOG_PREFIX "[SPX]"
 // make some conveinet print function that automatically adds prefix
 

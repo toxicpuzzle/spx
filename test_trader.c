@@ -87,6 +87,7 @@ void cancel(int order_id, int fd_write){
 // TODO: Add test cases in here!
 void place_orders(int* order_id, int fd_write, int pid){
 
+    sell((*order_id)++, "Water", 10, 10, fd_write);
     // Causes CANCEL 2 command to cancel the GPU order rather than Router order
     sell((*order_id)++, "GPU", 10, 10000, fd_write);
     force_sleep(1);
