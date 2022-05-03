@@ -16,7 +16,7 @@
 #define AMEND_CMD_SIZE 4
 #define BUYSELL_CMD_SIZE 5
 #define CANCEL_CMD_SIZE 2
-
+// #define TEST
 
 // volatile int msgs_to_read = 0;
 
@@ -359,10 +359,17 @@ int trader_cmp(const void* a, const void* b){
 	return ((trader*)a)->id - ((trader*)b)->id;
 }
 
+//! finally found the mistake just after 30 mins after replicating mistake!
+//! Took me 1 day to find this mistake if traders are order ids off by 1, trader ids off by 1 then still equal!
 int find_order_by_trader_cmp(const void* a, const void* b){
 	order* first = (order*) a;
 	order* second = (order*) b;	
-	return order_id_cmp(first, second) + trader_cmp(first->trader, second->trader);
+	if (order_id_cmp(first, second) == 0 
+		&& trader_cmp(first->trader, second->trader) == 0){
+			return 0;
+	} else {
+		return -1;
+	}
 }
 
 int trader_cmp_by_process_id(const void* a, const void* b){
@@ -747,26 +754,70 @@ void report_position_for_trader(trader* t){
 }
 
 void report(exch_data* exch){
-	PREFIX_EXCH_L1
-	printf("--ORDERBOOK--\n");
-	order_book* buy_book = calloc(1, sizeof(order_book));
-	order_book* sell_book = calloc(1, sizeof(order_book));
-	for (int i = 0; i < exch->buy_books->used; i++){
-		dyn_array_get(exch->buy_books, i, buy_book);
-		dyn_array_get(exch->sell_books, i, sell_book);
-		report_book_for_product(buy_book, sell_book);
-	}
-	free(buy_book);
-	free(sell_book);
+	#ifndef TEST
+		PREFIX_EXCH_L1
+		printf("--ORDERBOOK--\n");
+		order_book* buy_book = calloc(1, sizeof(order_book));
+		order_book* sell_book = calloc(1, sizeof(order_book));
+		for (int i = 0; i < exch->buy_books->used; i++){
+			dyn_array_get(exch->buy_books, i, buy_book);
+			dyn_array_get(exch->sell_books, i, sell_book);
+			report_book_for_product(buy_book, sell_book);
+		}
+		free(buy_book);
+		free(sell_book);
 
-	PREFIX_EXCH_L1
-	printf("--POSITIONS--\n");
-	trader* t = calloc(1, sizeof(trader));
-	for (int i = 0; i < exch->traders->used; i++){
-		dyn_array_get(exch->traders, i, t);
-		report_position_for_trader(t);
-	}
-	free(t);
+		PREFIX_EXCH_L1
+		printf("--POSITIONS--\n");
+		trader* t = calloc(1, sizeof(trader));
+		for (int i = 0; i < exch->traders->used; i++){
+			dyn_array_get(exch->traders, i, t);
+			report_position_for_trader(t);
+		}
+		free(t);
+	#else
+		PREFIX_EXCH_L1
+		printf("--ORDERBOOK--\n");
+		order_book* buy_book = calloc(1, sizeof(order_book));
+		order_book* sell_book = calloc(1, sizeof(order_book));
+		for (int i = 0; i < exch->buy_books->used; i++){
+			dyn_array_get(exch->buy_books, i, buy_book);
+			dyn_array_get(exch->sell_books, i, sell_book);
+			order* o = calloc(1, sizeof(order));
+			for (int j = 0; j < buy_book->orders->used; j++){
+				dyn_array_get(buy_book->orders, j, o);
+				INDENT
+				printf("Product: %s", o->product);
+				INDENT
+				INDENT
+				printf("[T%d] $%d Q%d\n", o->trader->id, o->price, o->qty);
+			}	
+			for (int j = 0; j < sell_book->orders->used; j++){
+				dyn_array_get(sell_book->orders, j, o);
+
+				INDENT
+				printf("Product: %s", o->product);
+				INDENT
+				INDENT
+				printf("[T%d] $%d Q%d\n", o->trader->id, o->price, o->qty);
+			}	
+
+
+			free(o);
+		}
+		free(buy_book);
+		free(sell_book);
+
+		PREFIX_EXCH_L1
+		printf("--POSITIONS--\n");
+		trader* t = calloc(1, sizeof(trader));
+		for (int i = 0; i < exch->traders->used; i++){
+			dyn_array_get(exch->traders, i, t);
+			report_position_for_trader(t);
+		}
+		free(t);
+
+	#endif
 }
 
 // SECTION: Transaction Handling functions
@@ -990,13 +1041,15 @@ order* get_order_by_id(int oid, trader* t, dyn_arr* books){
 	order_book* curr = calloc(1, sizeof(order_book));
 	int idx = -1;
 	for (int i = 0; i < books->used; i++){
-		dyn_array_get(books, i ,curr);
+		dyn_array_get(books, i , curr);
 		idx = dyn_array_find(curr->orders, o, &find_order_by_trader_cmp);
 		if (idx >= 0) {
 			dyn_array_get(curr->orders, idx, o);
 			break;
 		}
 	}
+	// printf("Getting order by id: order_id %d trader_id %d\n", o->order_id, o->trader->id);
+
 	free(curr);
 
 	if (idx != -1) return o;
@@ -1107,8 +1160,8 @@ void process_cancel(char* msg, trader* t, exch_data* exch){
 	free(ob);
 	free(os);
 }
-// int* order_uid, int* fees,
-// dyn_arr* buy_books, dyn_arr* sell_books, dyn_arr* traders){
+
+// Sends message to be processed by correct function
 void process_message(char* msg, trader* t, exch_data* exch){ 
 
 	if (!strncmp(msg, "BUY", 3) || !strncmp(msg, "SELL", 4)){
@@ -1323,7 +1376,6 @@ int main(int argc, char **argv) {
 	// Handle orders from traders
 	while (true){
 
-		// printf("msgs to read: %d, reading\n", msgs_to_read);		
 		if (connected_traders == 0) break;
 			
 		// Pause CPU until we receive another signal
@@ -1334,7 +1386,6 @@ int main(int argc, char **argv) {
 			// TODO: I think it will because the poll says revents is FILLED BY THE KERNEL i.e. even if you set it to 0 it just gets refilled 
 			// TODO: consider order of disconnection, will it print in order if multiple trader disconnect at the same time
 			no_fd_events = poll(poll_fds, traders->used, -1);
-			// pause();
         }
 
 		while (no_fd_events > 0){

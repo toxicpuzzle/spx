@@ -18,7 +18,7 @@ void force_sleep(int seconds){
         printf("Failed to force sleep!\n");
         return;
     }
-    while (((double)(end-start)/100) < 1){
+    while (((double)(end-start)/50) < 1){
         // printf("%ld\n", (double)(end-start)/(double)100);
         sleep(1);
         end = clock();
@@ -45,8 +45,8 @@ void signal_parent(){
 
 // Read char until ";" char is encountered
 void read_exch_handler(int signo, siginfo_t *sinfo, void *context){
-    PREFIX_CHILD(child_id);
-    printf("received signal from parent\n");
+    // PREFIX_CHILD(child_id);
+    // printf("received signal from parent\n");
     msgs_to_read++;
 }
 
@@ -87,6 +87,7 @@ void cancel(int order_id, int fd_write){
 // TODO: Add test cases in here!
 void place_orders(int* order_id, int fd_write, int pid){
 
+    // Causes CANCEL 2 command to cancel the GPU order rather than Router order
     sell((*order_id)++, "GPU", 10, 10000, fd_write);
     force_sleep(1);
     sell((*order_id)++, "GPU", 10, 10000, fd_write);
