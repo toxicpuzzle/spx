@@ -528,6 +528,7 @@ dyn_arr* sell_order_books, char* product_file_path){
 	printf("Trading %d products: ", num_products);
 	for (int i = 0; i < num_products; i++){
 		fgets(buf, PRODUCT_STRING_LEN, f);
+		// TODO: Formalise checks for product order book
 		if (buf == NULL || buf[0] == '\n') {
 			perror("ERROR: Product file is incorrect\n");
 			exit(1);
@@ -790,7 +791,7 @@ void report(exch_data* exch){
 				printf("Product: %s", o->product);
 				INDENT
 				INDENT
-				printf("[T%d] $%d Q%d\n", o->trader->id, o->price, o->qty);
+				printf("[T%d] $%d Q%d UID:%d\n", o->trader->id, o->price, o->qty, o->order_uid);
 			}	
 			for (int j = 0; j < sell_book->orders->used; j++){
 				dyn_array_get(sell_book->orders, j, o);
@@ -799,7 +800,7 @@ void report(exch_data* exch){
 				printf("Product: %s", o->product);
 				INDENT
 				INDENT
-				printf("[T%d] $%d Q%d\n", o->trader->id, o->price, o->qty);
+				printf("[T%d] $%d Q%d UID:%d\n", o->trader->id, o->price, o->qty, o->order_uid);
 			}	
 
 
@@ -1077,6 +1078,7 @@ order* get_order_by_id(int oid, trader* t, dyn_arr* books){
 
 
 // TODO: Refactor with function pointers
+// TODO: put amended orders to bottom of time priority queue
 void process_amend(char* msg, trader* t, exch_data* exch){
 
 	// Get values from message
@@ -1103,6 +1105,8 @@ void process_amend(char* msg, trader* t, exch_data* exch){
 
 	// Amend order in order book
 	int order_idx = dyn_array_find(contains->orders, o, &find_order_by_trader_cmp);
+	//! Change time priority
+	o->order_uid = (exch->order_uid)++;
 	o->qty = qty;
 	o->price = price;
 	dyn_array_set(contains->orders, order_idx, o);
@@ -1214,8 +1218,6 @@ bool is_valid_buy_sell_order_id(int oid, trader* t){
 	if (oid != t->next_order_id) return false;
 	return true;
 }
-
-// bool is_valid_order_id(int oid, trader* t){}
 
 bool is_valid_command(char* msg, trader* t, exch_data* exch){
 	

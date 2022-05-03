@@ -1,10 +1,4 @@
-9
-Water
-Fire
-Earth
-Air
-Basil
-Coriander
-Mint
-TWTR220429C00020
-TWTR220429C00021
+3
+GPU
+Router
+Cake
