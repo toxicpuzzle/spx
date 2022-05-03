@@ -383,6 +383,14 @@ int balance_cmp(const void* a, const void* b){
 // SECTION: SETUP FUNCTIONS
 
 // TODO: Check product file validity
+void str_remove_new_line(char* str){
+	int len = strlen(str);
+	for (int i = 0; i < len; i++){
+		if (str[i] == '\n'){
+			str[i] = '\0';
+		}
+	}
+}
 
 // Creates trader balances from product file
 dyn_arr* _create_traders_setup_trader_balances(char* product_file_path){
@@ -390,13 +398,10 @@ dyn_arr* _create_traders_setup_trader_balances(char* product_file_path){
 	char buf[PRODUCT_STRING_LEN];
 	FILE* f = fopen(product_file_path, "r");
 	fgets(buf, PRODUCT_STRING_LEN, f); // Do this to get rid of the number of items line;
-	// int num_products = atoi(buf);"
-	while (fgets(buf, PRODUCT_STRING_LEN, f) != NULL){	
-		for (int i = 0; i < PRODUCT_STRING_LEN; i++){
-			if (buf[i] == '\n'){
-				buf[i] = '\0';
-			}
-		}
+	int num_products = atoi(buf);
+	for (int i = 0; i < num_products; i++){
+		fgets(buf, PRODUCT_STRING_LEN, f);
+		str_remove_new_line(buf);
 		balance* b = calloc(1, sizeof(balance));
 		memmove(b->product, buf, PRODUCT_STRING_LEN);
 		dyn_array_append(balances, b);
@@ -516,21 +521,11 @@ dyn_arr* sell_order_books, char* product_file_path){
 	printf("Trading %d products: ", num_products);
 	for (int i = 0; i < num_products; i++){
 		fgets(buf, PRODUCT_STRING_LEN, f);
-		if (buf == NULL) {
-			PREFIX_EXCH
-			printf("ERROR: Product file is incorrect\n");
+		if (buf == NULL || buf[0] == '\n') {
+			perror("ERROR: Product file is incorrect\n");
 			exit(1);
 		}
-		if (buf[0] == '\n'){
-			// printf("continuing\n");
-			i--;
-			continue;
-		}
-		for (int i = 0; i < PRODUCT_STRING_LEN; i++){
-			if (buf[i] == '\n'){
-				buf[i] = '\0';
-			}
-		}
+		str_remove_new_line(buf);
 		if (i < num_products-1) printf("%s ", buf);
 		else printf("%s", buf);
 
@@ -804,7 +799,6 @@ order* order_init_from_msg(char* msg, trader* t, exch_data* exch){
 	o->trader = t;
 
 	char** args = NULL;
-	// int args_size = 
 	get_args_from_msg(msg, &args);
 
 	// Initiate attributes
@@ -889,7 +883,6 @@ void process_trade(order* buy, order* sell,
 	}
 
 	// Decide the closing price of the bid/ask and the fee
-	
 	int64_t fee = 0;
 	int64_t value = 0;
 	order* old_order;
@@ -978,17 +971,8 @@ void process_order(char* msg, trader* t, exch_data* exch){
 	dyn_arr* other_traders = dyn_array_init_copy(exch->traders);
 	other_traders = get_arr_without_trader(other_traders, order_added->trader);
 	success_msg_all_traders(other_traders, order_added);
-	// if (order_added->is_buy){
-	// 	success_msg_all_traders(other_traders, "BUY", 
-	// 					order_added->product, order_added->qty, 
-	// 					order_added->price);
-	// } else {
-	// 	success_msg_all_traders(other_traders, "SELL",
-	// 					order_added->product, order_added->qty,
-	// 					order_added->price);
-	// }
-	dyn_array_free(other_traders);
 
+	dyn_array_free(other_traders);
 
 	run_orders(ob, os, exch);
 
@@ -1049,7 +1033,7 @@ void process_amend(char* msg, trader* t, exch_data* exch){
 	int qty = atoi(args[2]);
 	int price = atoi(args[3]);
 
-	// Get relevant order book(s) and order from order id
+	// Get relevant order book(s) and order from order id and trader id
 	order_book* ob = calloc(1, sizeof(order_book));
 	order_book* os = calloc(1, sizeof(order_book));
 	order* o = get_order_by_id(order_id, t, exch->buy_books);

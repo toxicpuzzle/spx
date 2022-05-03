@@ -3,10 +3,29 @@
 // #define TEST
 # define TRADER1
 
+#include <time.h>
+
 volatile int msgs_to_read = 0;
 int child_id = 0;
 int ppid = 0;
 bool market_is_open = 0;
+
+// Forces the processor to sleep despite signals
+void force_sleep(int seconds){
+    clock_t start = clock();
+    clock_t end = 0;
+    if (start == -1){
+        printf("Failed to force sleep!\n");
+        return;
+    }
+    while (((double)(end-start)/100) < 1){
+        // printf("%ld\n", (double)(end-start)/(double)100);
+        sleep(1);
+        end = clock();
+    }
+    printf("Finished sleeping\n");
+    return;
+}
 
 void set_handler(int signal, void (*handler) (int, siginfo_t*, void*)){
     struct sigaction sig;
@@ -68,26 +87,48 @@ void cancel(int order_id, int fd_write){
 // TODO: Add test cases in here!
 void place_orders(int* order_id, int fd_write, int pid){
 
+    sell((*order_id)++, "GPU", 10, 10000, fd_write);
+    force_sleep(1);
+    sell((*order_id)++, "GPU", 10, 10000, fd_write);
+    force_sleep(1);
+    sell((*order_id)++, "Router", 10, 10000, fd_write);
+    force_sleep(1);
+    sell((*order_id)++, "Router", 10, 10000, fd_write);
+    force_sleep(1);
+    sell((*order_id)++, "Cake", 10, 10000, fd_write);
+    force_sleep(1);
+    sell((*order_id)++, "Cake", 10, 10000, fd_write);
+    force_sleep(1);
+    cancel(2, fd_write);
+    force_sleep(1);
+    cancel(0, fd_write);
+    force_sleep(1);
+    cancel(1, fd_write);
+
     // sell((*order_id)++, "GPU", 10, 10000, fd_write);
     // PREFIX_CHILD(pid)
     // printf("GPU order sent\n");
     // sleep(1);
-    sell((*order_id)++, "Router", 10, 20, fd_write);
-    PREFIX_CHILD(pid)
-    printf("Router order sent\n");
-    sleep(1);
-    sell((*order_id)++, "Router", 20, 15, fd_write);
-    PREFIX_CHILD(pid)
-    printf("Router order sent\n");
-    sleep(1);
-    sell((*order_id)++, "Router", 30, 17, fd_write);
-    PREFIX_CHILD(pid)
-    printf("Router order sent\n");
-    sleep(1);
+    // sell((*order_id)++, "Router", 10, 20, fd_write);
+    // PREFIX_CHILD(pid)
+    // printf("Router order sent\n");
+    // sleep(1);
+    // sell((*order_id)++, "Cake", 10, 20, fd_write);
+    // PREFIX_CHILD(pid)
+    // printf("Router order sent\n");
+    // sleep(1);
+    // sell((*order_id)++, "GPU", 20, 15, fd_write);
+    // PREFIX_CHILD(pid)
+    // printf("Router order sent\n");
+    // sleep(1);
+    // sell((*order_id)++, "Router", 30, 17, fd_write);
+    // PREFIX_CHILD(pid)
+    // printf("Router order sent\n");
+    // sleep(1);
 
-    buy((*order_id)++, "Router", 51, 20, fd_write);
-    PREFIX_CHILD(pid)
-    printf("Router order sent\n");
+    // buy((*order_id)++, "Router", 51, 20, fd_write);
+    // PREFIX_CHILD(pid)
+    // printf("Router order sent\n");
 
     // sleep(1);
 
