@@ -4,6 +4,7 @@ CFLAGS=-Wall -Werror -Wvla -O0 -std=c11 -g -fsanitize=address,leak
 OFLAGS=-c $(CFLAGS)
 LDFLAGS=-lm # List of link/load directives
 LIBS=data_types/ds.a
+TFLAGS = tests/libcmocka-static.a
 BINARIES=spx_exchange spx_trader test_trader
 
 all: spx_exchange.o test_trader.o
@@ -17,7 +18,9 @@ test_trader.o: test_trader.c
 	$(CC) $(LDFLAGS) $(OFLAGS) test_trader.c -o test_trader.o
 # all: $(BINARIES)
 
-
+unit:
+	$(CC) $(OFLAGS) tests/unit-tests.c -o tests/unit-test.o
+	$(CC) $(TFLAGS) tests/unit-test.o -o tests/unit-test
 
 .PHONY: clean
 clean:
