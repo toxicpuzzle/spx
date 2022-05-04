@@ -8,7 +8,7 @@
 #include "spx_exchange.h"
 
 #define PERM_BITS_ALL 0777
-// #define TEST
+#define TEST
 #define PREFIX_EXCH printf("[SPX] ");
 #define PREFIX_EXCH_L1 printf("[SPX]"); INDENT
 #define PREFIX_EXCH_L2 printf("[SPX]"); INDENT INDENT
@@ -330,6 +330,7 @@ int order_cmp_buy_book(const void* a, const void* b){
 	order* ob = (order*) b;
 	if (oa->price == ob->price){
 		// remove_max uses cmp(curr, ret) > 0 -> ret = curr
+		// TODO: DOes order_uid help keep time across multiple product order books.
 		return -(oa->order_uid - ob->order_uid);
 	}
 	return oa->price - ob->price;
@@ -344,6 +345,7 @@ int int_cmp(const void* a, const void* b){
 	return *(int*)a - *(int*)b;
 }
 
+// Compares order book based on product name
 int obook_cmp(const void* a, const void* b){
 	order_book* oa = (order_book*) a;
 	order_book* ob = (order_book*) b;
@@ -791,7 +793,7 @@ void report(exch_data* exch){
 				printf("Product: %s", o->product);
 				INDENT
 				INDENT
-				printf("[T%d] $%d Q%d UID:%d\n", o->trader->id, o->price, o->qty, o->order_uid);
+				printf("[T%d] $%d Q%d UID:%d isbuy: %d\n", o->trader->id, o->price, o->qty, o->order_uid, o->is_buy);
 			}	
 			for (int j = 0; j < sell_book->orders->used; j++){
 				dyn_array_get(sell_book->orders, j, o);
@@ -800,7 +802,7 @@ void report(exch_data* exch){
 				printf("Product: %s", o->product);
 				INDENT
 				INDENT
-				printf("[T%d] $%d Q%d UID:%d\n", o->trader->id, o->price, o->qty, o->order_uid);
+				printf("[T%d] $%d Q%d UID:%d isbuy: %d\n", o->trader->id, o->price, o->qty, o->order_uid, o->is_buy);
 			}	
 
 
@@ -966,6 +968,7 @@ void process_trade(order* buy, order* sell,
 	_process_trade_signal_trader(buy, amt_filled);	
 }
 
+// TODO: Question? Do we only attempt to match the amended order with other orders after amending? or do we run the entire order book?
 // Reruns the order books against each other to see if any new trades are made for that product
 void run_orders(order_book* ob, order_book* os, exch_data* exch){
 	order* buy_max = calloc(1, sizeof(order));
@@ -1105,7 +1108,7 @@ void process_amend(char* msg, trader* t, exch_data* exch){
 
 	// Amend order in order book
 	int order_idx = dyn_array_find(contains->orders, o, &find_order_by_trader_cmp);
-	//! Change time priority
+	//! Change time prirority before or after attempting to match?
 	o->order_uid = (exch->order_uid)++;
 	o->qty = qty;
 	o->price = price;
@@ -1149,6 +1152,7 @@ void process_cancel(char* msg, trader* t, exch_data* exch){
 	// Remove order in order_book
 	int order_idx = dyn_array_find(contains->orders, o, &find_order_by_trader_cmp);
 	dyn_array_delete(contains->orders, order_idx);
+	// TODO: Allow reuuse of ids of cancelled orders?
 	o->qty = 0;
 	o->price = 0;
 
@@ -1336,7 +1340,7 @@ int main(int argc, char **argv) {
 
 	// Setup exchange data packet for all functions to use
 	exch_data* exch = calloc(1, sizeof(exch_data));
-	exch->order_uid = 0; // Unique id for the product, indicates its time priority.
+	exch->order_uid = 0; // Unique id for the order (universal), indicates its time priority.
 	exch->fees = 0;
 
 	// Read in product files from command line
