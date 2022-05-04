@@ -912,7 +912,7 @@ void _process_trade_signal_trader(order* o, int amt_filled){
 	trader* target = o->trader;
 	if (target->connected == false) return;
 	char msg[MAX_LINE];
-	sprintf(msg, "FILL %d %d;", o->order_id, amt_filled);
+	sprintf(msg, "FILL %d %d price%d time%d;", o->order_id, amt_filled, o->price, o->order_uid);
 	trader_message(target, msg);
 }
 
@@ -1112,6 +1112,10 @@ void process_amend(char* msg, trader* t, exch_data* exch){
 	o->order_uid = (exch->order_uid)++;
 	o->qty = qty;
 	o->price = price;
+	order* temp = calloc(1, sizeof(order));
+	dyn_array_get(contains->orders, order_idx, temp);
+	printf("get_order_by_id id: %d find id: %d\n", o->order_id, temp->order_id);
+	free(temp);
 	dyn_array_set(contains->orders, order_idx, o);
 
 	/// Message t and other traders

@@ -106,6 +106,25 @@ void place_orders(int* order_id, int fd_write, int pid){
     // force_sleep(1);
     // cancel(1, fd_write);
 
+    // AMEND
+    force_sleep(6);
+    sell((*order_id)++, "GPU", 10, 60, fd_write);
+    force_sleep(1);
+    sell((*order_id)++, "GPU", 10, 60, fd_write);
+    force_sleep(1);
+    sell((*order_id)++, "Router", 10, 66, fd_write);
+    force_sleep(1);
+    sell((*order_id)++, "Router", 10, 66, fd_write);
+    force_sleep(1);
+    amend(2, 69, 6969, fd_write);
+    force_sleep(1);
+    amend(0, 420, 420, fd_write);
+    // cancel(0, fd_write);
+    force_sleep(1);
+    amend(1, 57, 57, fd_write);
+
+    // cancel(1, fd_write);
+
     // test sell book price time priority (complex case)
     // i.e. have one triple match
     // i.e. then another double match 
