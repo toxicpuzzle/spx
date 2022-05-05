@@ -1055,8 +1055,9 @@ order* get_order_by_id(int oid, trader* t, dyn_arr* books){
 			break;
 		}
 	}
-	printf("Getting order by id: order_id %d trader_id %d\n", o->order_id, o->trader->id);
-
+	#ifdef TEST
+		printf("Getting order by id: order_id %d trader_id %d\n", o->order_id, o->trader->id);
+	#endif
 	free(curr);
 
 	if (idx != -1) return o;
