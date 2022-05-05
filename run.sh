@@ -1,2 +1,2 @@
 make
-./spx_exchange products.txt ./test_trader3 
+./spx_exchange products.txt ./test_trader2
