@@ -38,9 +38,16 @@
  * @param str message to be sent (terminate with null byte)
  */
 void fifo_write(int fd_write, char* str){
-    if (write(fd_write, str, strlen(str)) == -1){
-        perror("Write unsuccesful\n");
-    }
+    // TODO: Investigate reason for spx_exchange quitting.
+    struct pollfd p;
+    p.fd = fd_write;
+    p.events = POLLOUT;
+    poll(&p, 1, 0);
+    if (!(p.revents & POLLERR)){
+        if (write(fd_write, str, strlen(str)) == -1){
+                perror("Write unsuccesful\n");
+        }   
+    }     
 }
 
 // TODO: change this to write using different protocol

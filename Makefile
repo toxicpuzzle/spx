@@ -7,10 +7,11 @@ LIBS=data_types/ds.a
 TFLAGS = tests/libcmocka-static.a
 BINARIES=spx_exchange spx_trader test_trader
 
-all: spx_exchange.o test_trader.o test_trader2.o
+all: spx_exchange.o test_trader.o test_trader2.o test_trader3.o
 	$(CC) $(LDFLAGS) $(CFLAGS) spx_exchange.o -o spx_exchange
 	$(CC) $(LDFLAGS) $(CFLAGS) test_trader.o -o test_trader  
 	$(CC) $(LDFLAGS) $(CFLAGS) test_trader2.o -o test_trader2  
+	$(CC) $(LDFLAGS) $(CFLAGS) test_trader3.o -o test_trader3  
 
 spx_exchange.o: spx_exchange.c
 	$(CC) $(LDFLAGS) $(OFLAGS) spx_exchange.c -o spx_exchange.o
@@ -21,6 +22,8 @@ test_trader.o: test_trader.c
 test_trader2.o: test_trader2.c
 	$(CC) $(LDFLAGS) $(OFLAGS) test_trader2.c -o test_trader2.o
 
+test_trader3.o: test_trader3.c
+	$(CC) $(LDFLAGS) $(OFLAGS) test_trader3.c -o test_trader3.o
 # all: $(BINARIES)
 
 unit:

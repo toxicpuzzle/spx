@@ -483,7 +483,7 @@ dyn_arr* create_traders(dyn_arr* traders_bins, char* product_file){
 
 			sprintf(fifo_exch, FIFO_EXCHANGE, i);
 			sprintf(fifo_trader, FIFO_TRADER, i);
-
+			
 			temp->fd_write = open(fifo_exch, O_WRONLY);
 			PREFIX_EXCH
 			printf("Connected to %s\n", fifo_exch);
@@ -964,8 +964,8 @@ void process_trade(order* buy, order* sell,
 			new_order->order_id, new_order->trader->id, value, fee);
 
 	// Signal traders that their order was filled
-	_process_trade_signal_trader(sell, amt_filled);
 	_process_trade_signal_trader(buy, amt_filled);	
+	_process_trade_signal_trader(sell, amt_filled);
 }
 
 // TODO: Question? Do we only attempt to match the amended order with other orders after amending? or do we run the entire order book?
@@ -1082,6 +1082,8 @@ order* get_order_by_id(int oid, trader* t, dyn_arr* books){
 
 // TODO: Refactor with function pointers
 // TODO: put amended orders to bottom of time priority queue
+
+// TODO: Amending smae order twice results in removal of other order
 void process_amend(char* msg, trader* t, exch_data* exch){
 
 	// Get values from message
@@ -1156,7 +1158,6 @@ void process_cancel(char* msg, trader* t, exch_data* exch){
 	// Remove order in order_book
 	int order_idx = dyn_array_find(contains->orders, o, &find_order_by_trader_cmp);
 	dyn_array_delete(contains->orders, order_idx);
-	// TODO: Allow reuuse of ids of cancelled orders?
 	o->qty = 0;
 	o->price = 0;
 
@@ -1327,6 +1328,8 @@ void free_program(exch_data* exch, struct pollfd* poll_fds, linked_list* siglist
 	// Free exch
 	free(exch);
 }
+
+// void update_trader_connected(int *no_fd_events, struct pollfd* poll_fds)
 
 int main(int argc, char **argv) {
 
