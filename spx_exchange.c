@@ -912,7 +912,9 @@ void _process_trade_signal_trader(order* o, int amt_filled){
 	trader* target = o->trader;
 	if (target->connected == false) return;
 	char msg[MAX_LINE];
-	sprintf(msg, "FILL %d %d price%d time%d isbuy:%d ;", o->order_id, amt_filled, o->price, o->order_uid, o->is_buy);
+	// sprintf(msg, "FILL %d %d price%d time%d isbuy:%d ;", o->order_id, amt_filled, o->price, o->order_uid, o->is_buy);
+	sprintf(msg, "FILL %d %d;", o->order_id, amt_filled);
+	
 	trader_message(target, msg);
 }
 
