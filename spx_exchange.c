@@ -8,7 +8,7 @@
 #include "spx_exchange.h"
 
 #define PERM_BITS_ALL 0777
-#define TEST
+// #define TEST
 #define PREFIX_EXCH printf("[SPX] ");
 #define PREFIX_EXCH_L1 printf("[SPX]"); INDENT
 #define PREFIX_EXCH_L2 printf("[SPX]"); INDENT INDENT
@@ -964,6 +964,7 @@ void process_trade(order* buy, order* sell,
 			new_order->order_id, new_order->trader->id, value, fee);
 
 	// Signal traders that their order was filled
+	// TODO: Check order to signal traders. buyer first or seller first for wash trades?
 	_process_trade_signal_trader(buy, amt_filled);	
 	_process_trade_signal_trader(sell, amt_filled);
 }
