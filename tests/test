@@ -1,0 +1,20 @@
+// SECTION: Freeing functions (only frees internal memory of object if any exists)
+
+void free_order(void* a){free((order*)a);}
+
+void free_order_book(void* a){
+	dyn_array_free(((order_book*)a)->orders, &free_order);
+	free(((order_book*)a));
+}
+
+
+void free_balance(void* a) {free(((balance*) a));}
+
+void free_trader(void*a){
+	dyn_array_free(((trader*)a)->balances, &free_balance);
+	free(((trader*)a));
+}
+
+void free_trader_bin(void*a){free((char*)a);}
+
+void free_siginfo(void*a){free((siginfo_t*)a);}

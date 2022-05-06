@@ -1353,6 +1353,15 @@ int main(int argc, char **argv) {
 	printf("Starting\n");
 
 	sig_info_list = linked_list_init(sizeof(siginfo_t));
+	// TODO: Implement self-pipe
+	int sig_pipe[2];
+	if (pipe(sig_pipe) == -1 || 
+		fcntl(sig_pipe[0], F_SETFD, O_NONBLOCK) == -1 ||
+		fcntl(sig_pipe[1], F_SETFD, O_NONBLOCK) == -1){
+		perror("sigpipe failed\n");
+		return -1;
+	};
+	int sig_pipe_read = sig_pipe[0];
 
 	// Setup exchange data packet for all functions to use
 	exch_data* exch = calloc(1, sizeof(exch_data));
@@ -1410,6 +1419,7 @@ int main(int argc, char **argv) {
 			no_fd_events = poll(poll_fds, traders->used, -1);
         }
 
+		// TODO: Check if if order of disconnection is correct, or us sigchild.
 		while (no_fd_events > 0){
 			for (int i = 0; i < traders->used; i++){
 				//? I set poll_fds[i] to -1 so kernel populates it with some other error message? -> POLLNVAL
@@ -1436,6 +1446,8 @@ int main(int argc, char **argv) {
 		}
 
 		// Walk through
+		// TODO: Check for signals in between processing each signal?
+		// For test traders maybe just do wait for process exits;
 		while (sig_info_list->size > 0) {
 			siginfo_t* ret = calloc(1, sizeof(siginfo_t));
 			linked_list_pop(sig_info_list, ret);
