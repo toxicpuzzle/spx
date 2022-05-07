@@ -1355,8 +1355,8 @@ int main(int argc, char **argv) {
 
 		}
 
+		// Test race
 		while (has_signal){
-
 			siginfo_t* ret = calloc(1, sizeof(siginfo_t));
 			read(sig_pipe[0], ret, sizeof(siginfo_t));
 			no_fd_events--;
