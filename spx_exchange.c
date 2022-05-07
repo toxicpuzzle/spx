@@ -1319,16 +1319,14 @@ int main(int argc, char **argv) {
 			
 		// Pause CPU until we receive some signal or trader disconnects
 		no_fd_events = poll(poll_fds, no_poll_fds, -1);
+		int disconnect_events = poll(poll_fds, no_poll_fds-1, 0);
 
 		// TODO: Check if if order of disconnection is correct, or us sigchild.
 		// TODO: if trader disconnects before we get to poll will poll detect disconnection?
 		// TODO: I think it will because the poll says revents is FILLED BY THE KERNEL i.e. even if you set it to 0 it just gets refilled 
 		// TODO: consider order of disconnection, will it print in order if multiple trader disconnect at the same time
 
-		while (no_fd_events > 0){
-
-
-			// TODO: Fix race condition issue on ed caused by changes to main loop
+		if (disconnect_events > 0){
 			for (int i = 0; i < traders->used; i++){
 				//? I set poll_fds[i] to -1 so kernel populates it with some other error message? -> POLLNVAL
 				if ((poll_fds[i].revents&POLLHUP) == POLLHUP){
@@ -1347,40 +1345,51 @@ int main(int argc, char **argv) {
 						printf("Trader %d disconnected\n", t->id);
 						connected_traders--;
 						no_fd_events--;		
+						
 						free(t);
 					}
 				}
 			}
 
+		}
+
+
+
+		while (no_fd_events > 0){
+
+			siginfo_t* ret = calloc(1, sizeof(siginfo_t));
+			read(sig_pipe[0], ret, sizeof(siginfo_t));
+	
+			// find literal location of child with same process id
+			trader* t = calloc(1, sizeof(trader));
+			t->process_id = ret->si_pid;
+			int idx = dyn_array_find(traders, t, &trader_cmp_by_process_id);
+			free(t);
+			t = dyn_array_get_literal(traders, idx);
+			
+			// Read message from the trader
+			char* msg = fifo_read(t->fd_read);
+			PREFIX_EXCH
+			printf("[T%d] Parsing command: <%s>\n", t->id, msg);
+
+			if (!is_valid_command(msg, t, exch) ||
+				t->connected == false){
+				trader_message(t, "INVALID;");
+			} else {
+				process_message(msg, t, exch);
+			}
+
+			no_fd_events--;
+			free(ret);
+			free(msg);
+
+			// TODO: Fix race condition issue on ed caused by changes to main loop
+			
 			// Slight change in comment to see if race condition
 			// Read from self pipe (i.e. signals) if it is non empty
-			while (poll(poll_sp, 1, 0) > 0){
-				siginfo_t* ret = calloc(1, sizeof(siginfo_t));
-				read(sig_pipe[0], ret, sizeof(siginfo_t));
-		
-				// find literal location of child with same process id
-				trader* t = calloc(1, sizeof(trader));
-				t->process_id = ret->si_pid;
-				int idx = dyn_array_find(traders, t, &trader_cmp_by_process_id);
-				free(t);
-				t = dyn_array_get_literal(traders, idx);
+			// while (poll(poll_sp, 1, 0) > 0){
 				
-				// Read message from the trader
-				char* msg = fifo_read(t->fd_read);
-				PREFIX_EXCH
-				printf("[T%d] Parsing command: <%s>\n", t->id, msg);
-
-				if (!is_valid_command(msg, t, exch) ||
-					t->connected == false){
-					trader_message(t, "INVALID;");
-				} else {
-					process_message(msg, t, exch);
-				}
-
-				no_fd_events--;
-				free(ret);
-				free(msg);
-			}
+			// }
 
 		}
 
