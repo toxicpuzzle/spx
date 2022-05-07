@@ -1327,6 +1327,8 @@ int main(int argc, char **argv) {
 
 		while (no_fd_events > 0){
 
+
+			// TODO: Fix race condition issue on ed caused by changes to main loop
 			for (int i = 0; i < traders->used; i++){
 				//? I set poll_fds[i] to -1 so kernel populates it with some other error message? -> POLLNVAL
 				if ((poll_fds[i].revents&POLLHUP) == POLLHUP){
@@ -1350,7 +1352,7 @@ int main(int argc, char **argv) {
 				}
 			}
 
-			// Slight change in comment to see if race conditions
+			// Slight change in comment to see if race condition
 			// Read from self pipe (i.e. signals) if it is non empty
 			while (poll(poll_sp, 1, 0) > 0){
 				siginfo_t* ret = calloc(1, sizeof(siginfo_t));

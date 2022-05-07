@@ -95,7 +95,9 @@ FILE* get_file_with_extension(char* prefix, char* extension, char* mode){
             memmove(filename+i, extension, strlen(extension));
         }   
     }
-    printf("Processed filename: %s\n", filename);
+    #ifdef TEST
+        printf("Processed filename: %s\n", filename);
+    #endif
     FILE* file = fopen(filename, mode);
     free(filename);
     return file;
@@ -161,9 +163,10 @@ int main(int argc, char ** argv) {
     }
 
     // int order_id = 0;
-    PREFIX_CHILD(id)
-    printf("Child file descriptors: [read] %d [write] %d\n", fd_read, fd_write);
-
+    #ifdef TEST
+        PREFIX_CHILD(id)
+        printf("Child file descriptors: [read] %d [write] %d\n", fd_read, fd_write);
+    #endif
     // Create own textfile to write output to 
     FILE* in = get_file_with_extension(__FILE__, ".in", "r");
     test_data t;
@@ -218,8 +221,9 @@ int main(int argc, char ** argv) {
 
         if (strlen(result) > 0) {
             msgs_to_read--;
-            PREFIX_CHILD(id);
+            
             #ifdef TEST
+                PREFIX_CHILD(id);
                 printf("Received message: %s\n", result);
             #endif
             // TODO: Output to text file
@@ -251,7 +255,7 @@ int main(int argc, char ** argv) {
                     !strcmp(result, t.disconnect_trigger)){
                     #ifdef TEST
                         printf("[T%d] is disconnecting\n", id);
-                    #endif TEST
+                    #endif 
                     fprintf(out, "[T%d] Event: DISCONNECT\n", id);
                     fclose(out);
                     free(args);
