@@ -558,8 +558,6 @@ void success_msg_all_traders(dyn_arr* traders, order* o){
 
 // SECTION: Methods for reporting order book and traders
 
-// TODO: Fix issue with buy elvels should be stacked, but not stacked.
-//! ISSUE: Assumeed that the report book was sorted! This is why you need to get things right on the first try
 // Returns a (mem alloced) dyn_arr with copies of orders except in level order
 dyn_arr* report_create_orders_with_levels(order_book* book){
 
@@ -569,7 +567,6 @@ dyn_arr* report_create_orders_with_levels(order_book* book){
 	bool has_prev = false;
 
 	// Calculate buy levels and combine it to make new book with combined buy levels
-	dyn_array_sort(book->orders, &descending_order_cmp); //! sort orders first to ensure book has consec orders next to each other
 	for (int i = 0; i < book->orders->used; i++){
 		dyn_array_get(book->orders, i, curr);
 		curr->_num_orders = 1;
