@@ -18,10 +18,8 @@
 #define CANCEL_CMD_SIZE 2
 // #define TEST
 
-// volatile int msgs_to_read = 0;
-
 // Queue containing most recent signals received from child processes
-linked_list* sig_info_list;
+int sig_pipe[2] = {0, 0};
 
 // SECTION: Data structures used
 
@@ -184,93 +182,6 @@ void* dyn_array_get_literal(dyn_arr* dyn, int idx){
     return dyn->array + idx * dyn->memb_size;
 }
 
-// SUBSECTION: LINKED LISTS
-
-linked_list* linked_list_init(size_t memb_size){
-    linked_list* list = calloc(1, sizeof(linked_list));
-    list->memb_size = memb_size;
-    list->head = NULL;
-    list->tail = NULL;
-    list->size = 0;
-    return list;
-}
-
-void node_free(node* n){
-    free(n->object);
-    free(n);
-}
-
-void linked_list_push(linked_list* list, void* element){
-    // Create new node
-    node* new = calloc(1, sizeof(node));
-    new->next = list->head;
-    new->object = calloc(1, list->memb_size);
-    memmove(new->object, element, list->memb_size);
-
-    list->head = new;
-    if (list->size == 0){
-        list->tail = list->head;
-    }
-
-    list->size++;
-}
-
-void linked_list_queue(linked_list* list, void* element){
-    // Create new node
-    node* new = calloc(1, sizeof(node));
-    new->next = NULL;
-    new->object = calloc(1, list->memb_size);
-    memmove(new->object, element, list->memb_size);
-
-    // Append it to tail
-    if (list->size == 0){
-        list->tail = new;
-        list->head = list->tail; 
-    } else {
-        list->tail->next = new;
-        list->tail = list->tail->next;
-    }
-
-    list->size++;
-}
-
-int linked_list_pop(linked_list* list, void* ret){
-    if (list->size == 0) return -1;
-    memmove(ret, list->head->object, list->memb_size);
-    node* old_head = list->head;
-    list->head = list->head->next;
-    node_free(old_head);
-
-    if (list->head == NULL){
-        list->tail = NULL;
-    }
-
-    list->size--;
-    return 1;
-}
-
-bool linked_list_isempty(linked_list* list){
-    return list->size == 0;
-}
-
-void linked_list_free(linked_list* list){
-    if (list->size > 0){
-        node* cursor = list->head;
-        node* old_cursor = NULL;
-        
-        while (cursor != NULL){
-            if (old_cursor != NULL) node_free(old_cursor);
-            
-            old_cursor = cursor;
-            cursor = cursor->next;
-        }
-
-        if (old_cursor != NULL) node_free(old_cursor);
-    }
-    free(list);
-}
-
-
 // SECTION: Signal handlers
 
 /**
@@ -291,13 +202,10 @@ void set_handler(int si, void (*handler) (int, siginfo_t*, void*)){
         exit(1);
     }
 }
-//! I think set_handler must be defined within this c so that context is valid?
 
-// TODO: Remove malloc/use of linked list from sig_handler.
 void sig_handler(int signal, siginfo_t *siginfo, void *context){
-	linked_list_queue(sig_info_list, siginfo);
+	write(sig_pipe[1], siginfo, sizeof(siginfo_t));
 }
-
 
 // SECTION: Comparator functions
 
@@ -650,8 +558,6 @@ void success_msg_all_traders(dyn_arr* traders, order* o){
 
 // SECTION: Methods for reporting order book and traders
 
-// TODO: Fix issue with buy elvels should be stacked, but not stacked.
-//! ISSUE: Assumeed that the report book was sorted! This is why you need to get things right on the first try
 // Returns a (mem alloced) dyn_arr with copies of orders except in level order
 dyn_arr* report_create_orders_with_levels(order_book* book){
 
@@ -661,7 +567,7 @@ dyn_arr* report_create_orders_with_levels(order_book* book){
 	bool has_prev = false;
 
 	// Calculate buy levels and combine it to make new book with combined buy levels
-	dyn_array_sort(book->orders, &descending_order_cmp); //! sort orders first to ensure book has consec orders next to each other
+	dyn_array_sort(book->orders, descending_order_cmp); //! Don't forget to test your assumptions
 	for (int i = 0; i < book->orders->used; i++){
 		dyn_array_get(book->orders, i, curr);
 		curr->_num_orders = 1;
@@ -759,6 +665,7 @@ void report_position_for_trader(trader* t){
 	free(curr);
 }
 
+// TODO: Fix up race condition in output during reporting
 void report(exch_data* exch){
 	#ifndef TEST
 		PREFIX_EXCH_L1
@@ -1306,7 +1213,7 @@ void teardown_traders(dyn_arr* traders){
 }
 
 // Frees all relevant memory for the program
-void free_program(exch_data* exch, struct pollfd* poll_fds, linked_list* siglist){
+void free_program(exch_data* exch, struct pollfd* poll_fds){
 	// Teardown
 	free(poll_fds);
 	teardown_traders(exch->traders);
@@ -1332,8 +1239,6 @@ void free_program(exch_data* exch, struct pollfd* poll_fds, linked_list* siglist
 	dyn_array_free(exch->buy_books);
 	dyn_array_free(exch->sell_books);
 
-	linked_list_free(siglist);
-
 	// Free exch
 	free(exch);
 }
@@ -1352,7 +1257,13 @@ int main(int argc, char **argv) {
 	PREFIX_EXCH
 	printf("Starting\n");
 
-	sig_info_list = linked_list_init(sizeof(siginfo_t));
+	// Self pipe for sending signals too (queue for signals)
+	if (pipe(sig_pipe) == -1 || 
+		fcntl(sig_pipe[0], F_SETFD, O_NONBLOCK) == -1 ||
+		fcntl(sig_pipe[1], F_SETFD, O_NONBLOCK) == -1){
+		perror("sigpipe failed\n");
+		return -1;
+	};
 
 	// Setup exchange data packet for all functions to use
 	exch_data* exch = calloc(1, sizeof(exch_data));
@@ -1381,8 +1292,10 @@ int main(int argc, char **argv) {
 	exch->traders = traders;
 
 	// Construct poll data structure
-	struct pollfd *poll_fds = calloc(traders->used, sizeof(struct pollfd));
 	int connected_traders = traders->used;
+
+	int no_poll_fds = traders->used + 1;
+	struct pollfd *poll_fds = calloc(no_poll_fds, sizeof(struct pollfd));
 	int no_fd_events = 0;
 
 	trader* t = calloc(1, sizeof(trader));
@@ -1393,6 +1306,9 @@ int main(int argc, char **argv) {
 		poll_fds[i].events = POLLHUP; // means poll only makes revents field not 0 if POLLHUP is detected
 	}
 	free(t);
+	struct pollfd *poll_sp = &poll_fds[no_poll_fds-1];
+	poll_sp->fd = sig_pipe[0];
+	poll_sp->events = POLLIN;
 	trader_message_all(traders, "MARKET OPEN;");
 
 	// Handle orders from traders
@@ -1400,19 +1316,21 @@ int main(int argc, char **argv) {
 
 		if (connected_traders == 0) break;
 			
-		// Pause CPU until we receive another signal
-        if (sig_info_list->size == 0) {
-			// PREFIX_EXCH
-			// printf("pausing\n");
-            // TODO: if trader disconnects before we get to poll will poll detect disconnection?
-			// TODO: I think it will because the poll says revents is FILLED BY THE KERNEL i.e. even if you set it to 0 it just gets refilled 
-			// TODO: consider order of disconnection, will it print in order if multiple trader disconnect at the same time
-			no_fd_events = poll(poll_fds, traders->used, -1);
-        }	
+		// Pause CPU until we receive some signal or trader disconnects
+		// no_fd_events = poll(poll_fds, no_poll_fds, -1);
+		// printf("Pausing\n");
+		poll(poll_fds, no_poll_fds, -1);
+		bool has_signal = poll(poll_sp, 1, 0);
+		int disconnect_events = poll(poll_fds, no_poll_fds-1, 0);
 
-		// Comment to test race condition
+		// TODO: Fix issue with main loop still occasionally getting stuck -> probably what's causing race condition
+			// Only occurs when I try to redirect output
+		// TODO: Check if if order of disconnection is correct, or us sigchild.
+		// TODO: if trader disconnects before we get to poll will poll detect disconnection?
+		// TODO: I think it will because the poll says revents is FILLED BY THE KERNEL i.e. even if you set it to 0 it just gets refilled 
+		// TODO: consider order of disconnection, will it print in order if multiple trader disconnect at the same time
 
-		while (no_fd_events > 0){
+		while (disconnect_events > 0){
 			for (int i = 0; i < traders->used; i++){
 				//? I set poll_fds[i] to -1 so kernel populates it with some other error message? -> POLLNVAL
 				if ((poll_fds[i].revents&POLLHUP) == POLLHUP){
@@ -1430,17 +1348,20 @@ int main(int argc, char **argv) {
 						PREFIX_EXCH
 						printf("Trader %d disconnected\n", t->id);
 						connected_traders--;
-						no_fd_events--;		
+						// no_fd_events--;		
+						disconnect_events--;
 						free(t);
 					}
 				}
 			}
+
 		}
 
-		// Walk through
-		while (sig_info_list->size > 0) {
+		// Test race
+		while (has_signal){
 			siginfo_t* ret = calloc(1, sizeof(siginfo_t));
-			linked_list_pop(sig_info_list, ret);
+			read(sig_pipe[0], ret, sizeof(siginfo_t));
+			no_fd_events--;
 	
 			// find literal location of child with same process id
 			trader* t = calloc(1, sizeof(trader));
@@ -1463,7 +1384,20 @@ int main(int argc, char **argv) {
 
 			free(ret);
 			free(msg);
+			has_signal = poll(poll_sp, 1, 0);
+			// TODO: Fix race condition issue on ed 
+				// NB: Race condition persists with version that uses malloc too.
+
+			// Slight change in comment to see if race condition
+			// Read from self pipe (i.e. signals) if it is non empty
+			// while (poll(poll_sp, 1, 0) > 0){
+				
+			// }
+
 		}
+
+		// Walk through
+		// TODO: Check for signals in between processing each signal?
 
 	}
 	
@@ -1473,7 +1407,7 @@ int main(int argc, char **argv) {
 	PREFIX_EXCH
 	printf("Exchange fees collected: $%ld\n", exch->fees);
 
-	free_program(exch, poll_fds, sig_info_list);
+	free_program(exch, poll_fds);
 
 	return 0;
 }

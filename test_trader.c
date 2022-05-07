@@ -251,6 +251,7 @@ int main(int argc, char ** argv) {
                     !strcmp(result, t.acts[t.current_act].trigger)){
                     // printf("Child 1 is sending command to parent %s\n", )
                     write_to_parent(t.acts[t.current_act++].command, fd_write);
+                    // TODO: insert close pipe to test half close scenarios
                 } else if (t.current_act == t.size_act &&
                     !strcmp(result, t.disconnect_trigger)){
                     #ifdef TEST
