@@ -219,7 +219,9 @@ int main(int argc, char ** argv) {
         if (strlen(result) > 0) {
             msgs_to_read--;
             PREFIX_CHILD(id);
-            printf("Received message: %s\n", result);
+            #ifdef TEST
+                printf("Received message: %s\n", result);
+            #endif
             // TODO: Output to text file
             fprintf(out, "[T%d] Received: %s\n", id, result);
                 // fwrite(result, strlen(result), 1, out);
@@ -233,9 +235,10 @@ int main(int argc, char ** argv) {
             memmove(result_cpy, result, strlen(result)+1);
             get_args_from_msg(result_cpy, &args);
             
-            printf("Current action: %s via trigger %s\n", t.acts[t.current_act].command, t.acts[t.current_act].trigger);
-            printf("Disconnect trigger: %s\n", t.disconnect_trigger);
-            // printf("current command index %d, size_commands: %d\n", current_command, size_commands);
+            #ifdef TEST
+                printf("Current action: %s via trigger %s\n", t.acts[t.current_act].command, t.acts[t.current_act].trigger);
+                printf("Disconnect trigger: %s\n", t.disconnect_trigger);
+            #endif
             if (!strcmp(args[0], "MARKET") && !strcmp(args[1], "OPEN")) market_is_open = true;
 
             if (market_is_open){
@@ -246,7 +249,9 @@ int main(int argc, char ** argv) {
                     write_to_parent(t.acts[t.current_act++].command, fd_write);
                 } else if (t.current_act == t.size_act &&
                     !strcmp(result, t.disconnect_trigger)){
-                    printf("[T%d] is disconnecting\n", id);
+                    #ifdef TEST
+                        printf("[T%d] is disconnecting\n", id);
+                    #endif TEST
                     fprintf(out, "[T%d] Event: DISCONNECT\n", id);
                     fclose(out);
                     free(args);
