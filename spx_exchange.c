@@ -1491,7 +1491,6 @@ int main(int argc, char **argv) {
 			while (poll(poll_sp, 1, 0) > 0){
 				siginfo_t* ret = calloc(1, sizeof(siginfo_t));
 				read(sig_pipe[0], ret, sizeof(siginfo_t));
-				printf("REt received: %d %d\n", ret->si_code, ret->si_pid);
 				// sigs_on_pipe = sigs_on_pipe - 1;
 				// linked_list_pop(sig_info_list, ret);
 		
@@ -1518,7 +1517,7 @@ int main(int argc, char **argv) {
 				free(ret);
 				free(msg);
 			}
-			
+
 		}
 
 		// Walk through
