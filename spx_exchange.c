@@ -567,6 +567,7 @@ dyn_arr* report_create_orders_with_levels(order_book* book){
 	bool has_prev = false;
 
 	// Calculate buy levels and combine it to make new book with combined buy levels
+	dyn_array_sort(book->orders, descending_order_cmp);
 	for (int i = 0; i < book->orders->used; i++){
 		dyn_array_get(book->orders, i, curr);
 		curr->_num_orders = 1;
