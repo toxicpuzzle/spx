@@ -1408,7 +1408,9 @@ int main(int argc, char **argv) {
 			// TODO: I think it will because the poll says revents is FILLED BY THE KERNEL i.e. even if you set it to 0 it just gets refilled 
 			// TODO: consider order of disconnection, will it print in order if multiple trader disconnect at the same time
 			no_fd_events = poll(poll_fds, traders->used, -1);
-        }
+        }	
+
+		// Comment to test race condition
 
 		while (no_fd_events > 0){
 			for (int i = 0; i < traders->used; i++){
