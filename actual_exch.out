@@ -5,6 +5,7 @@
 [SPX] Starting trader 0 (./test_trader)
 [SPX] Connected to /tmp/spx_exchange_0
 [SPX] Connected to /tmp/spx_trader_0
+Pausing
 [SPX] [T0] Parsing command: <BUY 0 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -17,108 +18,126 @@
 [SPX]		BUY 2 @ $1 (2 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 2 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 3 @ $1 (3 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 3 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 4 @ $1 (4 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 4 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 5 @ $1 (5 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 5 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 6 @ $1 (6 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 6 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 7 @ $1 (7 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 7 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 8 @ $1 (8 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 8 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 9 @ $1 (9 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 9 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 10 @ $1 (10 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 10 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 11 @ $1 (11 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 11 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 12 @ $1 (12 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 12 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 13 @ $1 (13 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 13 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 14 @ $1 (14 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 14 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 15 @ $1 (15 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 15 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 16 @ $1 (16 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 16 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 17 @ $1 (17 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 17 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 18 @ $1 (18 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 18 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 19 @ $1 (19 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 19 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -137,108 +156,126 @@
 [SPX]		BUY 22 @ $1 (22 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 22 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 23 @ $1 (23 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 23 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 24 @ $1 (24 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 24 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 25 @ $1 (25 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 25 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 26 @ $1 (26 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 26 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 27 @ $1 (27 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 27 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 28 @ $1 (28 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 28 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 29 @ $1 (29 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 29 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 30 @ $1 (30 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 30 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 31 @ $1 (31 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 31 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 32 @ $1 (32 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 32 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 33 @ $1 (33 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 33 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 34 @ $1 (34 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 34 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 35 @ $1 (35 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 35 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 36 @ $1 (36 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 36 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 37 @ $1 (37 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 37 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 38 @ $1 (38 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 38 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 39 @ $1 (39 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 39 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -251,18 +288,21 @@
 [SPX]		BUY 41 @ $1 (41 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 41 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 42 @ $1 (42 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 42 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 43 @ $1 (43 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 43 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -275,48 +315,56 @@
 [SPX]		BUY 45 @ $1 (45 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 45 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 46 @ $1 (46 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 46 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 47 @ $1 (47 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 47 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 48 @ $1 (48 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 48 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 49 @ $1 (49 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 49 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 50 @ $1 (50 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 50 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 51 @ $1 (51 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 51 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 52 @ $1 (52 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 52 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -329,12 +377,14 @@
 [SPX]		BUY 54 @ $1 (54 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 54 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 55 @ $1 (55 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 55 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -347,24 +397,28 @@
 [SPX]		BUY 57 @ $1 (57 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 57 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 58 @ $1 (58 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 58 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 59 @ $1 (59 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 59 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 60 @ $1 (60 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 60 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -377,6 +431,7 @@
 [SPX]		BUY 62 @ $1 (62 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 62 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -389,24 +444,28 @@
 [SPX]		BUY 64 @ $1 (64 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 64 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 65 @ $1 (65 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 65 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 66 @ $1 (66 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 66 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 67 @ $1 (67 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 67 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -425,24 +484,28 @@
 [SPX]		BUY 70 @ $1 (70 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 70 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 71 @ $1 (71 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 71 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 72 @ $1 (72 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 72 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 73 @ $1 (73 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 73 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -455,6 +518,7 @@
 [SPX]		BUY 75 @ $1 (75 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 75 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -467,6 +531,7 @@
 [SPX]		BUY 77 @ $1 (77 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 77 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -479,6 +544,7 @@
 [SPX]		BUY 79 @ $1 (79 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 79 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -491,24 +557,28 @@
 [SPX]		BUY 81 @ $1 (81 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 81 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 82 @ $1 (82 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 82 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 83 @ $1 (83 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 83 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 84 @ $1 (84 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 84 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -521,12 +591,14 @@
 [SPX]		BUY 86 @ $1 (86 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 86 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 87 @ $1 (87 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 87 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -539,18 +611,21 @@
 [SPX]		BUY 89 @ $1 (89 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 89 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 90 @ $1 (90 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 90 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 91 @ $1 (91 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 91 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -563,66 +638,77 @@
 [SPX]		BUY 93 @ $1 (93 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 93 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 94 @ $1 (94 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 94 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 95 @ $1 (95 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 95 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 96 @ $1 (96 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 96 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 97 @ $1 (97 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 97 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 98 @ $1 (98 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 98 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 99 @ $1 (99 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 99 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 100 @ $1 (100 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 100 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 101 @ $1 (101 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 101 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 102 @ $1 (102 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 102 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 103 @ $1 (103 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 103 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -635,30 +721,35 @@
 [SPX]		BUY 105 @ $1 (105 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 105 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 106 @ $1 (106 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 106 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 107 @ $1 (107 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 107 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 108 @ $1 (108 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 108 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 109 @ $1 (109 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 109 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -671,18 +762,21 @@
 [SPX]		BUY 111 @ $1 (111 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 111 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 112 @ $1 (112 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 112 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 113 @ $1 (113 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 113 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -695,6 +789,7 @@
 [SPX]		BUY 115 @ $1 (115 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 115 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -713,6 +808,7 @@
 [SPX]		BUY 118 @ $1 (118 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 118 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -731,6 +827,7 @@
 [SPX]		BUY 121 @ $1 (121 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 121 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -761,6 +858,7 @@
 [SPX]		BUY 126 @ $1 (126 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 126 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -779,24 +877,28 @@
 [SPX]		BUY 129 @ $1 (129 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 129 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 130 @ $1 (130 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 130 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 131 @ $1 (131 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 131 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 132 @ $1 (132 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 132 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -809,6 +911,7 @@
 [SPX]		BUY 134 @ $1 (134 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 134 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -875,6 +978,7 @@
 [SPX]		BUY 145 @ $1 (145 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 145 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -905,6 +1009,7 @@
 [SPX]		BUY 150 @ $1 (150 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 150 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -917,48 +1022,56 @@
 [SPX]		BUY 152 @ $1 (152 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 152 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 153 @ $1 (153 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 153 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 154 @ $1 (154 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 154 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 155 @ $1 (155 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 155 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 156 @ $1 (156 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 156 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 157 @ $1 (157 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 157 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 158 @ $1 (158 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 158 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 159 @ $1 (159 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 159 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -971,6 +1084,7 @@
 [SPX]		BUY 161 @ $1 (161 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 161 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1001,18 +1115,21 @@
 [SPX]		BUY 166 @ $1 (166 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 166 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 167 @ $1 (167 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 167 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 168 @ $1 (168 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 168 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1037,6 +1154,7 @@
 [SPX]		BUY 172 @ $1 (172 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 172 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1055,12 +1173,14 @@
 [SPX]		BUY 175 @ $1 (175 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 175 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 176 @ $1 (176 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 176 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1073,6 +1193,7 @@
 [SPX]		BUY 178 @ $1 (178 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 178 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1097,6 +1218,7 @@
 [SPX]		BUY 182 @ $1 (182 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 182 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1121,12 +1243,14 @@
 [SPX]		BUY 186 @ $1 (186 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 186 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 187 @ $1 (187 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 187 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1145,6 +1269,7 @@
 [SPX]		BUY 190 @ $1 (190 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 190 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1163,24 +1288,28 @@
 [SPX]		BUY 193 @ $1 (193 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 193 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 194 @ $1 (194 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 194 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 195 @ $1 (195 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 195 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 196 @ $1 (196 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 196 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1193,6 +1322,7 @@
 [SPX]		BUY 198 @ $1 (198 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 198 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1211,6 +1341,7 @@
 [SPX]		BUY 201 @ $1 (201 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 201 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1241,6 +1372,7 @@
 [SPX]		BUY 206 @ $1 (206 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 206 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1289,6 +1421,7 @@
 [SPX]		BUY 214 @ $1 (214 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 214 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1331,6 +1464,7 @@
 [SPX]		BUY 221 @ $1 (221 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 221 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1349,48 +1483,56 @@
 [SPX]		BUY 224 @ $1 (224 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 224 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 225 @ $1 (225 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 225 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 226 @ $1 (226 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 226 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 227 @ $1 (227 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 227 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 228 @ $1 (228 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 228 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 229 @ $1 (229 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 229 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 230 @ $1 (230 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 230 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 231 @ $1 (231 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 231 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1421,6 +1563,7 @@
 [SPX]		BUY 236 @ $1 (236 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 236 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1433,12 +1576,14 @@
 [SPX]		BUY 238 @ $1 (238 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 238 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 239 @ $1 (239 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 239 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1463,6 +1608,7 @@
 [SPX]		BUY 243 @ $1 (243 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 243 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1487,6 +1633,7 @@
 [SPX]		BUY 247 @ $1 (247 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 247 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1535,18 +1682,21 @@
 [SPX]		BUY 255 @ $1 (255 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 255 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 256 @ $1 (256 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 256 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 257 @ $1 (257 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 257 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1583,6 +1733,7 @@
 [SPX]		BUY 263 @ $1 (263 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 263 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1595,6 +1746,7 @@
 [SPX]		BUY 265 @ $1 (265 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 265 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1643,12 +1795,14 @@
 [SPX]		BUY 273 @ $1 (273 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 273 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 274 @ $1 (274 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 274 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1661,18 +1815,21 @@
 [SPX]		BUY 276 @ $1 (276 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 276 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 277 @ $1 (277 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 277 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 278 @ $1 (278 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 278 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1685,6 +1842,7 @@
 [SPX]		BUY 280 @ $1 (280 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 280 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1703,6 +1861,7 @@
 [SPX]		BUY 283 @ $1 (283 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 283 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1727,6 +1886,7 @@
 [SPX]		BUY 287 @ $1 (287 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 287 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1763,6 +1923,7 @@
 [SPX]		BUY 293 @ $1 (293 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 293 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1775,12 +1936,14 @@
 [SPX]		BUY 295 @ $1 (295 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 295 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 296 @ $1 (296 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 296 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1805,6 +1968,7 @@
 [SPX]		BUY 300 @ $1 (300 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 300 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1823,6 +1987,7 @@
 [SPX]		BUY 303 @ $1 (303 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 303 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1841,6 +2006,7 @@
 [SPX]		BUY 306 @ $1 (306 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 306 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -1997,6 +2163,7 @@
 [SPX]		BUY 332 @ $1 (332 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 332 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -2039,6 +2206,7 @@
 [SPX]		BUY 339 @ $1 (339 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 339 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -2087,6 +2255,7 @@
 [SPX]		BUY 347 @ $1 (347 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 347 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -2105,6 +2274,7 @@
 [SPX]		BUY 350 @ $1 (350 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 350 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -2135,6 +2305,7 @@
 [SPX]		BUY 355 @ $1 (355 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 355 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -2177,18 +2348,21 @@
 [SPX]		BUY 362 @ $1 (362 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 362 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 363 @ $1 (363 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 363 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
 [SPX]		BUY 364 @ $1 (364 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 364 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -2423,6 +2597,7 @@
 [SPX]		BUY 403 @ $1 (403 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 403 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -2435,6 +2610,7 @@
 [SPX]		BUY 405 @ $1 (405 orders)
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
+Pausing
 [SPX] [T0] Parsing command: <BUY 405 Foo 1 1>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
@@ -2472,539 +2648,3 @@
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: Foo 0 ($0)
 [SPX] [T0] Parsing command: <BUY 411 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 412 @ $1 (412 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 412 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 413 @ $1 (413 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 413 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 414 @ $1 (414 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 414 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 415 @ $1 (415 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 415 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 416 @ $1 (416 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 416 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 417 @ $1 (417 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 417 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 418 @ $1 (418 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 418 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 419 @ $1 (419 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 419 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 420 @ $1 (420 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 420 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 421 @ $1 (421 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 421 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 422 @ $1 (422 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 422 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 423 @ $1 (423 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 423 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 424 @ $1 (424 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 424 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 425 @ $1 (425 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 425 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 426 @ $1 (426 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 426 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 427 @ $1 (427 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 427 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 428 @ $1 (428 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 428 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 429 @ $1 (429 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 429 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 430 @ $1 (430 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 430 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 431 @ $1 (431 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 431 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 432 @ $1 (432 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 432 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 433 @ $1 (433 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 433 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 434 @ $1 (434 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 434 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 435 @ $1 (435 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 435 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 436 @ $1 (436 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 436 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 437 @ $1 (437 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 437 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 438 @ $1 (438 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 438 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 439 @ $1 (439 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 439 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 440 @ $1 (440 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 440 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 441 @ $1 (441 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 441 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 442 @ $1 (442 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 442 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 443 @ $1 (443 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 443 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 444 @ $1 (444 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 444 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 445 @ $1 (445 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 445 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 446 @ $1 (446 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 446 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 447 @ $1 (447 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 447 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 448 @ $1 (448 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 448 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 449 @ $1 (449 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 449 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 450 @ $1 (450 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 450 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 451 @ $1 (451 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 451 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 452 @ $1 (452 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 452 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 453 @ $1 (453 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 453 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 454 @ $1 (454 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 454 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 455 @ $1 (455 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 455 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 456 @ $1 (456 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 456 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 457 @ $1 (457 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 457 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 458 @ $1 (458 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 458 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 459 @ $1 (459 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 459 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 460 @ $1 (460 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 460 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 461 @ $1 (461 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 461 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 462 @ $1 (462 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 462 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 463 @ $1 (463 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 463 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 464 @ $1 (464 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 464 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 465 @ $1 (465 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 465 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 466 @ $1 (466 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 466 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 467 @ $1 (467 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 467 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 468 @ $1 (468 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 468 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 469 @ $1 (469 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 469 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 470 @ $1 (470 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 470 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 471 @ $1 (471 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 471 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 472 @ $1 (472 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 472 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 473 @ $1 (473 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 473 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 474 @ $1 (474 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 474 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 475 @ $1 (475 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 475 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 476 @ $1 (476 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 476 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 477 @ $1 (477 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 477 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 478 @ $1 (478 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 478 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 479 @ $1 (479 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 479 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 480 @ $1 (480 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 480 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 481 @ $1 (481 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 481 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 482 @ $1 (482 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 482 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 483 @ $1 (483 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 483 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 484 @ $1 (484 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 484 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 485 @ $1 (485 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 485 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 486 @ $1 (486 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 486 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 487 @ $1 (487 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 487 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 488 @ $1 (488 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 488 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 489 @ $1 (489 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 489 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 490 @ $1 (490 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 490 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 491 @ $1 (491 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 491 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 492 @ $1 (492 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 492 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 493 @ $1 (493 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 493 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 494 @ $1 (494 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 494 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 495 @ $1 (495 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 495 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 496 @ $1 (496 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 496 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 497 @ $1 (497 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 497 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 498 @ $1 (498 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 498 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 499 @ $1 (499 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] [T0] Parsing command: <BUY 499 Foo 1 1>
-[SPX]	--ORDERBOOK--
-[SPX]	Product: Foo; Buy levels: 1; Sell levels: 0
-[SPX]		BUY 500 @ $1 (500 orders)
-[SPX]	--POSITIONS--
-[SPX]	Trader 0: Foo 0 ($0)
-[SPX] Trader 0 disconnected
-[SPX] Trading completed
-[SPX] Exchange fees collected: $0

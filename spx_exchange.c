@@ -567,7 +567,7 @@ dyn_arr* report_create_orders_with_levels(order_book* book){
 	bool has_prev = false;
 
 	// Calculate buy levels and combine it to make new book with combined buy levels
-	dyn_array_sort(book->orders, descending_order_cmp);
+	dyn_array_sort(book->orders, descending_order_cmp); //! Don't forget to test your assumptions
 	for (int i = 0; i < book->orders->used; i++){
 		dyn_array_get(book->orders, i, curr);
 		curr->_num_orders = 1;
@@ -665,6 +665,7 @@ void report_position_for_trader(trader* t){
 	free(curr);
 }
 
+// TODO: Fix up race condition in output during reporting
 void report(exch_data* exch){
 	#ifndef TEST
 		PREFIX_EXCH_L1
@@ -1317,10 +1318,13 @@ int main(int argc, char **argv) {
 			
 		// Pause CPU until we receive some signal or trader disconnects
 		// no_fd_events = poll(poll_fds, no_poll_fds, -1);
+		// printf("Pausing\n");
 		poll(poll_fds, no_poll_fds, -1);
 		bool has_signal = poll(poll_sp, 1, 0);
 		int disconnect_events = poll(poll_fds, no_poll_fds-1, 0);
 
+		// TODO: Fix issue with main loop still occasionally getting stuck -> probably what's causing race condition
+			// Only occurs when I try to redirect output
 		// TODO: Check if if order of disconnection is correct, or us sigchild.
 		// TODO: if trader disconnects before we get to poll will poll detect disconnection?
 		// TODO: I think it will because the poll says revents is FILLED BY THE KERNEL i.e. even if you set it to 0 it just gets refilled 
@@ -1381,8 +1385,9 @@ int main(int argc, char **argv) {
 			free(ret);
 			free(msg);
 			has_signal = poll(poll_sp, 1, 0);
-			// TODO: Fix race condition issue on ed caused by changes to main loop
-			
+			// TODO: Fix race condition issue on ed 
+				// NB: Race condition persists with version that uses malloc too.
+
 			// Slight change in comment to see if race condition
 			// Read from self pipe (i.e. signals) if it is non empty
 			// while (poll(poll_sp, 1, 0) > 0){
