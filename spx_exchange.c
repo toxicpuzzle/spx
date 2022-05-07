@@ -1318,7 +1318,9 @@ int main(int argc, char **argv) {
 		if (connected_traders == 0) break;
 			
 		// Pause CPU until we receive some signal or trader disconnects
-		no_fd_events = poll(poll_fds, no_poll_fds, -1);
+		// no_fd_events = poll(poll_fds, no_poll_fds, -1);
+		poll(poll_fds, no_poll_fds, -1);
+		bool has_signal = poll(poll_sp, 1, 0);
 		int disconnect_events = poll(poll_fds, no_poll_fds-1, 0);
 
 		// TODO: Check if if order of disconnection is correct, or us sigchild.
@@ -1326,7 +1328,7 @@ int main(int argc, char **argv) {
 		// TODO: I think it will because the poll says revents is FILLED BY THE KERNEL i.e. even if you set it to 0 it just gets refilled 
 		// TODO: consider order of disconnection, will it print in order if multiple trader disconnect at the same time
 
-		if (disconnect_events > 0){
+		while (disconnect_events > 0){
 			for (int i = 0; i < traders->used; i++){
 				//? I set poll_fds[i] to -1 so kernel populates it with some other error message? -> POLLNVAL
 				if ((poll_fds[i].revents&POLLHUP) == POLLHUP){
@@ -1344,8 +1346,8 @@ int main(int argc, char **argv) {
 						PREFIX_EXCH
 						printf("Trader %d disconnected\n", t->id);
 						connected_traders--;
-						no_fd_events--;		
-						
+						// no_fd_events--;		
+						disconnect_events--;
 						free(t);
 					}
 				}
@@ -1353,12 +1355,11 @@ int main(int argc, char **argv) {
 
 		}
 
-
-
-		while (no_fd_events > 0){
+		while (has_signal){
 
 			siginfo_t* ret = calloc(1, sizeof(siginfo_t));
 			read(sig_pipe[0], ret, sizeof(siginfo_t));
+			no_fd_events--;
 	
 			// find literal location of child with same process id
 			trader* t = calloc(1, sizeof(trader));
@@ -1379,10 +1380,9 @@ int main(int argc, char **argv) {
 				process_message(msg, t, exch);
 			}
 
-			no_fd_events--;
 			free(ret);
 			free(msg);
-
+			has_signal = poll(poll_sp, 1, 0);
 			// TODO: Fix race condition issue on ed caused by changes to main loop
 			
 			// Slight change in comment to see if race condition
