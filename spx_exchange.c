@@ -824,7 +824,6 @@ void _process_trade_signal_trader(order* o, int amt_filled){
 	char msg[MAX_LINE];
 	// sprintf(msg, "FILL %d %d price%d time%d isbuy:%d ;", o->order_id, amt_filled, o->price, o->order_uid, o->is_buy);
 	sprintf(msg, "FILL %d %d;", o->order_id, amt_filled);
-	
 	trader_message(target, msg);
 }
 
@@ -1329,7 +1328,7 @@ int main(int argc, char **argv) {
 		// TODO: if trader disconnects before we get to poll will poll detect disconnection?
 		// TODO: I think it will because the poll says revents is FILLED BY THE KERNEL i.e. even if you set it to 0 it just gets refilled 
 		// TODO: consider order of disconnection, will it print in order if multiple trader disconnect at the same time
-
+		// TEST
 		while (disconnect_events > 0){
 			for (int i = 0; i < traders->used; i++){
 				//? I set poll_fds[i] to -1 so kernel populates it with some other error message? -> POLLNVAL
