@@ -1350,7 +1350,7 @@ int main(int argc, char **argv) {
 				}
 			}
 
-			// Slight change in comment to see if race condition
+			// Slight change in comment to see if race conditions
 			// Read from self pipe (i.e. signals) if it is non empty
 			while (poll(poll_sp, 1, 0) > 0){
 				siginfo_t* ret = calloc(1, sizeof(siginfo_t));
