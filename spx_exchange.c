@@ -21,7 +21,9 @@
 // volatile int msgs_to_read = 0;
 
 // Queue containing most recent signals received from child processes
-linked_list* sig_info_list;
+int sig_pipe[2] = {0, 0};
+// volatile sig_atomic_t sigs_on_pipe = 0;
+// linked_list* sig_info_list;
 
 // SECTION: Data structures used
 
@@ -294,8 +296,18 @@ void set_handler(int si, void (*handler) (int, siginfo_t*, void*)){
 //! I think set_handler must be defined within this c so that context is valid?
 
 // TODO: Remove malloc/use of linked list from sig_handler.
+// void sig_handler(int signal, siginfo_t *siginfo, void *context){
+// 	linked_list_queue(sig_info_list, siginfo);
+// }
+// void update_global(){
+// 	sigs_on_pipe++;
+// }
+
 void sig_handler(int signal, siginfo_t *siginfo, void *context){
-	linked_list_queue(sig_info_list, siginfo);
+	// update_global();	
+	// sigs_on_pipe = sigs_on_pipe + 1;
+	// printf("Received signal %d\n", sigs_on_pipe);
+	write(sig_pipe[1], siginfo, sizeof(siginfo_t));
 }
 
 
@@ -1352,16 +1364,21 @@ int main(int argc, char **argv) {
 	PREFIX_EXCH
 	printf("Starting\n");
 
-	sig_info_list = linked_list_init(sizeof(siginfo_t));
+	linked_list* sig_info_list = linked_list_init(sizeof(siginfo_t));
 	// TODO: Implement self-pipe
-	int sig_pipe[2];
+	// Idea: combine this with the poll below so you have one poll function for either disconnection
+	// Or message events
+	// int sigs_on_pipe = 0;
 	if (pipe(sig_pipe) == -1 || 
 		fcntl(sig_pipe[0], F_SETFD, O_NONBLOCK) == -1 ||
 		fcntl(sig_pipe[1], F_SETFD, O_NONBLOCK) == -1){
 		perror("sigpipe failed\n");
 		return -1;
 	};
-	int sig_pipe_read = sig_pipe[0];
+	// struct pollfd poll_sp = {
+	// 	.fd = sig_pipe[0],
+	// 	.events = POLLIN
+	// };
 
 	// Setup exchange data packet for all functions to use
 	exch_data* exch = calloc(1, sizeof(exch_data));
@@ -1390,8 +1407,10 @@ int main(int argc, char **argv) {
 	exch->traders = traders;
 
 	// Construct poll data structure
-	struct pollfd *poll_fds = calloc(traders->used, sizeof(struct pollfd));
 	int connected_traders = traders->used;
+
+	int no_poll_fds = traders->used + 1;
+	struct pollfd *poll_fds = calloc(no_poll_fds, sizeof(struct pollfd));
 	int no_fd_events = 0;
 
 	trader* t = calloc(1, sizeof(trader));
@@ -1402,6 +1421,11 @@ int main(int argc, char **argv) {
 		poll_fds[i].events = POLLHUP; // means poll only makes revents field not 0 if POLLHUP is detected
 	}
 	free(t);
+	struct pollfd *poll_sp = &poll_fds[no_poll_fds-1];
+	poll_sp->fd = sig_pipe[0];
+	poll_sp->events = POLLIN;
+	// poll_fds[no_poll_fds-1].fd = sig_pipe[0];
+	// poll_fds[no_poll_fds-1].events = POLLIN;	
 	trader_message_all(traders, "MARKET OPEN;");
 
 	// Handle orders from traders
@@ -1410,17 +1434,36 @@ int main(int argc, char **argv) {
 		if (connected_traders == 0) break;
 			
 		// Pause CPU until we receive another signal
-        if (sig_info_list->size == 0) {
-			// PREFIX_EXCH
-			// printf("pausing\n");
-            // TODO: if trader disconnects before we get to poll will poll detect disconnection?
-			// TODO: I think it will because the poll says revents is FILLED BY THE KERNEL i.e. even if you set it to 0 it just gets refilled 
-			// TODO: consider order of disconnection, will it print in order if multiple trader disconnect at the same time
-			no_fd_events = poll(poll_fds, traders->used, -1);
-        }
+		
+		// if (sigs_on_pipe == 0){
+			// printf("Pausing\n");
+			// printf("recevied signal or polled something\n");
+			// int val = poll(&poll_sp, 1, -1);
+			// if ((val == -1 && errno == EINTR) || val == 1){
+			// } else {
+			// 	no_fd_events = poll(poll_fds, traders->used, -1);
+			// }
+		no_fd_events = poll(poll_fds, no_poll_fds, -1);
+
+		// if (no_fd_events == 0) poll(&poll_sp, 1, -1);
+
+		// if (val > 0 || val == -1 && errno == EINTR){
+		// 	// printf("Pausing with this many %d signals left to process\n", sigs_on_pipe);
+		// }
+
+        // if (sig_info_list->size == 0) {
+		// 	// PREFIX_EXCH
+		// 	// printf("pausing\n");
+        //     // TODO: if trader disconnects before we get to poll will poll detect disconnection?
+		// 	// TODO: I think it will because the poll says revents is FILLED BY THE KERNEL i.e. even if you set it to 0 it just gets refilled 
+		// 	// TODO: consider order of disconnection, will it print in order if multiple trader disconnect at the same time
+		// 	no_fd_events = poll(poll_fds, traders->used, -1);
+        // }
 
 		// TODO: Check if if order of disconnection is correct, or us sigchild.
+		// while (no_fd_events > 0){
 		while (no_fd_events > 0){
+
 			for (int i = 0; i < traders->used; i++){
 				//? I set poll_fds[i] to -1 so kernel populates it with some other error message? -> POLLNVAL
 				if ((poll_fds[i].revents&POLLHUP) == POLLHUP){
@@ -1443,37 +1486,76 @@ int main(int argc, char **argv) {
 					}
 				}
 			}
+
+			// Read input
+			while (poll(poll_sp, 1, 0) > 0){
+				siginfo_t* ret = calloc(1, sizeof(siginfo_t));
+				read(sig_pipe[0], ret, sizeof(siginfo_t));
+				printf("REt received: %d %d\n", ret->si_code, ret->si_pid);
+				// sigs_on_pipe = sigs_on_pipe - 1;
+				// linked_list_pop(sig_info_list, ret);
+		
+				// find literal location of child with same process id
+				trader* t = calloc(1, sizeof(trader));
+				t->process_id = ret->si_pid;
+				int idx = dyn_array_find(traders, t, &trader_cmp_by_process_id);
+				free(t);
+				t = dyn_array_get_literal(traders, idx);
+				
+				// Read message from the trader
+				char* msg = fifo_read(t->fd_read);
+				PREFIX_EXCH
+				printf("[T%d] Parsing command: <%s>\n", t->id, msg);
+
+				if (!is_valid_command(msg, t, exch) ||
+					t->connected == false){
+					trader_message(t, "INVALID;");
+				} else {
+					process_message(msg, t, exch);
+				}
+
+				no_fd_events--;
+				free(ret);
+				free(msg);
+			}
+			
 		}
 
 		// Walk through
 		// TODO: Check for signals in between processing each signal?
 		// For test traders maybe just do wait for process exits;
-		while (sig_info_list->size > 0) {
-			siginfo_t* ret = calloc(1, sizeof(siginfo_t));
-			linked_list_pop(sig_info_list, ret);
+		// while (sig_info_list->size > 0) {
+		// printf("Sigs on pipe at this stage: %d\n", sigs_on_pipe);
+		// // while (sigs_on_pipe > 0){
+		// while (poll(&poll_sp, 1, 0) > 0){
+		// 	siginfo_t* ret = calloc(1, sizeof(siginfo_t));
+		// 	read(sig_pipe[0], ret, sizeof(siginfo_t));
+		// 	printf("REt received: %d %d\n", ret->si_code, ret->si_pid);
+		// 	// sigs_on_pipe = sigs_on_pipe - 1;
+		// 	// linked_list_pop(sig_info_list, ret);
 	
-			// find literal location of child with same process id
-			trader* t = calloc(1, sizeof(trader));
-			t->process_id = ret->si_pid;
-			int idx = dyn_array_find(traders, t, &trader_cmp_by_process_id);
-			free(t);
-			t = dyn_array_get_literal(traders, idx);
+		// 	// find literal location of child with same process id
+		// 	trader* t = calloc(1, sizeof(trader));
+		// 	t->process_id = ret->si_pid;
+		// 	int idx = dyn_array_find(traders, t, &trader_cmp_by_process_id);
+		// 	free(t);
+		// 	t = dyn_array_get_literal(traders, idx);
 			
-			// Read message from the trader
-			char* msg = fifo_read(t->fd_read);
-			PREFIX_EXCH
-			printf("[T%d] Parsing command: <%s>\n", t->id, msg);
+		// 	// Read message from the trader
+		// 	char* msg = fifo_read(t->fd_read);
+		// 	PREFIX_EXCH
+		// 	printf("[T%d] Parsing command: <%s>\n", t->id, msg);
 
-			if (!is_valid_command(msg, t, exch) ||
-				t->connected == false){
-				trader_message(t, "INVALID;");
-			} else {
-				process_message(msg, t, exch);
-			}
+		// 	if (!is_valid_command(msg, t, exch) ||
+		// 		t->connected == false){
+		// 		trader_message(t, "INVALID;");
+		// 	} else {
+		// 		process_message(msg, t, exch);
+		// 	}
 
-			free(ret);
-			free(msg);
-		}
+		// 	free(ret);
+		// 	free(msg);
+		// }
 
 	}
 	

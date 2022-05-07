@@ -246,6 +246,7 @@ int main(int argc, char ** argv) {
                     write_to_parent(t.acts[t.current_act++].command, fd_write);
                 } else if (t.current_act == t.size_act &&
                     !strcmp(result, t.disconnect_trigger)){
+                    printf("[T%d] is disconnecting\n", id);
                     fprintf(out, "[T%d] Event: DISCONNECT\n", id);
                     fclose(out);
                     free(args);
