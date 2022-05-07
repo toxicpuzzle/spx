@@ -1,11 +1,11 @@
 #include "spx_trader.h" // Order of inclusion matters to sa_sigaction and siginfo_t
 #define PREFIX_CHILD(CHILD_ID) printf("[CHILD %d] ", CHILD_ID);
-#define MAX_ACTIONS 100
+#define MAX_ACTIONS 1000
 
 volatile int msgs_to_read = 0;
 int ppid = 0;
 bool market_is_open = 0;
-
+// #define TEST
 // TODO: Use real time signals to signal parent within autotrader.
 //? Don't think real time signals is way to go as it !contains SIGUSR1
 //? Alternate approach -> Check if parent process has pending signal, if not then write
