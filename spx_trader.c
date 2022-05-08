@@ -68,13 +68,21 @@ int main(int argc, char ** argv) {
         printf("Not enough arguments\n");
         return 1;
     }
+    
+    // Setup fd for reading signals
+    if (pipe(sig_pipe) == -1 || 
+		fcntl(sig_pipe[0], F_SETFD, O_NONBLOCK) == -1 ||
+		fcntl(sig_pipe[1], F_SETFD, O_NONBLOCK) == -1){
+		perror("sigpipe failed\n");
+		return -1;
+	};
 
     // register signal handler 
     set_handler(SIGUSR1, &read_exch_handler);
 
     // connect to named pipes
     ppid = getppid();
-    int id = atoi(argv[0]);
+    int id = atoi(argv[1]);
     char* fifo_exch = malloc(sizeof(char) * 128);
     char* fifo_trader = malloc(sizeof(char) * 128);
     sprintf(fifo_exch, FIFO_EXCHANGE, id);
@@ -89,14 +97,6 @@ int main(int argc, char ** argv) {
         return -1;
     }
     
-    // Setup fd for reading signals
-    if (pipe(sig_pipe) == -1 || 
-		fcntl(sig_pipe[0], F_SETFD, O_NONBLOCK) == -1 ||
-		fcntl(sig_pipe[1], F_SETFD, O_NONBLOCK) == -1){
-		perror("sigpipe failed\n");
-		return -1;
-	};
-
     // Poll to read if there are new signals
     struct pollfd poll_sp;
 	poll_sp.fd = sig_pipe[0];
@@ -113,11 +113,14 @@ int main(int argc, char ** argv) {
     // TODO: As soon as another sell order comes in, write to pipe, but and 
     // TODO: keep signalling on regular intervals to get last order in.
    
+    siginfo_t buf;
+
     while (true){
     
         //! Process will not terminate even if you close terminal, must shut down parent process.
         // if (msgs_to_read == 0 && poll(&pfd, 1, 0) <= 0) {
         poll(&poll_sp, 1, -1);
+        read(poll_sp.fd, &buf, sizeof(siginfo_t));
         // if (poll(&poll_sp, 1, 0) <= 0){
         //     pause();
         // }
@@ -145,7 +148,7 @@ int main(int argc, char ** argv) {
                 
                 // Disconnect if you get >= 100 qty market buy order
                 if (!strcmp(args[0], "MARKET") && 
-                    strcmp(args[1], "BUY") && 
+                    !strcmp(args[1], "SELL") && 
                     atoi(args[3]) >= 1000){
 
                     // DISCONNECT

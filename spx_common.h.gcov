@@ -1,7 +1,7 @@
         -:    0:Source:spx_common.h
         -:    0:Graph:spx_exchange.gcno
-        -:    0:Data:-
-        -:    0:Runs:0
+        -:    0:Data:spx_exchange.gcda
+        -:    0:Runs:1
         -:    1:#ifndef SPX_COMMON_H
         -:    2:#define SPX_COMMON_H
         -:    3:
@@ -41,18 +41,18 @@
         -:   37: * @param fd_write fd of write end of pipe
         -:   38: * @param str message to be sent (terminate with null byte)
         -:   39: */
-    #####:   40:void fifo_write(int fd_write, char* str){
+        4:   40:void fifo_write(int fd_write, char* str){
         -:   41:    // TODO: Investigate reason for spx_exchange quitting.
-    #####:   42:    struct pollfd p;
-    #####:   43:    p.fd = fd_write;
-    #####:   44:    p.events = POLLOUT;
-    #####:   45:    poll(&p, 1, 0);
-    #####:   46:    if (!(p.revents & POLLERR)){
-    #####:   47:        if (write(fd_write, str, strlen(str)) == -1){
+        4:   42:    struct pollfd p;
+        4:   43:    p.fd = fd_write;
+        4:   44:    p.events = POLLOUT;
+        4:   45:    poll(&p, 1, 0);
+        4:   46:    if (!(p.revents & POLLERR)){
+        4:   47:        if (write(fd_write, str, strlen(str)) == -1){
     #####:   48:                perror("Write unsuccesful\n");
         -:   49:        }   
         -:   50:    }     
-    #####:   51:}
+        4:   51:}
         -:   52:
         -:   53:// TODO: change this to write using different protocol
         -:   54:// void fifo_write(int fd_write, char* str){
@@ -96,23 +96,23 @@
         -:   92:
         -:   93:
         -:   94:
-    #####:   95:char* fifo_read(int fd_read){
+        1:   95:char* fifo_read(int fd_read){
         -:   96:    
-    #####:   97:    int size = 1;
-    #####:   98:    char* str = calloc(size, sizeof(char));
-    #####:   99:    char curr;
+        1:   97:    int size = 1;
+        1:   98:    char* str = calloc(size, sizeof(char));
+        1:   99:    char curr;
         -:  100:    
         -:  101:    while (true){
-    #####:  102:        if (read(fd_read, (void*) &curr, 1*sizeof(char)) <= 0 || curr == ';') break;
+       24:  102:        if (read(fd_read, (void*) &curr, 1*sizeof(char)) <= 0 || curr == ';') break;
         -:  103:        // if (curr == EOF || curr == ';' || curr == '\0') break;
-    #####:  104:        memmove(str+size-1, &curr, 1);
-    #####:  105:        str = realloc(str, ++size);
+       23:  104:        memmove(str+size-1, &curr, 1);
+       23:  105:        str = realloc(str, ++size);
         -:  106:    }
         -:  107:
-    #####:  108:    str[size-1] = '\0';    
+        1:  108:    str[size-1] = '\0';    
         -:  109:    // printf("Amount read: %d, String is: %s\n", size-1, str);
         -:  110:  
-    #####:  111:    return str;
+        1:  111:    return str;
         -:  112:}
         -:  113:
         -:  114:

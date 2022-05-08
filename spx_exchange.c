@@ -1243,6 +1243,11 @@ void free_program(exch_data* exch, struct pollfd* poll_fds){
 }
 
 // void update_trader_connected(int *no_fd_events, struct pollfd* poll_fds)
+// Notes
+// Poll_sp - self pipe/queue to read signals in from
+// poll_fds - last element is poll_sp rest are for fds for detecting disconnections
+
+
 
 int main(int argc, char **argv) {
 
