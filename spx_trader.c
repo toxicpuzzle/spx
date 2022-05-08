@@ -98,6 +98,7 @@ int main(int argc, char ** argv) {
         return -1;
     }
     
+    // dfddf
     // Poll to read if there are new signals
     // struct pollfd poll_sp;
 	// poll_sp.fd = sig_pipe[0];
@@ -113,7 +114,7 @@ int main(int argc, char ** argv) {
     // bool last_order_accepted = false;
     // TODO: As soon as another sell order comes in, write to pipe, but and 
     // TODO: keep signalling on regular intervals to get last order in.
-   
+    // TODO: Busy exchange signals too long.
     // int buf;
 
     while (true){
