@@ -8,6 +8,7 @@ bool market_is_open = 0;
 // TODO: Use real time signals to signal parent within autotrader.
 //? Don't think real time signals is way to go as it !contains SIGUSR1
 //? Alternate approach -> Check if parent process has pending signal, if not then write
+static int sig_pipe[2];
 
 void signal_parent(){
     kill(ppid, SIGUSR1);
@@ -15,7 +16,8 @@ void signal_parent(){
 
 // Read char until ";" char is encountered
 void read_exch_handler(int signo, siginfo_t *sinfo, void *context){
-    msgs_to_read++;
+    write(sig_pipe[1], sinfo, sizeof(siginfo_t));
+    // msgs_to_read++;
 }
 
 void set_handler(int signal, void (*handler) (int, siginfo_t*, void*)){
@@ -72,10 +74,30 @@ int main(int argc, char ** argv) {
     char* fifo_trader = malloc(sizeof(char) * 128);
     sprintf(fifo_exch, FIFO_EXCHANGE, id);
     sprintf(fifo_trader, FIFO_TRADER, id);
-    int fd_write = open(fifo_trader, O_WRONLY);
     int fd_read = open(fifo_exch, O_RDONLY);
+    int fd_write = open(fifo_trader, O_WRONLY);
     int order_id = 0;
+    if (fd_write == -1 || fd_read == -1){
+        perror("An error has occurred\n");
+        free(fifo_exch);
+        free(fifo_trader);
+        return -1;
+    }
+    
+    // Setup fd for reading signals
+    if (pipe(sig_pipe) == -1 || 
+		fcntl(sig_pipe[0], F_SETFD, O_NONBLOCK) == -1 ||
+		fcntl(sig_pipe[1], F_SETFD, O_NONBLOCK) == -1){
+		perror("sigpipe failed\n");
+		return -1;
+	};
 
+    // Poll to read if there are new signals
+    // struct pollfd poll_sp;
+	// poll_sp.fd = sig_pipe[0];
+	// poll_sp.events = POLLIN;
+
+    // Poll to read if there are additional messages for each signal (failsafe)
     struct pollfd pfd;
     pfd.fd = fd_read;
     pfd.events = POLLIN;  
@@ -83,12 +105,12 @@ int main(int argc, char ** argv) {
     while (true){
     
         //! Process will not terminate even if you close terminal, must shut down parent process.
-        if (msgs_to_read == 0 && poll(&pfd, 1, 0) <= 0) {
+        // if (msgs_to_read == 0 && poll(&pfd, 1, 0) <= 0) {
+        if (poll(&pfd, 1, 0) <= 0){
             pause();
         }
 
         char* result = fifo_read(fd_read);
-        // printf("msgs to read: %d, reading\n", msgs_to_read);			
 
         if (strlen(result) > 0) {
             #ifdef TEST
