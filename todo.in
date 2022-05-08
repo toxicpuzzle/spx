@@ -1,0 +1,14 @@
+MARKET OPEN,BUY 0 GPU 20 50;
+ACCEPTED 0,BUY 1 GPU 20 50;
+AMENDED
+FILL 1 999998
+
+// TODO: Write testcase for MARKET messages for cance and amend,
+then do testcase for trader closing pipes -> send order again fails,
+then create a 3 trader testcase complex go crazy! 
+then -> disconnect (if cannot do this then leave this till later)
+then -> unit tests for dyn_arrays
+then -> add polling to autotrader.
+    -> Fault tolerance and error recovery?
+    -> so you send a signal -> no reply? then do you send the signal again?
+        -> key is to know when the send the signals -> keep sending until you get a reply

@@ -16,14 +16,15 @@ void signal_parent(){
 
 // Read char until ";" char is encountered
 void read_exch_handler(int signo, siginfo_t *sinfo, void *context){
-    write(sig_pipe[1], sinfo, sizeof(siginfo_t));
-    // msgs_to_read++;
+    write(sig_pipe[1], &(sinfo->si_pid), sizeof(int));
 }
 
 void set_handler(int signal, void (*handler) (int, siginfo_t*, void*)){
     struct sigaction sig;
     memset(&sig, 0, sizeof(struct sigaction));
     sig.sa_sigaction = handler;
+    // sigemptyset(&sig.sa_mask);
+    // sigaddset(&sig.sa_mask, SIGUSR1);
     if (sigaction(signal, &sig, NULL)){
         perror("sigaction failed\n");
         exit(1);
@@ -98,34 +99,42 @@ int main(int argc, char ** argv) {
     }
     
     // Poll to read if there are new signals
-    struct pollfd poll_sp;
-	poll_sp.fd = sig_pipe[0];
-	poll_sp.events = POLLIN;
+    // struct pollfd poll_sp;
+	// poll_sp.fd = sig_pipe[0];
+	// poll_sp.events = POLLIN;
 
     // Poll to read if there are additional messages for each signal (failsafe)
     //! Don't use -> only read when signalled to do so?
-    // struct pollfd pfd;
-    // pfd.fd = fd_read;
-    // pfd.events = POLLIN;  
+    struct pollfd pfd;
+    pfd.fd = fd_read;
+    pfd.events = POLLIN;  
 
     // Data structures for transaction processing
     // bool last_order_accepted = false;
     // TODO: As soon as another sell order comes in, write to pipe, but and 
     // TODO: keep signalling on regular intervals to get last order in.
    
-    siginfo_t buf;
+    // int buf;
 
     while (true){
     
         //! Process will not terminate even if you close terminal, must shut down parent process.
         // if (msgs_to_read == 0 && poll(&pfd, 1, 0) <= 0) {
-        poll(&poll_sp, 1, -1);
-        read(poll_sp.fd, &buf, sizeof(siginfo_t));
-        // if (poll(&poll_sp, 1, 0) <= 0){
+        // If there is no signals to be read after 500ms then check if we missed something on the pipe
+        // poll(&poll_sp, 1, -1);
+        // read(poll_sp.fd, &buf, sizeof(int));
+        // Problem with test trader -> they are not fault tolerant -> might not send signal to sell.
+        // printf("Amount ot be read = %d\n", );
+        //! Exchange relies on signal handling so if multiple traders send it signals at once it wil fail,
+        //! which happesn with the autotrader
+        poll(&pfd, 1, -1);
+        // TODO: polling pfd for pollin may not always guarantee there something to be read on other pipe
+        // if (poll(&pfd, 1, 0) <= 0){
         //     pause();
         // }
 
         char* result = fifo_read(fd_read);
+        // printf("result %s\n", result);
 
         if (strlen(result) > 0) {
             #ifdef TEST
