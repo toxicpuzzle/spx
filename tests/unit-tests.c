@@ -22,7 +22,22 @@
 
 #include "spx_exchange.h"
 
+// Test dynamic array
 
+
+
+// Test sorting ints
+
+// Test sorting traders by id
+
+// Test sorting order books
+
+
+int main(void){
+
+
+
+}
 
 
 // int main(void) {
@@ -44,7 +59,7 @@
 //     return cmocka_run_group_tests(tests, NULL, NULL);
     
 // }
-
+//dfd
 
 // static exch_data exch_values = {
 //     dyn_arr
