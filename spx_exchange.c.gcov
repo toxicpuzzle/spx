@@ -1,7 +1,7 @@
         -:    0:Source:spx_exchange.c
-        -:    0:Graph:spx_exchange.gcno
-        -:    0:Data:spx_exchange.gcda
-        -:    0:Runs:1
+        -:    0:Graph:./spx_exchange.gcno
+        -:    0:Data:./spx_exchange.gcda
+        -:    0:Runs:0
         -:    1:/**
         -:    2: * comp2017 - assignment 3
         -:    3: * Tim Yang
@@ -16,7 +16,7 @@
         -:   12:#define PREFIX_EXCH printf("[SPX] ");
         -:   13:#define PREFIX_EXCH_L1 printf("[SPX]"); INDENT
         -:   14:#define PREFIX_EXCH_L2 printf("[SPX]"); INDENT INDENT
-        -:   15:
+        -:   15:// #define UNIT
         -:   16:#define AMEND_CMD_SIZE 4
         -:   17:#define BUYSELL_CMD_SIZE 5
         -:   18:#define CANCEL_CMD_SIZE 2
@@ -30,1392 +30,1395 @@
         -:   26:// SUBSECTION: DYNAMIC ARRAY
         -:   27:
         -:   28:// Creates the dynamic array
-       18:   29:dyn_arr *dyn_array_init(size_t memb_size, int (*cmp) (const void* a, const void* b)){
-       18:   30:    dyn_arr* da = malloc(sizeof(dyn_arr));
-       18:   31:    da->used = 0;
-       18:   32:    da->capacity = INIT_CAPACITY;
-       18:   33:    da->memb_size = memb_size;
-       18:   34:    da->array = malloc(memb_size*da->capacity);
-       18:   35:    da->cmp = cmp;
+    #####:   29:dyn_arr *dyn_array_init(size_t memb_size, int (*cmp) (const void* a, const void* b)){
+    #####:   30:    dyn_arr* da = malloc(sizeof(dyn_arr));
+    #####:   31:    da->used = 0;
+    #####:   32:    da->capacity = INIT_CAPACITY;
+    #####:   33:    da->memb_size = memb_size;
+    #####:   34:    da->array = malloc(memb_size*da->capacity);
+    #####:   35:    da->cmp = cmp;
         -:   36:    
-       18:   37:    return da;
+    #####:   37:    return da;
         -:   38:}
         -:   39:
         -:   40:// Returns copy of item placed in index, returns 0 on success, else -1;
-       52:   41:int dyn_array_get(dyn_arr *dyn, int index, void* ret){
-      52*:   42:    if (!_dyn_array_is_valid_idx(dyn, index)) return -1;
-       52:   43:    memcpy(ret, (char*)dyn->array + index*dyn->memb_size, dyn->memb_size);
-       52:   44:    return 0;
+    #####:   41:int dyn_array_get(dyn_arr *dyn, int index, void* ret){
+    #####:   42:    if (!_dyn_array_is_valid_idx(dyn, index)) return -1;
+    #####:   43:    memcpy(ret, (char*)dyn->array + index*dyn->memb_size, dyn->memb_size);
+    #####:   44:    return 0;
         -:   45:}
         -:   46:
         -:   47:// Insert value to the array and resizes it;
-       19:   48:int dyn_array_insert(dyn_arr* dyn, void* value, int idx){
-      19*:   49:    if (idx > dyn->used && !_dyn_array_is_valid_idx(dyn, idx)) return -1;
-       19:   50:    if (dyn->used == dyn->capacity){
-    #####:   51:        dyn->capacity *= 2;
-    #####:   52:        dyn->array = realloc(dyn->array, dyn->capacity*dyn->memb_size);
-        -:   53:    }
-       19:   54:    memmove(dyn->array + (idx + 1) * dyn->memb_size, 
-       19:   55:            dyn->array + idx * dyn->memb_size,
-       19:   56:            (dyn->used - idx) * dyn->memb_size);
-       19:   57:    memcpy(dyn->array + idx * dyn->memb_size, value, dyn->memb_size);    
-       19:   58:    dyn->used++;
-       19:   59:    return 0;
-        -:   60:}
-        -:   61:
-        -:   62:// Adds the value to the end of the array
-       19:   63:void dyn_array_append(dyn_arr* dyn, void* value){
-       19:   64:    dyn_array_insert(dyn, value, dyn->used);
-       19:   65:}
-        -:   66:
-        -:   67:// Returns index of a specific element, -1 if not found
-        7:   68:int dyn_array_find(dyn_arr* dyn, void* target, int (*cmp) (const void* a, const void* b)){
-        7:   69:    void *ret = malloc(dyn->memb_size);
-       11:   70:	for (int idx = 0; idx < dyn->used; idx++){
-       11:   71:        dyn_array_get(dyn, idx, ret);
-       11:   72:		if (cmp(target, ret) == 0)	{
-        7:   73:            free(ret);
-        7:   74:            return idx;
-        -:   75:        }
-        -:   76:	}
-    #####:   77:    free(ret);
-    #####:   78:    return -1;
-        -:   79:}
-        -:   80:
-        -:   81:// Delete the value at index from an array, returns 0 if successful else -1
-        1:   82:int dyn_array_delete(dyn_arr* dyn, int idx){
-        1:   83:    if (idx != -1){
-        1:   84:        memmove(dyn->array + idx * dyn->memb_size, 
-        1:   85:            dyn->array + (idx + 1) * dyn->memb_size, 
-        1:   86:            (dyn->used - idx) * dyn->memb_size);
-        1:   87:        dyn->used--;
-        1:   88:        return 0;
-        -:   89:    } else {
-    #####:   90:        return -1;
-        -:   91:    }
-        -:   92:}   
-        -:   93:
-        -:   94:// Checks if the index is within the current used array
-       55:   95:bool _dyn_array_is_valid_idx(dyn_arr* dyn, int idx){
-      55*:   96:    return idx >= 0 && idx < dyn->used;
-        -:   97:}
-        -:   98:
-        -:   99:// Sets the element at a specific index to be equal to element, returns -1 if index is out of range
-        2:  100:int dyn_array_set(dyn_arr* dyn, int idx, void* element){
-       2*:  101:    if (!_dyn_array_is_valid_idx(dyn, idx)) return -1;
-        2:  102:    memmove(dyn->array + idx * dyn->memb_size, element, dyn->memb_size);
-        2:  103:	return idx;
-        -:  104:}
-        -:  105:
-        -:  106:// Frees the dynamic array storing whatever entirely. (only the array elements not what they link to)
-       19:  107:void dyn_array_free(dyn_arr *dyn){
-       19:  108:    free(dyn->array);
-       19:  109:    free(dyn);
-       19:  110:}
-        -:  111:
-        -:  112:// Prints out elements of array using to_string method;
-    #####:  113:void dyn_array_print(dyn_arr* dyn, void (*elem_to_string) (void* element)){
-    #####:  114:    void *ret = malloc(dyn->memb_size);
-    #####:  115:    printf("[ ");
-    #####:  116:    for (int idx = 0; idx < dyn->used; idx++){
-    #####:  117:        dyn_array_get(dyn, idx, ret);
-    #####:  118:        elem_to_string(ret);
-    #####:  119:        if (idx != dyn->used - 1) printf(", ");
-        -:  120:	}
-    #####:  121:    printf(" ]\n");
-    #####:  122:    free(ret);
-    #####:  123:}
-        -:  124:
-        -:  125:// Remove the element with the minimum priority from the dynamic array;
-    #####:  126:int dyn_array_remove_min(dyn_arr* dyn, void* ret, int (*cmp) (const void* a, const void* b)){
-    #####:  127:    if (dyn->used == 0) return -1;
-    #####:  128:    void* curr = calloc(1, dyn->memb_size);
-    #####:  129:    int min_index = 0;
-    #####:  130:    dyn_array_get(dyn, 0, ret);
-    #####:  131:    for (int i = 1; i < dyn->used; i++){
-    #####:  132:        dyn_array_get(dyn, i, curr);
-    #####:  133:        if (cmp(curr, ret) < 0){
-    #####:  134:            memmove(ret, curr, dyn->memb_size);
-    #####:  135:            min_index = i;
-        -:  136:        }
-        -:  137:    }
-        -:  138:
-    #####:  139:    dyn_array_delete(dyn, min_index);
-    #####:  140:    free(curr);
-    #####:  141:    return 1;
-        -:  142:}
-        -:  143:
-        -:  144:// Remove the element with the maximum priority from the dynamic array;
-    #####:  145:int dyn_array_remove_max(dyn_arr* dyn, void* ret, int (*cmp) (const void* a, const void* b)){
-    #####:  146:    if (dyn->used == 0) return -1;
-    #####:  147:    void* curr = calloc(1, dyn->memb_size);
-    #####:  148:    int max_index = 0;
-    #####:  149:    dyn_array_get(dyn, 0, ret);
-    #####:  150:    for (int i = 1; i < dyn->used; i++){
-    #####:  151:        dyn_array_get(dyn, i, curr);
-    #####:  152:        if (cmp(curr, ret) > 0){
-    #####:  153:            memmove(ret, curr, dyn->memb_size);
-    #####:  154:            max_index = i;
-        -:  155:        }
-        -:  156:    }
-        -:  157:
-    #####:  158:    dyn_array_delete(dyn, max_index);
-    #####:  159:    free(curr);
-    #####:  160:    return 1;
-        -:  161:}
-        -:  162:
-        -:  163:// Sorts the dynamic array using qsort, returns -1 if dyn array is empty
-        9:  164:int dyn_array_sort(dyn_arr* dyn, int (*cmp) (const void* a, const void* b)){
-        9:  165:    if (dyn->used == 0) return -1;
-        2:  166:    qsort(dyn->array, dyn->used, dyn->memb_size, cmp);
-        2:  167:    return 1;
-        -:  168:}
-        -:  169:
-        -:  170:// Returns a copy of the dynamic array (memory of elements is not shared);
-        1:  171:dyn_arr* dyn_array_init_copy(dyn_arr* dyn){
-        1:  172:    dyn_arr* new = calloc(1, sizeof(dyn_arr));
-        1:  173:    memmove(new, dyn, sizeof(dyn_arr));
-        1:  174:    new->array = calloc(dyn->capacity, dyn->memb_size);
-        1:  175:    memmove(new->array, dyn->array, dyn->memb_size*dyn->used);
-        1:  176:    return new;
-        -:  177:}
-        -:  178:
-        -:  179:// Returns pointer to literal location in dynamic array (modifies in place)
-        1:  180:void* dyn_array_get_literal(dyn_arr* dyn, int idx){
-       1*:  181:    if (!_dyn_array_is_valid_idx(dyn, idx)) return NULL;
-        1:  182:    return dyn->array + idx * dyn->memb_size;
-        -:  183:}
-        -:  184:
-        -:  185:// SECTION: Signal handlers
+    #####:   48:int dyn_array_insert(dyn_arr* dyn, void* value, int idx){
+    #####:   49:	if (!(idx == dyn->used) && !_dyn_array_is_valid_idx(dyn, idx)) return -1;
+        -:   50:    // if (idx > dyn->used && !_dyn_array_is_valid_idx(dyn, idx)) return -1;
+    #####:   51:    if (dyn->used == dyn->capacity){
+    #####:   52:        dyn->capacity *= 2;
+    #####:   53:        dyn->array = realloc(dyn->array, dyn->capacity*dyn->memb_size);
+        -:   54:    }
+    #####:   55:    memmove(dyn->array + (idx + 1) * dyn->memb_size, 
+    #####:   56:            dyn->array + idx * dyn->memb_size,
+    #####:   57:            (dyn->used - idx) * dyn->memb_size);
+    #####:   58:    memcpy(dyn->array + idx * dyn->memb_size, value, dyn->memb_size);    
+    #####:   59:    dyn->used++;
+    #####:   60:    return 0;
+        -:   61:}
+        -:   62:
+        -:   63:// Adds the value to the end of the array
+    #####:   64:void dyn_array_append(dyn_arr* dyn, void* value){
+    #####:   65:    dyn_array_insert(dyn, value, dyn->used);
+    #####:   66:}
+        -:   67:
+        -:   68:// Returns index of a specific element, -1 if not found
+    #####:   69:int dyn_array_find(dyn_arr* dyn, void* target, int (*cmp) (const void* a, const void* b)){
+    #####:   70:    void *ret = malloc(dyn->memb_size);
+    #####:   71:	for (int idx = 0; idx < dyn->used; idx++){
+    #####:   72:        dyn_array_get(dyn, idx, ret);
+    #####:   73:		if (cmp(target, ret) == 0)	{
+    #####:   74:            free(ret);
+    #####:   75:            return idx;
+        -:   76:        }
+        -:   77:	}
+    #####:   78:    free(ret);
+    #####:   79:    return -1;
+        -:   80:}
+        -:   81:
+        -:   82:// Delete the value at index from an array, returns 0 if successful else -1
+    #####:   83:int dyn_array_delete(dyn_arr* dyn, int idx){
+    #####:   84:	if (_dyn_array_is_valid_idx(dyn, idx) == true){
+        -:   85:    // if (idx != -1){
+    #####:   86:        memmove(dyn->array + idx * dyn->memb_size, 
+    #####:   87:            dyn->array + (idx + 1) * dyn->memb_size, 
+    #####:   88:            (dyn->used - idx) * dyn->memb_size);
+    #####:   89:        dyn->used--;
+    #####:   90:        return 0;
+        -:   91:    } else {
+    #####:   92:        return -1;
+        -:   93:    }
+        -:   94:}   
+        -:   95:
+        -:   96:// Checks if the index is within the current used array
+    #####:   97:bool _dyn_array_is_valid_idx(dyn_arr* dyn, int idx){
+    #####:   98:    return idx >= 0 && idx < dyn->used;
+        -:   99:}
+        -:  100:
+        -:  101:// Sets the element at a specific index to be equal to element, returns -1 if index is out of range
+    #####:  102:int dyn_array_set(dyn_arr* dyn, int idx, void* element){
+    #####:  103:    if (!_dyn_array_is_valid_idx(dyn, idx)) return -1;
+    #####:  104:    memmove(dyn->array + idx * dyn->memb_size, element, dyn->memb_size);
+    #####:  105:	return idx;
+        -:  106:}
+        -:  107:
+        -:  108:// Frees the dynamic array storing whatever entirely. (only the array elements not what they link to)
+    #####:  109:void dyn_array_free(dyn_arr *dyn){
+    #####:  110:    free(dyn->array);
+    #####:  111:    free(dyn);
+    #####:  112:}
+        -:  113:
+        -:  114:// Prints out elements of array using to_string method;
+    #####:  115:void dyn_array_print(dyn_arr* dyn, void (*elem_to_string) (void* element)){
+    #####:  116:    void *ret = malloc(dyn->memb_size);
+    #####:  117:    printf("[ ");
+    #####:  118:    for (int idx = 0; idx < dyn->used; idx++){
+    #####:  119:        dyn_array_get(dyn, idx, ret);
+    #####:  120:        elem_to_string(ret);
+    #####:  121:        if (idx != dyn->used - 1) printf(", ");
+        -:  122:	}
+    #####:  123:    printf(" ]\n");
+    #####:  124:    free(ret);
+    #####:  125:}
+        -:  126:
+        -:  127:// Remove the element with the minimum priority from the dynamic array;
+    #####:  128:int dyn_array_remove_min(dyn_arr* dyn, void* ret, int (*cmp) (const void* a, const void* b)){
+    #####:  129:    if (dyn->used == 0) return -1;
+    #####:  130:    void* curr = calloc(1, dyn->memb_size);
+    #####:  131:    int min_index = 0;
+    #####:  132:    dyn_array_get(dyn, 0, ret);
+    #####:  133:    for (int i = 1; i < dyn->used; i++){
+    #####:  134:        dyn_array_get(dyn, i, curr);
+    #####:  135:        if (cmp(curr, ret) < 0){
+    #####:  136:            memmove(ret, curr, dyn->memb_size);
+    #####:  137:            min_index = i;
+        -:  138:        }
+        -:  139:    }
+        -:  140:
+    #####:  141:    dyn_array_delete(dyn, min_index);
+    #####:  142:    free(curr);
+    #####:  143:    return 1;
+        -:  144:}
+        -:  145:
+        -:  146:// Remove the element with the maximum priority from the dynamic array;
+    #####:  147:int dyn_array_remove_max(dyn_arr* dyn, void* ret, int (*cmp) (const void* a, const void* b)){
+    #####:  148:    if (dyn->used == 0) return -1;
+    #####:  149:    void* curr = calloc(1, dyn->memb_size);
+    #####:  150:    int max_index = 0;
+    #####:  151:    dyn_array_get(dyn, 0, ret);
+    #####:  152:    for (int i = 1; i < dyn->used; i++){
+    #####:  153:        dyn_array_get(dyn, i, curr);
+    #####:  154:        if (cmp(curr, ret) > 0){
+    #####:  155:            memmove(ret, curr, dyn->memb_size);
+    #####:  156:            max_index = i;
+        -:  157:        }
+        -:  158:    }
+        -:  159:
+    #####:  160:    dyn_array_delete(dyn, max_index);
+    #####:  161:    free(curr);
+    #####:  162:    return 1;
+        -:  163:}
+        -:  164:
+        -:  165:// Sorts the dynamic array using qsort, returns -1 if dyn array is empty
+    #####:  166:int dyn_array_sort(dyn_arr* dyn, int (*cmp) (const void* a, const void* b)){
+    #####:  167:    if (dyn->used == 0) return -1;
+    #####:  168:    qsort(dyn->array, dyn->used, dyn->memb_size, cmp);
+    #####:  169:    return 1;
+        -:  170:}
+        -:  171:
+        -:  172:// Returns a copy of the dynamic array (memory of elements is not shared);
+    #####:  173:dyn_arr* dyn_array_init_copy(dyn_arr* dyn){
+    #####:  174:    dyn_arr* new = calloc(1, sizeof(dyn_arr));
+    #####:  175:    memmove(new, dyn, sizeof(dyn_arr));
+    #####:  176:    new->array = calloc(dyn->capacity, dyn->memb_size);
+    #####:  177:    memmove(new->array, dyn->array, dyn->memb_size*dyn->used);
+    #####:  178:    return new;
+        -:  179:}
+        -:  180:
+        -:  181:// Returns pointer to literal location in dynamic array (modifies in place)
+    #####:  182:void* dyn_array_get_literal(dyn_arr* dyn, int idx){
+    #####:  183:    if (!_dyn_array_is_valid_idx(dyn, idx)) return NULL;
+    #####:  184:    return dyn->array + idx * dyn->memb_size;
+        -:  185:}
         -:  186:
-        -:  187:/**
-        -:  188: * @brief Creates signal handler using sigaction struct
-        -:  189: * 
-        -:  190: * @param signal the signal that triggers the sighandler e.g. SIGUSR1
-        -:  191: * @param handler the function is called when the signal is received
-        -:  192: */
-        1:  193:void set_handler(int si, void (*handler) (int, siginfo_t*, void*)){
-        -:  194:    
-        1:  195:	struct sigaction sig;
-        1:  196:    memset(&sig, 0, sizeof(struct sigaction));
-        1:  197:    sig.sa_sigaction = handler;
-        1:  198:	sig.sa_flags = SA_SIGINFO;
-        -:  199:
-        1:  200:    if (sigaction(si, &sig, NULL)){
-    #####:  201:        perror("sigaction failed\n");
-    #####:  202:        exit(1);
-        -:  203:    }
-        1:  204:}
-        -:  205:
-        1:  206:void sig_handler(int signal, siginfo_t *siginfo, void *context){
-        1:  207:	write(sig_pipe[1], siginfo, sizeof(siginfo_t));
-        1:  208:}
-        -:  209:
-        -:  210:// SECTION: Comparator functions
+        -:  187:// SECTION: Signal handlers
+        -:  188:
+        -:  189:/**
+        -:  190: * @brief Creates signal handler using sigaction struct
+        -:  191: * 
+        -:  192: * @param signal the signal that triggers the sighandler e.g. SIGUSR1
+        -:  193: * @param handler the function is called when the signal is received
+        -:  194: */
+    #####:  195:void set_handler(int si, void (*handler) (int, siginfo_t*, void*)){
+        -:  196:    
+    #####:  197:	struct sigaction sig;
+    #####:  198:    memset(&sig, 0, sizeof(struct sigaction));
+    #####:  199:    sig.sa_sigaction = handler;
+    #####:  200:	sig.sa_flags = SA_SIGINFO;
+        -:  201:
+    #####:  202:    if (sigaction(si, &sig, NULL)){
+    #####:  203:        perror("sigaction failed\n");
+    #####:  204:        exit(1);
+        -:  205:    }
+    #####:  206:}
+        -:  207:
+    #####:  208:void sig_handler(int signal, siginfo_t *siginfo, void *context){
+    #####:  209:	write(sig_pipe[1], siginfo, sizeof(siginfo_t));
+    #####:  210:}
         -:  211:
-        -:  212:/**
-        -:  213: * @brief Price time priority implementation of sorting orders
-        -:  214: * Returns a if a's price < b's price. 
-        -:  215: * If a_price == b_price:
-        -:  216: *    Return a if a's time < b's time.
-        -:  217: * 
-        -:  218: * @param a 
-        -:  219: * @param b 
-        -:  220: * @return < 0 if a < b;
-        -:  221: */
-        -:  222:// TODO: Replace order_cmp as you must first find the max/min prices for each,
-        -:  223:// TODO: and both should get the one with the earliest price time priority;
-        -:  224:// i.e. from sellbook -> get min price order with min order_uid
-        -:  225:// i.e. from buybook -> get max price order with min order_uid;
-    #####:  226:int order_cmp_sell_book(const void* a, const void* b){
-    #####:  227:	order* oa = (order*) a;
-    #####:  228:	order* ob = (order*) b;
-    #####:  229:	if (oa->price == ob->price){
-        -:  230:		// remove_min uses cmp(curr, ret) < 0 -> ret = curr
-    #####:  231:		return oa->order_uid - ob->order_uid;
-        -:  232:	}
-    #####:  233:	return oa->price - ob->price;
-        -:  234:}
-        -:  235:
-    #####:  236:int order_cmp_buy_book(const void* a, const void* b){
-    #####:  237:	order* oa = (order*) a;
-    #####:  238:	order* ob = (order*) b;
-    #####:  239:	if (oa->price == ob->price){
-        -:  240:		// remove_max uses cmp(curr, ret) > 0 -> ret = curr
-        -:  241:		// TODO: DOes order_uid help keep time across multiple product order books.
-    #####:  242:		return -(oa->order_uid - ob->order_uid);
-        -:  243:	}
-    #####:  244:	return oa->price - ob->price;
-        -:  245:}
-        -:  246:
-        -:  247:// Compares the orders based on ids;
-    #####:  248:int order_id_cmp(const void* a, const void* b){
-    #####:  249:	return ((order*)a)->order_id-((order*)b)->order_id;
-        -:  250:}
-        -:  251:
-    #####:  252:int int_cmp(const void* a, const void* b){
-    #####:  253:	return *(int*)a - *(int*)b;
-        -:  254:}
-        -:  255:
-        -:  256:// Compares order book based on product name
-        6:  257:int obook_cmp(const void* a, const void* b){
-        6:  258:	order_book* oa = (order_book*) a;
-        6:  259:	order_book* ob = (order_book*) b;
-        6:  260:	return strcmp(oa->product, ob->product);
-        -:  261:}
-        -:  262:
-    #####:  263:int descending_order_cmp(const void* a, const void* b){
-        -:  264:	// Sell book comparator for trading also = ascending order cmp
-    #####:  265:	return -order_cmp_sell_book(a, b);
-        -:  266:}
-        -:  267:
-        1:  268:int trader_cmp(const void* a, const void* b){
-        1:  269:	return ((trader*)a)->id - ((trader*)b)->id;
-        -:  270:}
-        -:  271:
-        -:  272://! finally found the mistake just after 30 mins after replicating mistake!
-        -:  273://! Took me 1 day to find this mistake if traders are order ids off by 1, trader ids off by 1 then still equal!
-    #####:  274:int find_order_by_trader_cmp(const void* a, const void* b){
-    #####:  275:	order* first = (order*) a;
-    #####:  276:	order* second = (order*) b;	
-    #####:  277:	if (order_id_cmp(first, second) == 0 
-    #####:  278:		&& trader_cmp(first->trader, second->trader) == 0){
-    #####:  279:			return 0;
-        -:  280:	} else {
-    #####:  281:		return -1;
-        -:  282:	}
-        -:  283:}
-        -:  284:
-        1:  285:int trader_cmp_by_process_id(const void* a, const void* b){
-        1:  286:	return ((trader*)a)->process_id - ((trader*)b)->process_id;
-        -:  287:}
-        -:  288:
-        3:  289:int trader_cmp_by_fdread(const void* a, const void* b){
-        3:  290:	return ((trader*)a)->fd_read - ((trader*)b)->fd_read;
-        -:  291:}
-        -:  292:
-    #####:  293:int balance_cmp(const void* a, const void* b){
-    #####:  294:	balance* first = (balance*) a;
-    #####:  295:	balance* second = (balance*) b;
-    #####:  296:	return strcmp(first->product, second->product);
-        -:  297:}
-        -:  298:
-        -:  299:
-        -:  300:// SECTION: SETUP FUNCTIONS
+        -:  212:// SECTION: Comparator functions
+        -:  213:
+        -:  214:/**
+        -:  215: * @brief Price time priority implementation of sorting orders
+        -:  216: * Returns a if a's price < b's price. 
+        -:  217: * If a_price == b_price:
+        -:  218: *    Return a if a's time < b's time.
+        -:  219: * 
+        -:  220: * @param a 
+        -:  221: * @param b 
+        -:  222: * @return < 0 if a < b;
+        -:  223: */
+        -:  224:// TODO: Replace order_cmp as you must first find the max/min prices for each,
+        -:  225:// TODO: and both should get the one with the earliest price time priority;
+        -:  226:// i.e. from sellbook -> get min price order with min order_uid
+        -:  227:// i.e. from buybook -> get max price order with min order_uid;
+    #####:  228:int order_cmp_sell_book(const void* a, const void* b){
+    #####:  229:	order* oa = (order*) a;
+    #####:  230:	order* ob = (order*) b;
+    #####:  231:	if (oa->price == ob->price){
+        -:  232:		// remove_min uses cmp(curr, ret) < 0 -> ret = curr
+    #####:  233:		return oa->order_uid - ob->order_uid;
+        -:  234:	}
+    #####:  235:	return oa->price - ob->price;
+        -:  236:}
+        -:  237:
+    #####:  238:int order_cmp_buy_book(const void* a, const void* b){
+    #####:  239:	order* oa = (order*) a;
+    #####:  240:	order* ob = (order*) b;
+    #####:  241:	if (oa->price == ob->price){
+        -:  242:		// remove_max uses cmp(curr, ret) > 0 -> ret = curr
+        -:  243:		// TODO: DOes order_uid help keep time across multiple product order books.
+    #####:  244:		return -(oa->order_uid - ob->order_uid);
+        -:  245:	}
+    #####:  246:	return oa->price - ob->price;
+        -:  247:}
+        -:  248:
+        -:  249:// Compares the orders based on ids;
+    #####:  250:int order_id_cmp(const void* a, const void* b){
+    #####:  251:	return ((order*)a)->order_id-((order*)b)->order_id;
+        -:  252:}
+        -:  253:
+    #####:  254:int int_cmp(const void* a, const void* b){
+    #####:  255:	return *(int*)a - *(int*)b;
+        -:  256:}
+        -:  257:
+        -:  258:// Compares order book based on product name
+    #####:  259:int obook_cmp(const void* a, const void* b){
+    #####:  260:	order_book* oa = (order_book*) a;
+    #####:  261:	order_book* ob = (order_book*) b;
+    #####:  262:	return strcmp(oa->product, ob->product);
+        -:  263:}
+        -:  264:
+    #####:  265:int descending_order_cmp(const void* a, const void* b){
+        -:  266:	// Sell book comparator for trading also = ascending order cmp
+    #####:  267:	return -order_cmp_sell_book(a, b);
+        -:  268:}
+        -:  269:
+    #####:  270:int trader_cmp(const void* a, const void* b){
+    #####:  271:	return ((trader*)a)->id - ((trader*)b)->id;
+        -:  272:}
+        -:  273:
+        -:  274://! finally found the mistake just after 30 mins after replicating mistake!
+        -:  275://! Took me 1 day to find this mistake if traders are order ids off by 1, trader ids off by 1 then still equal!
+    #####:  276:int find_order_by_trader_cmp(const void* a, const void* b){
+    #####:  277:	order* first = (order*) a;
+    #####:  278:	order* second = (order*) b;	
+    #####:  279:	if (order_id_cmp(first, second) == 0 
+    #####:  280:		&& trader_cmp(first->trader, second->trader) == 0){
+    #####:  281:			return 0;
+        -:  282:	} else {
+    #####:  283:		return -1;
+        -:  284:	}
+        -:  285:}
+        -:  286:
+    #####:  287:int trader_cmp_by_process_id(const void* a, const void* b){
+    #####:  288:	return ((trader*)a)->process_id - ((trader*)b)->process_id;
+        -:  289:}
+        -:  290:
+    #####:  291:int trader_cmp_by_fdread(const void* a, const void* b){
+    #####:  292:	return ((trader*)a)->fd_read - ((trader*)b)->fd_read;
+        -:  293:}
+        -:  294:
+    #####:  295:int balance_cmp(const void* a, const void* b){
+    #####:  296:	balance* first = (balance*) a;
+    #####:  297:	balance* second = (balance*) b;
+    #####:  298:	return strcmp(first->product, second->product);
+        -:  299:}
+        -:  300:
         -:  301:
-        -:  302:// TODO: Check product file validity
-        9:  303:void str_remove_new_line(char* str){
-        9:  304:	int len = strlen(str);
-       57:  305:	for (int i = 0; i < len; i++){
-       48:  306:		if (str[i] == '\n'){
-        9:  307:			str[i] = '\0';
-        -:  308:		}
-        -:  309:	}
-        9:  310:}
-        -:  311:
-        -:  312:// Creates trader balances from product file
-        2:  313:dyn_arr* _create_traders_setup_trader_balances(char* product_file_path){
-        2:  314:	dyn_arr* balances = dyn_array_init(sizeof(balance), balance_cmp);
-        2:  315:	char buf[PRODUCT_STRING_LEN];
-        2:  316:	FILE* f = fopen(product_file_path, "r");
-        2:  317:	fgets(buf, PRODUCT_STRING_LEN, f); // Do this to get rid of the number of items line;
-        2:  318:	int num_products = atoi(buf);
-        8:  319:	for (int i = 0; i < num_products; i++){
-        6:  320:		fgets(buf, PRODUCT_STRING_LEN, f);
-        6:  321:		str_remove_new_line(buf);
-        6:  322:		balance* b = calloc(1, sizeof(balance));
-        6:  323:		memmove(b->product, buf, PRODUCT_STRING_LEN);
-        6:  324:		dyn_array_append(balances, b);
-        6:  325:		free(b);
-        -:  326:	}
-        2:  327:	return balances;
-        -:  328:}
-        -:  329:
-        -:  330:
-        -:  331:/**
-        -:  332: * @brief Creates child trader processes, opens pipes to them and creates interfaces.
-        -:  333: * 
-        -:  334: * @param traders_bins a list strings of paths to trader binary executables
-        -:  335: * @return dyn_arr* dynamic array of trader structs, NULL if error encountered
-        -:  336: */
-        1:  337:dyn_arr* create_traders(dyn_arr* traders_bins, char* product_file){
-        1:  338:	dyn_arr* traders = dyn_array_init(sizeof(trader), &trader_cmp);
-        1:  339:	trader* temp = calloc(1, sizeof(trader));
-        1:  340:	char* fifo_exch = calloc(MAX_LINE, sizeof(char)); //! Assumed pipe name will be 128 chars max, but need to check
-        1:  341:	char* fifo_trader = calloc(MAX_LINE, sizeof(char));
-        1:  342:	char* id = malloc(sizeof(char)*MAX_LINE);
-        1:  343:	char* curr;
-        -:  344:
-        -:  345:	/// Create pipes for each trader first
-        3:  346:	for (int i = 0; i < traders_bins->used; i++){
-        -:  347:		
-        2:  348:		sprintf(id, "%d", i);
-        2:  349:		dyn_array_get(traders_bins, i, &curr);
-        -:  350:		
-        -:  351:		// Create pipes for exchange and trader
-        2:  352:		sprintf(fifo_exch, FIFO_EXCHANGE, i);
-        2:  353:		sprintf(fifo_trader, FIFO_TRADER, i);
-        -:  354:		
-       2*:  355:		if (mkfifo(fifo_exch, PERM_BITS_ALL) == -1 || 
-    #####:  356:			mkfifo(fifo_trader, PERM_BITS_ALL) == -1){ 
-        2:  357:			if (errno != EEXIST){
-    #####:  358:				printf("Could not create fifo file\n");
-    #####:  359:				return NULL;
-        -:  360:			}
-        -:  361:		}
-        2:  362:		memmove(temp->fd_read_name, fifo_exch, MAX_LINE);
-        2:  363:		memmove(temp->fd_write_name, fifo_trader, MAX_LINE);
-        2:  364:		PREFIX_EXCH
-        2:  365:		printf("Created FIFO %s\n", fifo_exch);
-        2:  366:		PREFIX_EXCH
-        2:  367:		printf("Created FIFO %s\n", fifo_trader);
-        -:  368:
-        -:  369:		// Launch child processes for each trader
-        2:  370:		PREFIX_EXCH
-        2:  371:		printf("Starting trader %s (%s)\n", id, curr);
-        2:  372:		pid_t pid = fork();
-        2:  373:		if (pid == -1){
-        -:  374:			//! Smoothly handle errors e.g. free memory and terminate child processes
-    #####:  375:			printf("Could not launch trader binary!\n");
-    #####:  376:			fflush(stdout);
-    #####:  377:			return 0;
-        -:  378:		}
-        -:  379:
-        -:  380:		// Child case: execute trader binary
-        2:  381:		if (pid == 0){ 
-        -:  382:			// TODO: Fix inconsistnecy of sometimes child not being launched
-    #####:  383:			if (execl(curr, curr, id, NULL) == -1){
-    #####:  384:				perror("Could not execute binary\n");
-    #####:  385:				return NULL;
-        -:  386:			}
-        -:  387:		// Parent case: Creater trader data type and open pipes
-        -:  388:		} else {
-        -:  389:
-        2:  390:			temp->process_id = pid;
+        -:  302:// SECTION: SETUP FUNCTIONS
+        -:  303:
+        -:  304:// TODO: Check product file validity
+    #####:  305:void str_remove_new_line(char* str){
+    #####:  306:	int len = strlen(str);
+    #####:  307:	for (int i = 0; i < len; i++){
+    #####:  308:		if (str[i] == '\n'){
+    #####:  309:			str[i] = '\0';
+        -:  310:		}
+        -:  311:	}
+    #####:  312:}
+        -:  313:
+        -:  314:// Creates trader balances from product file
+    #####:  315:dyn_arr* _create_traders_setup_trader_balances(char* product_file_path){
+    #####:  316:	dyn_arr* balances = dyn_array_init(sizeof(balance), balance_cmp);
+    #####:  317:	char buf[PRODUCT_STRING_LEN];
+    #####:  318:	FILE* f = fopen(product_file_path, "r");
+    #####:  319:	fgets(buf, PRODUCT_STRING_LEN, f); // Do this to get rid of the number of items line;
+    #####:  320:	int num_products = atoi(buf);
+    #####:  321:	for (int i = 0; i < num_products; i++){
+    #####:  322:		fgets(buf, PRODUCT_STRING_LEN, f);
+    #####:  323:		str_remove_new_line(buf);
+    #####:  324:		balance* b = calloc(1, sizeof(balance));
+    #####:  325:		memmove(b->product, buf, PRODUCT_STRING_LEN);
+    #####:  326:		dyn_array_append(balances, b);
+    #####:  327:		free(b);
+        -:  328:	}
+    #####:  329:	return balances;
+        -:  330:}
+        -:  331:
+        -:  332:
+        -:  333:/**
+        -:  334: * @brief Creates child trader processes, opens pipes to them and creates interfaces.
+        -:  335: * 
+        -:  336: * @param traders_bins a list strings of paths to trader binary executables
+        -:  337: * @return dyn_arr* dynamic array of trader structs, NULL if error encountered
+        -:  338: */
+    #####:  339:dyn_arr* create_traders(dyn_arr* traders_bins, char* product_file){
+    #####:  340:	dyn_arr* traders = dyn_array_init(sizeof(trader), &trader_cmp);
+    #####:  341:	trader* temp = calloc(1, sizeof(trader));
+    #####:  342:	char* fifo_exch = calloc(MAX_LINE, sizeof(char)); //! Assumed pipe name will be 128 chars max, but need to check
+    #####:  343:	char* fifo_trader = calloc(MAX_LINE, sizeof(char));
+    #####:  344:	char* id = malloc(sizeof(char)*MAX_LINE);
+    #####:  345:	char* curr;
+        -:  346:
+        -:  347:	/// Create pipes for each trader first
+    #####:  348:	for (int i = 0; i < traders_bins->used; i++){
+        -:  349:		
+    #####:  350:		sprintf(id, "%d", i);
+    #####:  351:		dyn_array_get(traders_bins, i, &curr);
+        -:  352:		
+        -:  353:		// Create pipes for exchange and trader
+    #####:  354:		sprintf(fifo_exch, FIFO_EXCHANGE, i);
+    #####:  355:		sprintf(fifo_trader, FIFO_TRADER, i);
+        -:  356:		
+    #####:  357:		if (mkfifo(fifo_exch, PERM_BITS_ALL) == -1 || 
+    #####:  358:			mkfifo(fifo_trader, PERM_BITS_ALL) == -1){ 
+    #####:  359:			if (errno != EEXIST){
+    #####:  360:				printf("Could not create fifo file\n");
+    #####:  361:				return NULL;
+        -:  362:			}
+        -:  363:		}
+    #####:  364:		memmove(temp->fd_read_name, fifo_exch, MAX_LINE);
+    #####:  365:		memmove(temp->fd_write_name, fifo_trader, MAX_LINE);
+    #####:  366:		PREFIX_EXCH
+    #####:  367:		printf("Created FIFO %s\n", fifo_exch);
+    #####:  368:		PREFIX_EXCH
+    #####:  369:		printf("Created FIFO %s\n", fifo_trader);
+        -:  370:
+        -:  371:		// Launch child processes for each trader
+    #####:  372:		PREFIX_EXCH
+    #####:  373:		printf("Starting trader %s (%s)\n", id, curr);
+    #####:  374:		pid_t pid = fork();
+    #####:  375:		if (pid == -1){
+        -:  376:			//! Smoothly handle errors e.g. free memory and terminate child processes
+    #####:  377:			printf("Could not launch trader binary!\n");
+    #####:  378:			fflush(stdout);
+    #####:  379:			return 0;
+        -:  380:		}
+        -:  381:
+        -:  382:		// Child case: execute trader binary
+    #####:  383:		if (pid == 0){ 
+        -:  384:			// TODO: Fix inconsistnecy of sometimes child not being launched
+    #####:  385:			if (execl(curr, curr, id, NULL) == -1){
+    #####:  386:				perror("Could not execute binary\n");
+    #####:  387:				return NULL;
+        -:  388:			}
+        -:  389:		// Parent case: Creater trader data type and open pipes
+        -:  390:		} else {
         -:  391:
-        2:  392:			sprintf(fifo_exch, FIFO_EXCHANGE, i);
-        2:  393:			sprintf(fifo_trader, FIFO_TRADER, i);
-        -:  394:			
-        2:  395:			temp->fd_write = open(fifo_exch, O_WRONLY);
-        2:  396:			PREFIX_EXCH
-        2:  397:			printf("Connected to %s\n", fifo_exch);
-        -:  398:			
-        2:  399:			temp->fd_read = open(fifo_trader, O_RDONLY);
-        2:  400:			PREFIX_EXCH
-        2:  401:			printf("Connected to %s\n", fifo_trader);
-        -:  402:
-        2:  403:			temp->connected = true;
-        2:  404:			temp->id = i;
-        2:  405:			temp->process_id = pid;
-        -:  406:			
-        2:  407:			temp->balances = _create_traders_setup_trader_balances(product_file);
-        -:  408:
-        2:  409:			dyn_array_append(traders, temp);
-        -:  410:		}
-        -:  411:	}
-        -:  412:
-        1:  413:	free(fifo_exch);
-        1:  414:	free(fifo_trader);
-        1:  415:	free(temp);
-        1:  416:	free(id);
-        1:  417:	return traders;
-        -:  418:}
-        -:  419:
-        -:  420:// Creates new order book for product and inserts into books
-        6:  421:void _setup_product_order_book(dyn_arr* books, char* product_name, bool is_buy){
-        6:  422:	order_book* b = calloc(1, sizeof(order_book));
-        6:  423:	strncpy(b->product, product_name, PRODUCT_STRING_LEN);
-        6:  424:	b->orders = dyn_array_init(sizeof(order), NULL);
-        6:  425:	b->is_buy = is_buy;
-        6:  426:	dyn_array_append(books, b);
-        6:  427:	free(b);
-        6:  428:}
-        -:  429:
-        -:  430:// Creates dynamic array storing orderbooks
-        1:  431:void setup_product_order_books(dyn_arr* buy_order_books, 
-        -:  432:dyn_arr* sell_order_books, char* product_file_path){
-        1:  433:	char buf[PRODUCT_STRING_LEN];
-        1:  434:	FILE* f = fopen(product_file_path, "r");
-        1:  435:	fgets(buf, PRODUCT_STRING_LEN, f); // Do this to get rid of the number of items line;
-        1:  436:	int num_products = atoi(buf);
-        1:  437:	PREFIX_EXCH
-        1:  438:	printf("Trading %d products: ", num_products);
-        4:  439:	for (int i = 0; i < num_products; i++){
-        3:  440:		fgets(buf, PRODUCT_STRING_LEN, f);
-        -:  441:		// TODO: Formalise checks for product order book
-        3:  442:		if (buf == NULL || buf[0] == '\n') {
-    #####:  443:			perror("ERROR: Product file is incorrect\n");
-    #####:  444:			exit(1);
-        -:  445:		}
-        3:  446:		str_remove_new_line(buf);
-        3:  447:		if (i < num_products-1) printf("%s ", buf);
-        1:  448:		else printf("%s", buf);
-        -:  449:
-        3:  450:		_setup_product_order_book(buy_order_books, buf, true);
-        3:  451:		_setup_product_order_book(sell_order_books, buf, false);
-        -:  452:	}
-        -:  453:
-        1:  454:	printf("\n");
-        1:  455:}
-        -:  456:
-        -:  457:// SECTION: Trader communication functions
+    #####:  392:			temp->process_id = pid;
+        -:  393:
+    #####:  394:			sprintf(fifo_exch, FIFO_EXCHANGE, i);
+    #####:  395:			sprintf(fifo_trader, FIFO_TRADER, i);
+        -:  396:			
+    #####:  397:			temp->fd_write = open(fifo_exch, O_WRONLY);
+    #####:  398:			PREFIX_EXCH
+    #####:  399:			printf("Connected to %s\n", fifo_exch);
+        -:  400:			
+    #####:  401:			temp->fd_read = open(fifo_trader, O_RDONLY);
+    #####:  402:			PREFIX_EXCH
+    #####:  403:			printf("Connected to %s\n", fifo_trader);
+        -:  404:
+    #####:  405:			temp->connected = true;
+    #####:  406:			temp->id = i;
+    #####:  407:			temp->process_id = pid;
+        -:  408:			
+    #####:  409:			temp->balances = _create_traders_setup_trader_balances(product_file);
+        -:  410:
+    #####:  411:			dyn_array_append(traders, temp);
+        -:  412:		}
+        -:  413:	}
+        -:  414:
+    #####:  415:	free(fifo_exch);
+    #####:  416:	free(fifo_trader);
+    #####:  417:	free(temp);
+    #####:  418:	free(id);
+    #####:  419:	return traders;
+        -:  420:}
+        -:  421:
+        -:  422:// Creates new order book for product and inserts into books
+    #####:  423:void _setup_product_order_book(dyn_arr* books, char* product_name, bool is_buy){
+    #####:  424:	order_book* b = calloc(1, sizeof(order_book));
+    #####:  425:	strncpy(b->product, product_name, PRODUCT_STRING_LEN);
+    #####:  426:	b->orders = dyn_array_init(sizeof(order), NULL);
+    #####:  427:	b->is_buy = is_buy;
+    #####:  428:	dyn_array_append(books, b);
+    #####:  429:	free(b);
+    #####:  430:}
+        -:  431:
+        -:  432:// Creates dynamic array storing orderbooks
+    #####:  433:void setup_product_order_books(dyn_arr* buy_order_books, 
+        -:  434:dyn_arr* sell_order_books, char* product_file_path){
+    #####:  435:	char buf[PRODUCT_STRING_LEN];
+    #####:  436:	FILE* f = fopen(product_file_path, "r");
+    #####:  437:	fgets(buf, PRODUCT_STRING_LEN, f); // Do this to get rid of the number of items line;
+    #####:  438:	int num_products = atoi(buf);
+    #####:  439:	PREFIX_EXCH
+    #####:  440:	printf("Trading %d products: ", num_products);
+    #####:  441:	for (int i = 0; i < num_products; i++){
+    #####:  442:		fgets(buf, PRODUCT_STRING_LEN, f);
+        -:  443:		// TODO: Formalise checks for product order book
+    #####:  444:		if (buf == NULL || buf[0] == '\n') {
+    #####:  445:			perror("ERROR: Product file is incorrect\n");
+    #####:  446:			exit(1);
+        -:  447:		}
+    #####:  448:		str_remove_new_line(buf);
+    #####:  449:		if (i < num_products-1) printf("%s ", buf);
+    #####:  450:		else printf("%s", buf);
+        -:  451:
+    #####:  452:		_setup_product_order_book(buy_order_books, buf, true);
+    #####:  453:		_setup_product_order_book(sell_order_books, buf, false);
+        -:  454:	}
+        -:  455:
+    #####:  456:	printf("\n");
+    #####:  457:}
         -:  458:
-        -:  459:/**
-        -:  460: * @brief Writes to the pipe of a single trader
-        -:  461: * 
-        -:  462: * @param t 
-        -:  463: * @param msg 
-        -:  464: */
-        4:  465:void trader_write_to(trader*t, char* msg){
-        -:  466:	#ifdef TEST
-        -:  467:		PREFIX_EXCH
-        -:  468:		printf("Sending msg to child %d\n", t->id);
-        -:  469:	#endif
-        4:  470:	if (t->connected) fifo_write(t->fd_write, msg);
-        -:  471:
-        -:  472:	#ifdef TEST
-        -:  473:		PREFIX_EXCH
-        -:  474:		printf("Write successful\n");
-        -:  475:	#endif
-        4:  476:}
-        -:  477:
-        -:  478:/**
-        -:  479: * @brief Signals a signal trader
-        -:  480: * 
-        -:  481: * @param t 
-        -:  482: */
-        4:  483:void trader_signal(trader* t){
-        4:  484:	kill(t->process_id, SIGUSR1);
-        4:  485:}
-        -:  486:
-        -:  487:/**
-        -:  488: * @brief messages a single trader their message, and signals them to receive the 
-        -:  489: * message
-        -:  490: * 
-        -:  491: * @param t  the trader to be messaged 
-        -:  492: * @param msg the message
-        -:  493: */
-        1:  494:void trader_message(trader* t, char* msg){
-        1:  495:	trader_write_to(t, msg);
-        1:  496:	trader_signal(t);
-        1:  497:}
-        -:  498:
-        -:  499:/**
-        -:  500: * @brief Writes some message to pipes of all traders
-        -:  501: * 
-        -:  502: * @param traders 
-        -:  503: * @param msg 
-        -:  504: */
-        2:  505:void trader_writeto_all(dyn_arr* traders, char* msg){
-        2:  506:	trader* t = calloc(1, sizeof(trader));
-        5:  507:	for (int i = 0; i < traders->used; i++){
-        3:  508:		dyn_array_get(traders, i, t);
-        3:  509:		trader_write_to(t, msg);
-        -:  510:	}
-        2:  511:	free(t);
-        2:  512:}
-        -:  513:
-        -:  514:/**
-        -:  515: * @brief Signals all traders
-        -:  516: * 
-        -:  517: * @param traders 
-        -:  518: */
-        2:  519:void trader_signal_all(dyn_arr* traders){
-        2:  520:	trader* t = calloc(1, sizeof(trader));
-        5:  521:	for (int i = 0; i < traders->used; i++){
-        3:  522:		dyn_array_get(traders, i, t);
-        3:  523:		trader_signal(t);
-        -:  524:	}
-        2:  525:	free(t);
-        2:  526:}
-        -:  527:
-        -:  528:
-        -:  529:/**
-        -:  530: * @brief Tells all traders some message terminated with ";"
-        -:  531: * 1. Writes to ALL traders' pipes first
-        -:  532: * 2. Signals ALL traders after all pipes have been written to
-        -:  533: * 
-        -:  534: * @param traders dynamic array of trader structs
-        -:  535: */
-        2:  536:void trader_message_all(dyn_arr* traders, char* msg){
-        2:  537:	trader_writeto_all(traders, msg);
-        2:  538:	trader_signal_all(traders);
-        2:  539:}
-        -:  540:
-        -:  541:
-        1:  542:void success_msg(trader* t, char* msg, int order_id){
-        1:  543:	char buf[MAX_LINE];
-        1:  544:	sprintf(buf, "%s %d;", msg, order_id);
-        1:  545:	trader_message(t, buf);
-        1:  546:}
-        -:  547:
-        -:  548:// MESSAGES all traders in the list
-        1:  549:void success_msg_all_traders(dyn_arr* traders, order* o){
-        1:  550:	char msg[MAX_LINE];
-        1:  551:	if (o->is_buy){
-    #####:  552:		sprintf(msg, "MARKET BUY %s %d %d;", o->product, o->qty, o->price);
-        -:  553:	} else {
-        1:  554:		sprintf(msg, "MARKET SELL %s %d %d;", o->product, o->qty, o->price);
-        -:  555:	}
-        1:  556:	trader_message_all(traders, msg);
-        1:  557:}
-        -:  558:
-        -:  559:// SECTION: Methods for reporting order book and traders
+        -:  459:// SECTION: Trader communication functions
+        -:  460:
+        -:  461:/**
+        -:  462: * @brief Writes to the pipe of a single trader
+        -:  463: * 
+        -:  464: * @param t 
+        -:  465: * @param msg 
+        -:  466: */
+    #####:  467:void trader_write_to(trader*t, char* msg){
+        -:  468:	#ifdef TEST
+        -:  469:		PREFIX_EXCH
+        -:  470:		printf("Sending msg to child %d\n", t->id);
+        -:  471:	#endif
+    #####:  472:	if (t->connected) fifo_write(t->fd_write, msg);
+        -:  473:
+        -:  474:	#ifdef TEST
+        -:  475:		PREFIX_EXCH
+        -:  476:		printf("Write successful\n");
+        -:  477:	#endif
+    #####:  478:}
+        -:  479:
+        -:  480:/**
+        -:  481: * @brief Signals a signal trader
+        -:  482: * 
+        -:  483: * @param t 
+        -:  484: */
+    #####:  485:void trader_signal(trader* t){
+    #####:  486:	kill(t->process_id, SIGUSR1);
+    #####:  487:}
+        -:  488:
+        -:  489:/**
+        -:  490: * @brief messages a single trader their message, and signals them to receive the 
+        -:  491: * message
+        -:  492: * 
+        -:  493: * @param t  the trader to be messaged 
+        -:  494: * @param msg the message
+        -:  495: */
+    #####:  496:void trader_message(trader* t, char* msg){
+    #####:  497:	trader_write_to(t, msg);
+    #####:  498:	trader_signal(t);
+    #####:  499:}
+        -:  500:
+        -:  501:/**
+        -:  502: * @brief Writes some message to pipes of all traders
+        -:  503: * 
+        -:  504: * @param traders 
+        -:  505: * @param msg 
+        -:  506: */
+    #####:  507:void trader_writeto_all(dyn_arr* traders, char* msg){
+    #####:  508:	trader* t = calloc(1, sizeof(trader));
+    #####:  509:	for (int i = 0; i < traders->used; i++){
+    #####:  510:		dyn_array_get(traders, i, t);
+    #####:  511:		trader_write_to(t, msg);
+        -:  512:	}
+    #####:  513:	free(t);
+    #####:  514:}
+        -:  515:
+        -:  516:/**
+        -:  517: * @brief Signals all traders
+        -:  518: * 
+        -:  519: * @param traders 
+        -:  520: */
+    #####:  521:void trader_signal_all(dyn_arr* traders){
+    #####:  522:	trader* t = calloc(1, sizeof(trader));
+    #####:  523:	for (int i = 0; i < traders->used; i++){
+    #####:  524:		dyn_array_get(traders, i, t);
+    #####:  525:		trader_signal(t);
+        -:  526:	}
+    #####:  527:	free(t);
+    #####:  528:}
+        -:  529:
+        -:  530:
+        -:  531:/**
+        -:  532: * @brief Tells all traders some message terminated with ";"
+        -:  533: * 1. Writes to ALL traders' pipes first
+        -:  534: * 2. Signals ALL traders after all pipes have been written to
+        -:  535: * 
+        -:  536: * @param traders dynamic array of trader structs
+        -:  537: */
+    #####:  538:void trader_message_all(dyn_arr* traders, char* msg){
+    #####:  539:	trader_writeto_all(traders, msg);
+    #####:  540:	trader_signal_all(traders);
+    #####:  541:}
+        -:  542:
+        -:  543:
+    #####:  544:void success_msg(trader* t, char* msg, int order_id){
+    #####:  545:	char buf[MAX_LINE];
+    #####:  546:	sprintf(buf, "%s %d;", msg, order_id);
+    #####:  547:	trader_message(t, buf);
+    #####:  548:}
+        -:  549:
+        -:  550:// MESSAGES all traders in the list
+    #####:  551:void success_msg_all_traders(dyn_arr* traders, order* o){
+    #####:  552:	char msg[MAX_LINE];
+    #####:  553:	if (o->is_buy){
+    #####:  554:		sprintf(msg, "MARKET BUY %s %d %d;", o->product, o->qty, o->price);
+        -:  555:	} else {
+    #####:  556:		sprintf(msg, "MARKET SELL %s %d %d;", o->product, o->qty, o->price);
+        -:  557:	}
+    #####:  558:	trader_message_all(traders, msg);
+    #####:  559:}
         -:  560:
-        -:  561:// Returns a (mem alloced) dyn_arr with copies of orders except in level order
-        6:  562:dyn_arr* report_create_orders_with_levels(order_book* book){
-        -:  563:
-        6:  564:	dyn_arr* all_orders = dyn_array_init(book->orders->memb_size, book->orders->cmp);
-        6:  565:	order* curr = calloc(1, sizeof(order));
-        6:  566:	order* prev = calloc(1, sizeof(order));
-        6:  567:	bool has_prev = false;
-        -:  568:
-        -:  569:	// Calculate buy levels and combine it to make new book with combined buy levels
-        6:  570:	dyn_array_sort(book->orders, descending_order_cmp); //! Don't forget to test your assumptions
-        7:  571:	for (int i = 0; i < book->orders->used; i++){
-        1:  572:		dyn_array_get(book->orders, i, curr);
-        1:  573:		curr->_num_orders = 1;
-        -:  574:		
-        1:  575:		if (!has_prev){
-        1:  576:			memmove(prev, curr, sizeof(order));
-        1:  577:			has_prev = true;
-    #####:  578:		} else if (prev->price != curr->price){
-    #####:  579:			dyn_array_append(all_orders, prev);
-    #####:  580:			memmove(prev, curr, sizeof(order));
-        -:  581:		} else {
-    #####:  582:			prev->_num_orders++;
-    #####:  583:			prev->qty += curr->qty;
-        -:  584:		}		
-        -:  585:	}
-        -:  586:
-        6:  587:	if (!has_prev) {
-        5:  588:		free(curr);
-        5:  589:		free(prev);
-        5:  590:		return all_orders;
-        1:  591:	} else if (curr->order_uid == prev->order_uid) {
-        1:  592:		dyn_array_append(all_orders, curr);
-    #####:  593:	} else if (curr->price == prev->price){
-    #####:  594:		dyn_array_append(all_orders, prev);
-        -:  595:	} else {
+        -:  561:// SECTION: Methods for reporting order book and traders
+        -:  562:
+        -:  563:// Returns a (mem alloced) dyn_arr with copies of orders except in level order
+    #####:  564:dyn_arr* report_create_orders_with_levels(order_book* book){
+        -:  565:
+    #####:  566:	dyn_arr* all_orders = dyn_array_init(book->orders->memb_size, book->orders->cmp);
+    #####:  567:	order* curr = calloc(1, sizeof(order));
+    #####:  568:	order* prev = calloc(1, sizeof(order));
+    #####:  569:	bool has_prev = false;
+        -:  570:
+        -:  571:	// Calculate buy levels and combine it to make new book with combined buy levels
+    #####:  572:	dyn_array_sort(book->orders, descending_order_cmp); //! Don't forget to test your assumptions
+    #####:  573:	for (int i = 0; i < book->orders->used; i++){
+    #####:  574:		dyn_array_get(book->orders, i, curr);
+    #####:  575:		curr->_num_orders = 1;
+        -:  576:		
+    #####:  577:		if (!has_prev){
+    #####:  578:			memmove(prev, curr, sizeof(order));
+    #####:  579:			has_prev = true;
+    #####:  580:		} else if (prev->price != curr->price){
+    #####:  581:			dyn_array_append(all_orders, prev);
+    #####:  582:			memmove(prev, curr, sizeof(order));
+        -:  583:		} else {
+    #####:  584:			prev->_num_orders++;
+    #####:  585:			prev->qty += curr->qty;
+        -:  586:		}		
+        -:  587:	}
+        -:  588:
+    #####:  589:	if (!has_prev) {
+    #####:  590:		free(curr);
+    #####:  591:		free(prev);
+    #####:  592:		return all_orders;
+    #####:  593:	} else if (curr->order_uid == prev->order_uid) {
+    #####:  594:		dyn_array_append(all_orders, curr);
+    #####:  595:	} else if (curr->price == prev->price){
     #####:  596:		dyn_array_append(all_orders, prev);
-        -:  597:	}
-        -:  598:
-        1:  599:	free(curr);
-        1:  600:	free(prev);
-        -:  601:	
-        1:  602:	return all_orders;
-        -:  603:}
-        -:  604:
-        -:  605:// Prints output for orderbook for some product
-        3:  606:void report_book_for_product(order_book* buy, order_book* sell){
-        -:  607:	
-        -:  608:	// Copy the buy and sell books and insert it into new array
-        3:  609:	int buy_levels = 0;
-        3:  610:	int sell_levels = 0;
-        -:  611:
-        -:  612:	// Get the leveled order books
-        3:  613:	dyn_arr* all_orders = report_create_orders_with_levels(buy);
-        -:  614:	// printf("All orders: %p array pointer: %p\n", all_orders, all_orders->array);
-        3:  615:	dyn_arr* new_sell_orders = report_create_orders_with_levels(sell);
-        3:  616:	buy_levels = all_orders->used;
-        3:  617:	sell_levels = new_sell_orders->used;
-        -:  618:
-        -:  619:	// Add sell orders to buy orders
-        3:  620:	order* curr = calloc(1, sizeof(order));
-        4:  621:	for (int i = 0; i < new_sell_orders->used; i++){
-        1:  622:		dyn_array_get(new_sell_orders, i, curr);
-        1:  623:		dyn_array_append(all_orders, curr);
-        -:  624:	}
-        3:  625:	dyn_array_free(new_sell_orders);
-        3:  626:	dyn_array_sort(all_orders, &descending_order_cmp);
-        -:  627:
-        -:  628:	// Print output
-        3:  629:	PREFIX_EXCH_L1
-        3:  630:	printf("Product: %s; Buy levels: %d; Sell levels: %d\n", buy->product, buy_levels, sell_levels);
-        4:  631:	for (int i = 0; i < all_orders->used; i++){
-        1:  632:		dyn_array_get(all_orders, i, curr);
-        -:  633:		
-        1:  634:		PREFIX_EXCH_L2
+        -:  597:	} else {
+    #####:  598:		dyn_array_append(all_orders, prev);
+        -:  599:	}
+        -:  600:
+    #####:  601:	free(curr);
+    #####:  602:	free(prev);
+        -:  603:	
+    #####:  604:	return all_orders;
+        -:  605:}
+        -:  606:
+        -:  607:// Prints output for orderbook for some product
+    #####:  608:void report_book_for_product(order_book* buy, order_book* sell){
+        -:  609:	
+        -:  610:	// Copy the buy and sell books and insert it into new array
+    #####:  611:	int buy_levels = 0;
+    #####:  612:	int sell_levels = 0;
+        -:  613:
+        -:  614:	// Get the leveled order books
+    #####:  615:	dyn_arr* all_orders = report_create_orders_with_levels(buy);
+        -:  616:	// printf("All orders: %p array pointer: %p\n", all_orders, all_orders->array);
+    #####:  617:	dyn_arr* new_sell_orders = report_create_orders_with_levels(sell);
+    #####:  618:	buy_levels = all_orders->used;
+    #####:  619:	sell_levels = new_sell_orders->used;
+        -:  620:
+        -:  621:	// Add sell orders to buy orders
+    #####:  622:	order* curr = calloc(1, sizeof(order));
+    #####:  623:	for (int i = 0; i < new_sell_orders->used; i++){
+    #####:  624:		dyn_array_get(new_sell_orders, i, curr);
+    #####:  625:		dyn_array_append(all_orders, curr);
+        -:  626:	}
+    #####:  627:	dyn_array_free(new_sell_orders);
+    #####:  628:	dyn_array_sort(all_orders, &descending_order_cmp);
+        -:  629:
+        -:  630:	// Print output
+    #####:  631:	PREFIX_EXCH_L1
+    #####:  632:	printf("Product: %s; Buy levels: %d; Sell levels: %d\n", buy->product, buy_levels, sell_levels);
+    #####:  633:	for (int i = 0; i < all_orders->used; i++){
+    #####:  634:		dyn_array_get(all_orders, i, curr);
         -:  635:		
-        1:  636:		if (curr->is_buy){
-    #####:  637:			printf("BUY ");
-        -:  638:		} else {
-        1:  639:			printf("SELL ");
-        -:  640:		}
-        -:  641:
-        1:  642:		if (curr->_num_orders > 1){
-    #####:  643:			printf("%d @ $%d (%d orders)\n", curr->qty, curr->price, curr->_num_orders);
-        -:  644:		} else {
-        1:  645:			printf("%d @ $%d (1 order)\n", curr->qty, curr->price);
-        -:  646:		}
-        -:  647:	}
-        3:  648:	free(curr);
-        3:  649:	dyn_array_free(all_orders);
-        -:  650:
-        3:  651:}
+    #####:  636:		PREFIX_EXCH_L2
+        -:  637:		
+    #####:  638:		if (curr->is_buy){
+    #####:  639:			printf("BUY ");
+        -:  640:		} else {
+    #####:  641:			printf("SELL ");
+        -:  642:		}
+        -:  643:
+    #####:  644:		if (curr->_num_orders > 1){
+    #####:  645:			printf("%d @ $%d (%d orders)\n", curr->qty, curr->price, curr->_num_orders);
+        -:  646:		} else {
+    #####:  647:			printf("%d @ $%d (1 order)\n", curr->qty, curr->price);
+        -:  648:		}
+        -:  649:	}
+    #####:  650:	free(curr);
+    #####:  651:	dyn_array_free(all_orders);
         -:  652:
-        -:  653:// Reports position for a single trader
-        2:  654:void report_position_for_trader(trader* t){
-        2:  655:	PREFIX_EXCH_L1
-        2:  656:	printf("Trader %d: ", t->id);
-        2:  657:	balance* curr = calloc(1, sizeof(balance));
-        6:  658:	for (int i = 0; i < t->balances->used-1; i++){
-        4:  659:		dyn_array_get(t->balances, i, curr);
-        4:  660:		printf("%s %d ($%ld), ", curr->product, curr->qty, curr->balance);
-        -:  661:	}
-        -:  662:	//TODO: edge case of no traders
-        2:  663:	dyn_array_get(t->balances, t->balances->used-1, curr);
-        2:  664:	printf("%s %d ($%ld)\n", curr->product, curr->qty, curr->balance);
-        2:  665:	free(curr);
-        2:  666:}
-        -:  667:
-        -:  668:// TODO: Fix up race condition in output during reporting
-        1:  669:void report(exch_data* exch){
-        -:  670:	#ifndef TEST
-        1:  671:		PREFIX_EXCH_L1
-        1:  672:		printf("--ORDERBOOK--\n");
-        1:  673:		order_book* buy_book = calloc(1, sizeof(order_book));
-        1:  674:		order_book* sell_book = calloc(1, sizeof(order_book));
-        4:  675:		for (int i = 0; i < exch->buy_books->used; i++){
-        3:  676:			dyn_array_get(exch->buy_books, i, buy_book);
-        3:  677:			dyn_array_get(exch->sell_books, i, sell_book);
-        3:  678:			report_book_for_product(buy_book, sell_book);
-        -:  679:		}
-        1:  680:		free(buy_book);
-        1:  681:		free(sell_book);
-        -:  682:
-        1:  683:		PREFIX_EXCH_L1
-        1:  684:		printf("--POSITIONS--\n");
-        1:  685:		trader* t = calloc(1, sizeof(trader));
-        3:  686:		for (int i = 0; i < exch->traders->used; i++){
-        2:  687:			dyn_array_get(exch->traders, i, t);
-        2:  688:			report_position_for_trader(t);
-        -:  689:		}
-        1:  690:		free(t);
-        -:  691:	#else
-        -:  692:		PREFIX_EXCH_L1
-        -:  693:		printf("--ORDERBOOK--\n");
-        -:  694:		order_book* buy_book = calloc(1, sizeof(order_book));
-        -:  695:		order_book* sell_book = calloc(1, sizeof(order_book));
-        -:  696:		for (int i = 0; i < exch->buy_books->used; i++){
-        -:  697:			dyn_array_get(exch->buy_books, i, buy_book);
-        -:  698:			dyn_array_get(exch->sell_books, i, sell_book);
-        -:  699:			order* o = calloc(1, sizeof(order));
-        -:  700:			for (int j = 0; j < buy_book->orders->used; j++){
-        -:  701:				dyn_array_get(buy_book->orders, j, o);
-        -:  702:				INDENT
-        -:  703:				printf("Product: %s", o->product);
+    #####:  653:}
+        -:  654:
+        -:  655:// Reports position for a single trader
+    #####:  656:void report_position_for_trader(trader* t){
+    #####:  657:	PREFIX_EXCH_L1
+    #####:  658:	printf("Trader %d: ", t->id);
+    #####:  659:	balance* curr = calloc(1, sizeof(balance));
+    #####:  660:	for (int i = 0; i < t->balances->used-1; i++){
+    #####:  661:		dyn_array_get(t->balances, i, curr);
+    #####:  662:		printf("%s %d ($%ld), ", curr->product, curr->qty, curr->balance);
+        -:  663:	}
+        -:  664:	//TODO: edge case of no traders
+    #####:  665:	dyn_array_get(t->balances, t->balances->used-1, curr);
+    #####:  666:	printf("%s %d ($%ld)\n", curr->product, curr->qty, curr->balance);
+    #####:  667:	free(curr);
+    #####:  668:}
+        -:  669:
+        -:  670:// TODO: Fix up race condition in output during reporting
+    #####:  671:void report(exch_data* exch){
+        -:  672:	#ifndef TEST
+    #####:  673:		PREFIX_EXCH_L1
+    #####:  674:		printf("--ORDERBOOK--\n");
+    #####:  675:		order_book* buy_book = calloc(1, sizeof(order_book));
+    #####:  676:		order_book* sell_book = calloc(1, sizeof(order_book));
+    #####:  677:		for (int i = 0; i < exch->buy_books->used; i++){
+    #####:  678:			dyn_array_get(exch->buy_books, i, buy_book);
+    #####:  679:			dyn_array_get(exch->sell_books, i, sell_book);
+    #####:  680:			report_book_for_product(buy_book, sell_book);
+        -:  681:		}
+    #####:  682:		free(buy_book);
+    #####:  683:		free(sell_book);
+        -:  684:
+    #####:  685:		PREFIX_EXCH_L1
+    #####:  686:		printf("--POSITIONS--\n");
+    #####:  687:		trader* t = calloc(1, sizeof(trader));
+    #####:  688:		for (int i = 0; i < exch->traders->used; i++){
+    #####:  689:			dyn_array_get(exch->traders, i, t);
+    #####:  690:			report_position_for_trader(t);
+        -:  691:		}
+    #####:  692:		free(t);
+        -:  693:	#else
+        -:  694:		PREFIX_EXCH_L1
+        -:  695:		printf("--ORDERBOOK--\n");
+        -:  696:		order_book* buy_book = calloc(1, sizeof(order_book));
+        -:  697:		order_book* sell_book = calloc(1, sizeof(order_book));
+        -:  698:		for (int i = 0; i < exch->buy_books->used; i++){
+        -:  699:			dyn_array_get(exch->buy_books, i, buy_book);
+        -:  700:			dyn_array_get(exch->sell_books, i, sell_book);
+        -:  701:			order* o = calloc(1, sizeof(order));
+        -:  702:			for (int j = 0; j < buy_book->orders->used; j++){
+        -:  703:				dyn_array_get(buy_book->orders, j, o);
         -:  704:				INDENT
-        -:  705:				INDENT
-        -:  706:				printf("[T%d] $%d Q%d UID:%d isbuy: %d\n", o->trader->id, o->price, o->qty, o->order_uid, o->is_buy);
-        -:  707:			}	
-        -:  708:			for (int j = 0; j < sell_book->orders->used; j++){
-        -:  709:				dyn_array_get(sell_book->orders, j, o);
-        -:  710:
-        -:  711:				INDENT
-        -:  712:				printf("Product: %s", o->product);
+        -:  705:				printf("Product: %s", o->product);
+        -:  706:				INDENT
+        -:  707:				INDENT
+        -:  708:				printf("[T%d] $%d Q%d UID:%d isbuy: %d\n", o->trader->id, o->price, o->qty, o->order_uid, o->is_buy);
+        -:  709:			}	
+        -:  710:			for (int j = 0; j < sell_book->orders->used; j++){
+        -:  711:				dyn_array_get(sell_book->orders, j, o);
+        -:  712:
         -:  713:				INDENT
-        -:  714:				INDENT
-        -:  715:				printf("[T%d] $%d Q%d UID:%d isbuy: %d\n", o->trader->id, o->price, o->qty, o->order_uid, o->is_buy);
-        -:  716:			}	
-        -:  717:
-        -:  718:
-        -:  719:			free(o);
-        -:  720:		}
-        -:  721:		free(buy_book);
-        -:  722:		free(sell_book);
-        -:  723:
-        -:  724:		PREFIX_EXCH_L1
-        -:  725:		printf("--POSITIONS--\n");
-        -:  726:		trader* t = calloc(1, sizeof(trader));
-        -:  727:		for (int i = 0; i < exch->traders->used; i++){
-        -:  728:			dyn_array_get(exch->traders, i, t);
-        -:  729:			report_position_for_trader(t);
-        -:  730:		}
-        -:  731:		free(t);
-        -:  732:
-        -:  733:	#endif
-        1:  734:}
-        -:  735:
-        -:  736:// SECTION: Transaction Handling functions
+        -:  714:				printf("Product: %s", o->product);
+        -:  715:				INDENT
+        -:  716:				INDENT
+        -:  717:				printf("[T%d] $%d Q%d UID:%d isbuy: %d\n", o->trader->id, o->price, o->qty, o->order_uid, o->is_buy);
+        -:  718:			}	
+        -:  719:
+        -:  720:
+        -:  721:			free(o);
+        -:  722:		}
+        -:  723:		free(buy_book);
+        -:  724:		free(sell_book);
+        -:  725:
+        -:  726:		PREFIX_EXCH_L1
+        -:  727:		printf("--POSITIONS--\n");
+        -:  728:		trader* t = calloc(1, sizeof(trader));
+        -:  729:		for (int i = 0; i < exch->traders->used; i++){
+        -:  730:			dyn_array_get(exch->traders, i, t);
+        -:  731:			report_position_for_trader(t);
+        -:  732:		}
+        -:  733:		free(t);
+        -:  734:
+        -:  735:	#endif
+    #####:  736:}
         -:  737:
-        -:  738:// Gets dynamic array without trader
-        1:  739:dyn_arr* get_arr_without_trader(dyn_arr* ts, trader* t){
-        1:  740:	dyn_array_delete(ts, dyn_array_find(ts, t, &trader_cmp));
-        1:  741:	return ts;
-        -:  742:} 
-        -:  743:
-        -:  744:// Returns args in ret and length of args via int, allocates mem for args, 
-        -:  745:// Caller has responsibility t ofree the return value
-        2:  746:int get_args_from_msg(char* msg, char*** ret){
-        -:  747:	// Get an array from the order
-        2:  748:	char* word = strtok(msg, " ;\n\r"); 
-        2:  749:	char** args = calloc(MAX_LINE, sizeof(char*));
-        2:  750:	int args_size = 0;
-       12:  751:	while (word != NULL) {
-       10:  752:		args[args_size] = word;
-       10:  753:		args_size++;
-       10:  754:		word = strtok(NULL, " ;\n\r"); 
-        -:  755:	}
-        2:  756:	*ret = args;
-        2:  757:	return args_size;
-        -:  758:}
-        -:  759:
-        -:  760:// Creates an order object from the string message sent by the child (has copy of trader)
-        1:  761:order* order_init_from_msg(char* msg, trader* t, exch_data* exch){
-        1:  762:	order* o = calloc(1, sizeof(order));
-        1:  763:	o->trader = t;
-        -:  764:
-        1:  765:	char** args = NULL;
-        1:  766:	get_args_from_msg(msg, &args);
-        -:  767:
-        -:  768:	// Initiate attributes
-        1:  769:	o->order_uid = (exch->order_uid)++; 
-        1:  770:	t->next_order_id++;
-        1:  771:	o->order_id = atoi(args[1]);
-        1:  772:	memmove(o->product, args[2], strlen(args[2])+1);
-        1:  773:	o->qty = atoi(args[3]);
-        1:  774:	o->price = atoi(args[4]);
-        -:  775:	
-        -:  776:	// Set is buy and link to buy/sell books
-        1:  777:	char* cmd_type = args[0];
-        1:  778:	int idx = -1;
-        1:  779:	order_book* b = calloc(1, sizeof(order_book));
-        1:  780:	memmove(b->product, o->product, PRODUCT_STRING_LEN);
-        1:  781:	if (strcmp(cmd_type, "BUY") == 0){
-    #####:  782:		o->is_buy = true;
-    #####:  783:		idx = dyn_array_find(exch->buy_books, b, obook_cmp);
-        1:  784:	} else if (strcmp(cmd_type, "SELL") == 0){
-        1:  785:		o->is_buy = false;
-        1:  786:		idx = dyn_array_find(exch->sell_books, b, obook_cmp);
-        -:  787:	} 	
-        1:  788:	o->order_book_idx = idx;
-        -:  789:
-        1:  790:	free(b);
-        1:  791:	free(args);
-        1:  792:	return o;
-        -:  793:}
-        -:  794:
-        -:  795:// Adds residual amount from ordedr to trader's positions if there is amount remaining.
-    #####:  796:void _process_trade_add_to_trader(order* order_added, int amt_filled, int64_t value){
-    #####:  797:	balance* b = calloc(1, sizeof(balance));
-        -:  798:	// printf("Trader has balances: %s\n", order_added->trader->)
-    #####:  799:	dyn_arr* balances = order_added->trader->balances;
-    #####:  800:	memmove(b->product, order_added->product, PRODUCT_STRING_LEN);
-    #####:  801:	int idx = dyn_array_find(balances, b, balance_cmp);
-    #####:  802:	dyn_array_get(balances, idx, b);
-    #####:  803:	if (order_added->is_buy){
-    #####:  804:		b->balance -= value;
-    #####:  805:		b->qty += amt_filled;
-        -:  806:	} else{
-    #####:  807:		b->balance += value;
-    #####:  808:		b->qty -= amt_filled;
-        -:  809:	}
-    #####:  810:	dyn_array_set(balances, idx, b);
-    #####:  811:	free(b);
-    #####:  812:}
-        -:  813:
-        -:  814:/**
-        -:  815: * @brief Private helper method for process_trader() for signalling traders about traders
-        -:  816: * 
-        -:  817: * @param o order that was involved in trade
-        -:  818: * @param amt_filled amount from order that was filled
-        -:  819: * @param traders array of traders on the system
-        -:  820: */
-    #####:  821:void _process_trade_signal_trader(order* o, int amt_filled){
-    #####:  822:	trader* target = o->trader;
-    #####:  823:	if (target->connected == false) return;
-    #####:  824:	char msg[MAX_LINE];
-        -:  825:	// sprintf(msg, "FILL %d %d price%d time%d isbuy:%d ;", o->order_id, amt_filled, o->price, o->order_uid, o->is_buy);
-    #####:  826:	sprintf(msg, "FILL %d %d;", o->order_id, amt_filled);
-    #####:  827:	trader_message(target, msg);
-        -:  828:}
-        -:  829:
-        -:  830:// Offsets buy and sell order against each other and signals traders about
-        -:  831:// Trade that was executed
-    #####:  832:void process_trade(order* buy, order* sell, 
-        -:  833:	order_book* buy_book, order_book* sell_book, exch_data* exch){
-        -:  834:
-        -:  835:	// Note orders are already removed from the books, so we 
-        -:  836:	// insert them back if there is a residual amount on the order
-    #####:  837:	int amt_filled = 0;
-    #####:  838:	if (buy->qty < sell->qty){
-    #####:  839:		sell->qty -= buy->qty;
-    #####:  840:		amt_filled = buy->qty;
-    #####:  841:		dyn_array_append(sell_book->orders, sell);
-    #####:  842:	} else if (buy->qty > sell->qty){
-    #####:  843:		buy->qty -= sell->qty;
-    #####:  844:		amt_filled = sell->qty;
-    #####:  845:		dyn_array_append(buy_book->orders, buy);
-        -:  846:	} else { // Buy quantity = sell quantity
-    #####:  847:		amt_filled = sell->qty;
-        -:  848:	}
-        -:  849:
-        -:  850:	// Decide the closing price of the bid/ask and the fee
-    #####:  851:	int64_t fee = 0;
-    #####:  852:	int64_t value = 0;
-        -:  853:	order* old_order;
-        -:  854:	order* new_order;
-    #####:  855:	if (buy->order_uid < sell->order_uid){
-    #####:  856:		value = (int64_t)(buy->price)*(int64_t)amt_filled;
-    #####:  857:		old_order = buy;
-    #####:  858:		new_order = sell;
-        -:  859:	} else {
-    #####:  860:		value = (int64_t)(sell->price)*(int64_t)amt_filled;
-    #####:  861:		old_order = sell;
-    #####:  862:		new_order = buy;
-        -:  863:	}
-    #####:  864:	fee = round((int64_t)value * 0.01);
-        -:  865:	
-        -:  866:	// Charge fee to trader placing latest order.
-    #####:  867:	_process_trade_add_to_trader(old_order, amt_filled, value);
-    #####:  868:	int64_t residual = new_order->is_buy ? value+fee : value-fee;
-    #####:  869:	_process_trade_add_to_trader(new_order, amt_filled, residual);
-    #####:  870:	exch->fees += fee;
-        -:  871:
-    #####:  872:	PREFIX_EXCH
-    #####:  873:	printf("Match: Order %d [T%d], New Order %d [T%d], value: $%ld, fee: $%ld.\n",
-    #####:  874:			old_order->order_id, old_order->trader->id, 
-    #####:  875:			new_order->order_id, new_order->trader->id, value, fee);
-        -:  876:
-        -:  877:	// Signal traders that their order was filled
-        -:  878:	// TODO: Check order to signal traders. buyer first or seller first for wash trades?
-    #####:  879:	_process_trade_signal_trader(buy, amt_filled);	
-    #####:  880:	_process_trade_signal_trader(sell, amt_filled);
-    #####:  881:}
-        -:  882:
-        -:  883:// TODO: Question? Do we only attempt to match the amended order with other orders after amending? or do we run the entire order book?
-        -:  884:// Reruns the order books against each other to see if any new trades are made for that product
-        1:  885:void run_orders(order_book* ob, order_book* os, exch_data* exch){
-        1:  886:	order* buy_max = calloc(1, sizeof(order));
-        1:  887:	order* sell_min = calloc(1, sizeof(order));
-        -:  888:	while (true){
-       1*:  889:		if (ob->orders->used == 0 || os->orders->used == 0) break;
-    #####:  890:		dyn_array_remove_max(ob->orders, buy_max, &order_cmp_buy_book);
-    #####:  891:		dyn_array_remove_min(os->orders, sell_min, &order_cmp_sell_book);
-        -:  892:		
-        -:  893:		// residual buy/max will have modified copy inserted into pq
-        -:  894:		// original that was not in the pq should be removed.
-    #####:  895:		if (buy_max->price >= sell_min->price){
-    #####:  896:			process_trade(buy_max, sell_min, ob, os, exch);
-        -:  897:		} else {
-    #####:  898:			dyn_array_append(ob->orders, buy_max); 
-    #####:  899:			dyn_array_append(os->orders, sell_min);
-    #####:  900:			break;
-        -:  901:		}
-        -:  902:	}
-        1:  903:	free(buy_max);
-        1:  904:	free(sell_min);
-        1:  905:}
-        -:  906:
-        -:  907:// Find the product sell/buy books with the product matching the orders
-        -:  908:// Perform processing in books
-        1:  909:void process_order(char* msg, trader* t, exch_data* exch){
-        -:  910:	
-        -:  911:	// Create order from message
-        1:  912:	order* order_added = order_init_from_msg(msg, t, exch);
-        -:  913:	
-        -:  914:	// Find the order books for the order
-        1:  915:	order_book* ob = calloc(1, sizeof(order_book));
-        1:  916:	order_book* os = calloc(1, sizeof(order_book));
-        1:  917:	memmove(ob->product, order_added->product, PRODUCT_STRING_LEN);
-        1:  918:	int idx = dyn_array_find(exch->buy_books, ob, &obook_cmp);
-        1:  919:	if (idx == -1) {
-        -:  920:		// TODO: broadcast invalid if product of order added does not exist;
-    #####:  921:		printf("Book not found!\n");
-    #####:  922:		free(ob);
-    #####:  923:		free(os);
-    #####:  924:		return;
-        -:  925:	}
-        1:  926:	dyn_array_get(exch->buy_books, idx, ob);
-        1:  927:	dyn_array_get(exch->sell_books, idx, os);
-        -:  928:
-        -:  929:	// Process the order
-        1:  930:	if (order_added->is_buy){
-    #####:  931:		dyn_array_append(ob->orders, (void *) order_added);
-        -:  932:	} else {
-        1:  933:		dyn_array_append(os->orders, (void *) order_added);
-        -:  934:	}
-        -:  935:
-        -:  936:	// Message order maker and other traders
-        1:  937:	success_msg(order_added->trader, "ACCEPTED", order_added->order_id);
-        1:  938:	dyn_arr* other_traders = dyn_array_init_copy(exch->traders);
-        1:  939:	other_traders = get_arr_without_trader(other_traders, order_added->trader);
-        1:  940:	success_msg_all_traders(other_traders, order_added);
-        -:  941:
-        1:  942:	dyn_array_free(other_traders);
+        -:  738:// SECTION: Transaction Handling functions
+        -:  739:
+        -:  740:// Gets dynamic array without trader
+    #####:  741:dyn_arr* get_arr_without_trader(dyn_arr* ts, trader* t){
+    #####:  742:	dyn_array_delete(ts, dyn_array_find(ts, t, &trader_cmp));
+    #####:  743:	return ts;
+        -:  744:} 
+        -:  745:
+        -:  746:// Returns args in ret and length of args via int, allocates mem for args, 
+        -:  747:// Caller has responsibility t ofree the return value
+    #####:  748:int get_args_from_msg(char* msg, char*** ret){
+        -:  749:	// Get an array from the order
+    #####:  750:	char* word = strtok(msg, " ;\n\r"); 
+    #####:  751:	char** args = calloc(MAX_LINE, sizeof(char*));
+    #####:  752:	int args_size = 0;
+    #####:  753:	while (word != NULL) {
+    #####:  754:		args[args_size] = word;
+    #####:  755:		args_size++;
+    #####:  756:		word = strtok(NULL, " ;\n\r"); 
+        -:  757:	}
+    #####:  758:	*ret = args;
+    #####:  759:	return args_size;
+        -:  760:}
+        -:  761:
+        -:  762:// Creates an order object from the string message sent by the child (has copy of trader)
+    #####:  763:order* order_init_from_msg(char* msg, trader* t, exch_data* exch){
+    #####:  764:	order* o = calloc(1, sizeof(order));
+    #####:  765:	o->trader = t;
+        -:  766:
+    #####:  767:	char** args = NULL;
+    #####:  768:	get_args_from_msg(msg, &args);
+        -:  769:
+        -:  770:	// Initiate attributes
+    #####:  771:	o->order_uid = (exch->order_uid)++; 
+    #####:  772:	t->next_order_id++;
+    #####:  773:	o->order_id = atoi(args[1]);
+    #####:  774:	memmove(o->product, args[2], strlen(args[2])+1);
+    #####:  775:	o->qty = atoi(args[3]);
+    #####:  776:	o->price = atoi(args[4]);
+        -:  777:	
+        -:  778:	// Set is buy and link to buy/sell books
+    #####:  779:	char* cmd_type = args[0];
+    #####:  780:	int idx = -1;
+    #####:  781:	order_book* b = calloc(1, sizeof(order_book));
+    #####:  782:	memmove(b->product, o->product, PRODUCT_STRING_LEN);
+    #####:  783:	if (strcmp(cmd_type, "BUY") == 0){
+    #####:  784:		o->is_buy = true;
+    #####:  785:		idx = dyn_array_find(exch->buy_books, b, obook_cmp);
+    #####:  786:	} else if (strcmp(cmd_type, "SELL") == 0){
+    #####:  787:		o->is_buy = false;
+    #####:  788:		idx = dyn_array_find(exch->sell_books, b, obook_cmp);
+        -:  789:	} 	
+    #####:  790:	o->order_book_idx = idx;
+        -:  791:
+    #####:  792:	free(b);
+    #####:  793:	free(args);
+    #####:  794:	return o;
+        -:  795:}
+        -:  796:
+        -:  797:// Adds residual amount from ordedr to trader's positions if there is amount remaining.
+    #####:  798:void _process_trade_add_to_trader(order* order_added, int amt_filled, int64_t value){
+    #####:  799:	balance* b = calloc(1, sizeof(balance));
+        -:  800:	// printf("Trader has balances: %s\n", order_added->trader->)
+    #####:  801:	dyn_arr* balances = order_added->trader->balances;
+    #####:  802:	memmove(b->product, order_added->product, PRODUCT_STRING_LEN);
+    #####:  803:	int idx = dyn_array_find(balances, b, balance_cmp);
+    #####:  804:	dyn_array_get(balances, idx, b);
+    #####:  805:	if (order_added->is_buy){
+    #####:  806:		b->balance -= value;
+    #####:  807:		b->qty += amt_filled;
+        -:  808:	} else{
+    #####:  809:		b->balance += value;
+    #####:  810:		b->qty -= amt_filled;
+        -:  811:	}
+    #####:  812:	dyn_array_set(balances, idx, b);
+    #####:  813:	free(b);
+    #####:  814:}
+        -:  815:
+        -:  816:/**
+        -:  817: * @brief Private helper method for process_trader() for signalling traders about traders
+        -:  818: * 
+        -:  819: * @param o order that was involved in trade
+        -:  820: * @param amt_filled amount from order that was filled
+        -:  821: * @param traders array of traders on the system
+        -:  822: */
+    #####:  823:void _process_trade_signal_trader(order* o, int amt_filled){
+    #####:  824:	trader* target = o->trader;
+    #####:  825:	if (target->connected == false) return;
+    #####:  826:	char msg[MAX_LINE];
+        -:  827:	// sprintf(msg, "FILL %d %d price%d time%d isbuy:%d ;", o->order_id, amt_filled, o->price, o->order_uid, o->is_buy);
+    #####:  828:	sprintf(msg, "FILL %d %d;", o->order_id, amt_filled);
+    #####:  829:	trader_message(target, msg);
+        -:  830:}
+        -:  831:
+        -:  832:// Offsets buy and sell order against each other and signals traders about
+        -:  833:// Trade that was executed
+    #####:  834:void process_trade(order* buy, order* sell, 
+        -:  835:	order_book* buy_book, order_book* sell_book, exch_data* exch){
+        -:  836:
+        -:  837:	// Note orders are already removed from the books, so we 
+        -:  838:	// insert them back if there is a residual amount on the order
+    #####:  839:	int amt_filled = 0;
+    #####:  840:	if (buy->qty < sell->qty){
+    #####:  841:		sell->qty -= buy->qty;
+    #####:  842:		amt_filled = buy->qty;
+    #####:  843:		dyn_array_append(sell_book->orders, sell);
+    #####:  844:	} else if (buy->qty > sell->qty){
+    #####:  845:		buy->qty -= sell->qty;
+    #####:  846:		amt_filled = sell->qty;
+    #####:  847:		dyn_array_append(buy_book->orders, buy);
+        -:  848:	} else { // Buy quantity = sell quantity
+    #####:  849:		amt_filled = sell->qty;
+        -:  850:	}
+        -:  851:
+        -:  852:	// Decide the closing price of the bid/ask and the fee
+    #####:  853:	int64_t fee = 0;
+    #####:  854:	int64_t value = 0;
+        -:  855:	order* old_order;
+        -:  856:	order* new_order;
+    #####:  857:	if (buy->order_uid < sell->order_uid){
+    #####:  858:		value = (int64_t)(buy->price)*(int64_t)amt_filled;
+    #####:  859:		old_order = buy;
+    #####:  860:		new_order = sell;
+        -:  861:	} else {
+    #####:  862:		value = (int64_t)(sell->price)*(int64_t)amt_filled;
+    #####:  863:		old_order = sell;
+    #####:  864:		new_order = buy;
+        -:  865:	}
+    #####:  866:	fee = round((int64_t)value * 0.01);
+        -:  867:	
+        -:  868:	// Charge fee to trader placing latest order.
+    #####:  869:	_process_trade_add_to_trader(old_order, amt_filled, value);
+    #####:  870:	int64_t residual = new_order->is_buy ? value+fee : value-fee;
+    #####:  871:	_process_trade_add_to_trader(new_order, amt_filled, residual);
+    #####:  872:	exch->fees += fee;
+        -:  873:
+    #####:  874:	PREFIX_EXCH
+    #####:  875:	printf("Match: Order %d [T%d], New Order %d [T%d], value: $%ld, fee: $%ld.\n",
+    #####:  876:			old_order->order_id, old_order->trader->id, 
+    #####:  877:			new_order->order_id, new_order->trader->id, value, fee);
+        -:  878:
+        -:  879:	// Signal traders that their order was filled
+        -:  880:	// TODO: Check order to signal traders. buyer first or seller first for wash trades?
+    #####:  881:	_process_trade_signal_trader(buy, amt_filled);	
+    #####:  882:	_process_trade_signal_trader(sell, amt_filled);
+    #####:  883:}
+        -:  884:
+        -:  885:// TODO: Question? Do we only attempt to match the amended order with other orders after amending? or do we run the entire order book?
+        -:  886:// Reruns the order books against each other to see if any new trades are made for that product
+    #####:  887:void run_orders(order_book* ob, order_book* os, exch_data* exch){
+    #####:  888:	order* buy_max = calloc(1, sizeof(order));
+    #####:  889:	order* sell_min = calloc(1, sizeof(order));
+        -:  890:	while (true){
+    #####:  891:		if (ob->orders->used == 0 || os->orders->used == 0) break;
+    #####:  892:		dyn_array_remove_max(ob->orders, buy_max, &order_cmp_buy_book);
+    #####:  893:		dyn_array_remove_min(os->orders, sell_min, &order_cmp_sell_book);
+        -:  894:		
+        -:  895:		// residual buy/max will have modified copy inserted into pq
+        -:  896:		// original that was not in the pq should be removed.
+    #####:  897:		if (buy_max->price >= sell_min->price){
+    #####:  898:			process_trade(buy_max, sell_min, ob, os, exch);
+        -:  899:		} else {
+    #####:  900:			dyn_array_append(ob->orders, buy_max); 
+    #####:  901:			dyn_array_append(os->orders, sell_min);
+    #####:  902:			break;
+        -:  903:		}
+        -:  904:	}
+    #####:  905:	free(buy_max);
+    #####:  906:	free(sell_min);
+    #####:  907:}
+        -:  908:
+        -:  909:// Find the product sell/buy books with the product matching the orders
+        -:  910:// Perform processing in books
+    #####:  911:void process_order(char* msg, trader* t, exch_data* exch){
+        -:  912:	
+        -:  913:	// Create order from message
+    #####:  914:	order* order_added = order_init_from_msg(msg, t, exch);
+        -:  915:	
+        -:  916:	// Find the order books for the order
+    #####:  917:	order_book* ob = calloc(1, sizeof(order_book));
+    #####:  918:	order_book* os = calloc(1, sizeof(order_book));
+    #####:  919:	memmove(ob->product, order_added->product, PRODUCT_STRING_LEN);
+    #####:  920:	int idx = dyn_array_find(exch->buy_books, ob, &obook_cmp);
+    #####:  921:	if (idx == -1) {
+        -:  922:		// TODO: broadcast invalid if product of order added does not exist;
+    #####:  923:		printf("Book not found!\n");
+    #####:  924:		free(ob);
+    #####:  925:		free(os);
+    #####:  926:		return;
+        -:  927:	}
+    #####:  928:	dyn_array_get(exch->buy_books, idx, ob);
+    #####:  929:	dyn_array_get(exch->sell_books, idx, os);
+        -:  930:
+        -:  931:	// Process the order
+    #####:  932:	if (order_added->is_buy){
+    #####:  933:		dyn_array_append(ob->orders, (void *) order_added);
+        -:  934:	} else {
+    #####:  935:		dyn_array_append(os->orders, (void *) order_added);
+        -:  936:	}
+        -:  937:
+        -:  938:	// Message order maker and other traders
+    #####:  939:	success_msg(order_added->trader, "ACCEPTED", order_added->order_id);
+    #####:  940:	dyn_arr* other_traders = dyn_array_init_copy(exch->traders);
+    #####:  941:	other_traders = get_arr_without_trader(other_traders, order_added->trader);
+    #####:  942:	success_msg_all_traders(other_traders, order_added);
         -:  943:
-        1:  944:	run_orders(ob, os, exch);
+    #####:  944:	dyn_array_free(other_traders);
         -:  945:
-        1:  946:	free(ob);
-        1:  947:	free(os);
-        1:  948:	free(order_added);
-        -:  949:}
-        -:  950:
-        -:  951:// Returns order if it exists, else NULL, allocates memory and must be freed by parent
-        -:  952:// TODO: Find the book from the books containing the matching trader and order id;
-    #####:  953:order* get_order_by_id(int oid, trader* t, dyn_arr* books){
-    #####:  954:	order* o = calloc(1, sizeof(order));
-    #####:  955:	o->order_id = oid;
-    #####:  956:	o->trader = t; //! t here is the original t passed by main
-    #####:  957:	order_book* curr = calloc(1, sizeof(order_book));
-    #####:  958:	int idx = -1;
-    #####:  959:	for (int i = 0; i < books->used; i++){
-    #####:  960:		dyn_array_get(books, i , curr);
-    #####:  961:		idx = dyn_array_find(curr->orders, o, &find_order_by_trader_cmp);
-    #####:  962:		if (idx >= 0) {
-    #####:  963:			dyn_array_get(curr->orders, idx, o);
-    #####:  964:			break;
-        -:  965:		}
-        -:  966:	}
-        -:  967:	#ifdef TEST
-        -:  968:		printf("Getting order by id: order_id %d trader_id %d\n", o->order_id, o->trader->id);
-        -:  969:	#endif
-    #####:  970:	free(curr);
-        -:  971:
-    #####:  972:	if (idx != -1) return o;
-        -:  973:	else{
-    #####:  974:		free(o);
-    #####:  975:		return NULL;
-        -:  976:	}
-        -:  977:}
-        -:  978:
-        -:  979:// // Returns the buy/sell books for the order via args, and returns exact order book order belongs to
-        -:  980:// int get_buy_sell_books_for_order(int oid, trader* t, order_book* buy_ret, order_book* sell_ret,){
-        -:  981:
-        -:  982:// }
+    #####:  946:	run_orders(ob, os, exch);
+        -:  947:
+    #####:  948:	free(ob);
+    #####:  949:	free(os);
+    #####:  950:	free(order_added);
+        -:  951:}
+        -:  952:
+        -:  953:// Returns order if it exists, else NULL, allocates memory and must be freed by parent
+        -:  954:// TODO: Find the book from the books containing the matching trader and order id;
+    #####:  955:order* get_order_by_id(int oid, trader* t, dyn_arr* books){
+    #####:  956:	order* o = calloc(1, sizeof(order));
+    #####:  957:	o->order_id = oid;
+    #####:  958:	o->trader = t; //! t here is the original t passed by main
+    #####:  959:	order_book* curr = calloc(1, sizeof(order_book));
+    #####:  960:	int idx = -1;
+    #####:  961:	for (int i = 0; i < books->used; i++){
+    #####:  962:		dyn_array_get(books, i , curr);
+    #####:  963:		idx = dyn_array_find(curr->orders, o, &find_order_by_trader_cmp);
+    #####:  964:		if (idx >= 0) {
+    #####:  965:			dyn_array_get(curr->orders, idx, o);
+    #####:  966:			break;
+        -:  967:		}
+        -:  968:	}
+        -:  969:	#ifdef TEST
+        -:  970:		printf("Getting order by id: order_id %d trader_id %d\n", o->order_id, o->trader->id);
+        -:  971:	#endif
+    #####:  972:	free(curr);
+        -:  973:
+    #####:  974:	if (idx != -1) return o;
+        -:  975:	else{
+    #####:  976:		free(o);
+    #####:  977:		return NULL;
+        -:  978:	}
+        -:  979:}
+        -:  980:
+        -:  981:// // Returns the buy/sell books for the order via args, and returns exact order book order belongs to
+        -:  982:// int get_buy_sell_books_for_order(int oid, trader* t, order_book* buy_ret, order_book* sell_ret,){
         -:  983:
-        -:  984:// void general_processor(char* msg, dyn_arr* buy_books, dyn_arr* sell_books, trader* t,
-        -:  985:// 	void (*process)(order_book* contains, int order_idx, int order_id, int price, int qty)){
-        -:  986:
-        -:  987:// 	// Get values from message
-        -:  988:// 	char** args = NULL;
-        -:  989:// 	int args_size = get_args_from_msg(msg, &args);
-        -:  990:// 	int order_id = atoi(args[1]);
-        -:  991:// 	int qty = atoi(args[2]);
-        -:  992:// 	int price = atoi(args[3]);
-        -:  993:// }
-        -:  994:
-        -:  995:
-        -:  996:// TODO: Refactor with function pointers
-        -:  997:// TODO: put amended orders to bottom of time priority queue
-        -:  998:
-        -:  999:// TODO: Amending smae order twice results in removal of other order
-    #####: 1000:void process_amend(char* msg, trader* t, exch_data* exch){
-        -: 1001:
-        -: 1002:	// Get values from message
-    #####: 1003:	char** args = NULL;
-    #####: 1004:	get_args_from_msg(msg, &args);
-    #####: 1005:	int order_id = atoi(args[1]);
-    #####: 1006:	int qty = atoi(args[2]);
-    #####: 1007:	int price = atoi(args[3]);
-        -: 1008:
-        -: 1009:	// Get relevant order book(s) and order from order id and trader id
-    #####: 1010:	order_book* ob = calloc(1, sizeof(order_book));
-    #####: 1011:	order_book* os = calloc(1, sizeof(order_book));
-    #####: 1012:	order* o = get_order_by_id(order_id, t, exch->buy_books);
-    #####: 1013:	if (o == NULL) {
-    #####: 1014:		free(o);
-    #####: 1015:		o = get_order_by_id(order_id, t, exch->sell_books);
-        -: 1016:	} 
-        -: 1017:	// TODO: I think the process is getting the wrong book! -> mistake in both amend/cancel
-    #####: 1018:	dyn_array_get(exch->buy_books, o->order_book_idx, ob);		
-    #####: 1019:	dyn_array_get(exch->sell_books, o->order_book_idx, os);
-        -: 1020:
-        -: 1021:	// TODO: FIx issue of order matching with itself.
-    #####: 1022:	order_book* contains = o->is_buy ? ob : os;	
-        -: 1023:
-        -: 1024:	// Amend order in order book
-    #####: 1025:	int order_idx = dyn_array_find(contains->orders, o, &find_order_by_trader_cmp);
-        -: 1026:	//! Change time prirority before or after attempting to match?
-    #####: 1027:	o->order_uid = (exch->order_uid)++;
-    #####: 1028:	o->qty = qty;
-    #####: 1029:	o->price = price;
-    #####: 1030:	order* temp = calloc(1, sizeof(order));
-    #####: 1031:	dyn_array_get(contains->orders, order_idx, temp);
-        -: 1032:	#ifdef TEST
-        -: 1033:		printf("get_order_by_id id: %d find id: %d\n", o->order_id, temp->order_id);
-        -: 1034:	#endif
-    #####: 1035:	free(temp);
-    #####: 1036:	dyn_array_set(contains->orders, order_idx, o);
-        -: 1037:
-        -: 1038:	/// Message t and other traders
-    #####: 1039:	success_msg(t, "AMENDED", order_id);
-    #####: 1040:	dyn_arr* other_traders = dyn_array_init_copy(exch->traders);
-    #####: 1041:	other_traders = get_arr_without_trader(other_traders, t);
-    #####: 1042:	success_msg_all_traders(other_traders, o);
-    #####: 1043:	dyn_array_free(other_traders);
-        -: 1044:
-        -: 1045:	// Run order book for trades
-    #####: 1046:	run_orders(ob, os, exch);	
-        -: 1047:
-    #####: 1048:	free(args);
-    #####: 1049:	free(o);
-    #####: 1050:	free(ob);
-    #####: 1051:	free(os);
-    #####: 1052:}
-        -: 1053:
-    #####: 1054:void process_cancel(char* msg, trader* t, exch_data* exch){
-        -: 1055:	// Get values from message
-    #####: 1056:	char** args = NULL;
-    #####: 1057:	get_args_from_msg(msg, &args);
-    #####: 1058:	int order_id = atoi(args[1]);
-        -: 1059:
-        -: 1060:	// Get relevant order book(s) and order from order id
-    #####: 1061:	order_book* ob = calloc(1, sizeof(order_book));
-    #####: 1062:	order_book* os = calloc(1, sizeof(order_book));
-    #####: 1063:	order* o = get_order_by_id(order_id, t, exch->buy_books);
-    #####: 1064:	if (o == NULL) {
-    #####: 1065:		free(o);
-    #####: 1066:		o = get_order_by_id(order_id, t, exch->sell_books);
-        -: 1067:	}
-    #####: 1068:	dyn_array_get(exch->buy_books, o->order_book_idx, ob);		
-    #####: 1069:	dyn_array_get(exch->sell_books, o->order_book_idx, os);
-        -: 1070:
-    #####: 1071:	order_book* contains = o->is_buy ? ob : os;	
+        -:  984:// }
+        -:  985:
+        -:  986:// void general_processor(char* msg, dyn_arr* buy_books, dyn_arr* sell_books, trader* t,
+        -:  987:// 	void (*process)(order_book* contains, int order_idx, int order_id, int price, int qty)){
+        -:  988:
+        -:  989:// 	// Get values from message
+        -:  990:// 	char** args = NULL;
+        -:  991:// 	int args_size = get_args_from_msg(msg, &args);
+        -:  992:// 	int order_id = atoi(args[1]);
+        -:  993:// 	int qty = atoi(args[2]);
+        -:  994:// 	int price = atoi(args[3]);
+        -:  995:// }
+        -:  996:
+        -:  997:
+        -:  998:// TODO: Refactor with function pointers
+        -:  999:// TODO: put amended orders to bottom of time priority queue
+        -: 1000:
+        -: 1001:// TODO: Amending smae order twice results in removal of other order
+    #####: 1002:void process_amend(char* msg, trader* t, exch_data* exch){
+        -: 1003:
+        -: 1004:	// Get values from message
+    #####: 1005:	char** args = NULL;
+    #####: 1006:	get_args_from_msg(msg, &args);
+    #####: 1007:	int order_id = atoi(args[1]);
+    #####: 1008:	int qty = atoi(args[2]);
+    #####: 1009:	int price = atoi(args[3]);
+        -: 1010:
+        -: 1011:	// Get relevant order book(s) and order from order id and trader id
+    #####: 1012:	order_book* ob = calloc(1, sizeof(order_book));
+    #####: 1013:	order_book* os = calloc(1, sizeof(order_book));
+    #####: 1014:	order* o = get_order_by_id(order_id, t, exch->buy_books);
+    #####: 1015:	if (o == NULL) {
+    #####: 1016:		free(o);
+    #####: 1017:		o = get_order_by_id(order_id, t, exch->sell_books);
+        -: 1018:	} 
+        -: 1019:	// TODO: I think the process is getting the wrong book! -> mistake in both amend/cancel
+    #####: 1020:	dyn_array_get(exch->buy_books, o->order_book_idx, ob);		
+    #####: 1021:	dyn_array_get(exch->sell_books, o->order_book_idx, os);
+        -: 1022:
+        -: 1023:	// TODO: FIx issue of order matching with itself.
+    #####: 1024:	order_book* contains = o->is_buy ? ob : os;	
+        -: 1025:
+        -: 1026:	// Amend order in order book
+    #####: 1027:	int order_idx = dyn_array_find(contains->orders, o, &find_order_by_trader_cmp);
+        -: 1028:	//! Change time prirority before or after attempting to match?
+    #####: 1029:	o->order_uid = (exch->order_uid)++;
+    #####: 1030:	o->qty = qty;
+    #####: 1031:	o->price = price;
+    #####: 1032:	order* temp = calloc(1, sizeof(order));
+    #####: 1033:	dyn_array_get(contains->orders, order_idx, temp);
+        -: 1034:	#ifdef TEST
+        -: 1035:		printf("get_order_by_id id: %d find id: %d\n", o->order_id, temp->order_id);
+        -: 1036:	#endif
+    #####: 1037:	free(temp);
+    #####: 1038:	dyn_array_set(contains->orders, order_idx, o);
+        -: 1039:
+        -: 1040:	/// Message t and other traders
+    #####: 1041:	success_msg(t, "AMENDED", order_id);
+    #####: 1042:	dyn_arr* other_traders = dyn_array_init_copy(exch->traders);
+    #####: 1043:	other_traders = get_arr_without_trader(other_traders, t);
+    #####: 1044:	success_msg_all_traders(other_traders, o);
+    #####: 1045:	dyn_array_free(other_traders);
+        -: 1046:
+        -: 1047:	// Run order book for trades
+    #####: 1048:	run_orders(ob, os, exch);	
+        -: 1049:
+    #####: 1050:	free(args);
+    #####: 1051:	free(o);
+    #####: 1052:	free(ob);
+    #####: 1053:	free(os);
+    #####: 1054:}
+        -: 1055:
+    #####: 1056:void process_cancel(char* msg, trader* t, exch_data* exch){
+        -: 1057:	// Get values from message
+    #####: 1058:	char** args = NULL;
+    #####: 1059:	get_args_from_msg(msg, &args);
+    #####: 1060:	int order_id = atoi(args[1]);
+        -: 1061:
+        -: 1062:	// Get relevant order book(s) and order from order id
+    #####: 1063:	order_book* ob = calloc(1, sizeof(order_book));
+    #####: 1064:	order_book* os = calloc(1, sizeof(order_book));
+    #####: 1065:	order* o = get_order_by_id(order_id, t, exch->buy_books);
+    #####: 1066:	if (o == NULL) {
+    #####: 1067:		free(o);
+    #####: 1068:		o = get_order_by_id(order_id, t, exch->sell_books);
+        -: 1069:	}
+    #####: 1070:	dyn_array_get(exch->buy_books, o->order_book_idx, ob);		
+    #####: 1071:	dyn_array_get(exch->sell_books, o->order_book_idx, os);
         -: 1072:
-        -: 1073:	// Remove order in order_book
-    #####: 1074:	int order_idx = dyn_array_find(contains->orders, o, &find_order_by_trader_cmp);
-    #####: 1075:	dyn_array_delete(contains->orders, order_idx);
-    #####: 1076:	o->qty = 0;
-    #####: 1077:	o->price = 0;
-        -: 1078:
-        -: 1079:	// Message t and other traders
-    #####: 1080:	success_msg(t, "CANCELLED", order_id);
-    #####: 1081:	dyn_arr* other_traders = dyn_array_init_copy(exch->traders);
-    #####: 1082:	other_traders = get_arr_without_trader(other_traders, t);
-    #####: 1083:	success_msg_all_traders(other_traders, o);
-    #####: 1084:	dyn_array_free(other_traders);
-        -: 1085:
-    #####: 1086:	free(args);
-    #####: 1087:	free(o);
-    #####: 1088:	free(ob);
-    #####: 1089:	free(os);
-    #####: 1090:}
-        -: 1091:
-        -: 1092:// Sends message to be processed by correct function
-        1: 1093:void process_message(char* msg, trader* t, exch_data* exch){ 
-        -: 1094:
-        1: 1095:	if (!strncmp(msg, "BUY", 3) || !strncmp(msg, "SELL", 4)){
-        1: 1096:		process_order(msg, t, exch);
-    #####: 1097:	} else if (!strncmp(msg, "AMEND", 5)){
-    #####: 1098:		process_amend(msg, t, exch);
-    #####: 1099:	} else if (!strncmp(msg, "CANCEL", 6)){ //TODO: turn into macros to avoid magic nums
-    #####: 1100:		process_cancel(msg, t, exch);
-        -: 1101:	} 
-        -: 1102:
-        1: 1103:	report(exch); //TODO: Only report if NOT invalid
-        1: 1104:}
-        -: 1105:
-        -: 1106:// SECTION: Command line validation
-        5: 1107:bool str_check_for_each(char* str, int (*check)(int c)){
-        5: 1108:	int len = strlen(str);
-       26: 1109:	for (int i = 0; i < len; i++) {
-      21*: 1110:		if (check(str[i]) == 0) return false; 
-        -: 1111:	}
-        5: 1112:	return true;
-        -: 1113:}
-        -: 1114:
-        1: 1115:bool is_valid_price_qty(int price, int qty){
-       1*: 1116:	if (qty > MAX_INT || qty <= 0) return false;
-       1*: 1117:	if (price > MAX_INT || price <= 0) return false;
-        1: 1118:	return true;
-        -: 1119:}
-        -: 1120:
-    #####: 1121:bool is_existing_order(int oid, trader* t, exch_data* exch){
-    #####: 1122:	order* o = get_order_by_id(oid, t, exch->buy_books);
-    #####: 1123:	if (o == NULL){
-    #####: 1124:		o = get_order_by_id(oid, t, exch->sell_books);
-        -: 1125:	}
-    #####: 1126:	free(o);
-        -: 1127:
-    #####: 1128:	if (o == NULL) return false;
-    #####: 1129:	return true;		
-        -: 1130:}
-        -: 1131:
-        1: 1132:bool is_valid_product(char* p, dyn_arr* books){
-        1: 1133:	order_book* o = calloc(1, sizeof(order_book));
-        1: 1134:	memmove(o->product, p, strlen(p)+1);
-        1: 1135:	int idx = dyn_array_find(books, o, obook_cmp);
-        1: 1136:	free(o);
-       1*: 1137:	if (idx == -1) return false;
-        1: 1138:	return true;
-        -: 1139:}
-        -: 1140:
-        1: 1141:bool is_valid_buy_sell_order_id(int oid, trader* t){
-       1*: 1142:	if (oid != t->next_order_id) return false;
-        1: 1143:	return true;
-        -: 1144:}
-        -: 1145:
-        1: 1146:bool is_valid_command(char* msg, trader* t, exch_data* exch){
-        -: 1147:	
-       1*: 1148:	if (strlen(msg) < 6) return false;
-        -: 1149:	// if (msg[strlen(msg)-1] != ';') return false; //TODO: Pass raw message to this function in main()
-        -: 1150:
-        1: 1151:	char** args;
-        1: 1152:	char* copy_msg = calloc(strlen(msg)+1, sizeof(char));
-        1: 1153:	memmove(copy_msg, msg, strlen(msg)+1);
-        1: 1154:	int args_size = get_args_from_msg(copy_msg, &args);
-        1: 1155:	bool ret = true;
-        -: 1156:
-        1: 1157:	char* cmd = args[0];
+    #####: 1073:	order_book* contains = o->is_buy ? ob : os;	
+        -: 1074:
+        -: 1075:	// Remove order in order_book
+    #####: 1076:	int order_idx = dyn_array_find(contains->orders, o, &find_order_by_trader_cmp);
+    #####: 1077:	dyn_array_delete(contains->orders, order_idx);
+    #####: 1078:	o->qty = 0;
+    #####: 1079:	o->price = 0;
+        -: 1080:
+        -: 1081:	// Message t and other traders
+    #####: 1082:	success_msg(t, "CANCELLED", order_id);
+    #####: 1083:	dyn_arr* other_traders = dyn_array_init_copy(exch->traders);
+    #####: 1084:	other_traders = get_arr_without_trader(other_traders, t);
+    #####: 1085:	success_msg_all_traders(other_traders, o);
+    #####: 1086:	dyn_array_free(other_traders);
+        -: 1087:
+    #####: 1088:	free(args);
+    #####: 1089:	free(o);
+    #####: 1090:	free(ob);
+    #####: 1091:	free(os);
+    #####: 1092:}
+        -: 1093:
+        -: 1094:// Sends message to be processed by correct function
+    #####: 1095:void process_message(char* msg, trader* t, exch_data* exch){ 
+        -: 1096:
+    #####: 1097:	if (!strncmp(msg, "BUY", 3) || !strncmp(msg, "SELL", 4)){
+    #####: 1098:		process_order(msg, t, exch);
+    #####: 1099:	} else if (!strncmp(msg, "AMEND", 5)){
+    #####: 1100:		process_amend(msg, t, exch);
+    #####: 1101:	} else if (!strncmp(msg, "CANCEL", 6)){ //TODO: turn into macros to avoid magic nums
+    #####: 1102:		process_cancel(msg, t, exch);
+        -: 1103:	} 
+        -: 1104:
+    #####: 1105:	report(exch); //TODO: Only report if NOT invalid
+    #####: 1106:}
+        -: 1107:
+        -: 1108:// SECTION: Command line validation
+    #####: 1109:bool str_check_for_each(char* str, int (*check)(int c)){
+    #####: 1110:	int len = strlen(str);
+    #####: 1111:	for (int i = 0; i < len; i++) {
+    #####: 1112:		if (check(str[i]) == 0) return false; 
+        -: 1113:	}
+    #####: 1114:	return true;
+        -: 1115:}
+        -: 1116:
+    #####: 1117:bool is_valid_price_qty(int price, int qty){
+    #####: 1118:	if (qty > MAX_INT || qty <= 0) return false;
+    #####: 1119:	if (price > MAX_INT || price <= 0) return false;
+    #####: 1120:	return true;
+        -: 1121:}
+        -: 1122:
+    #####: 1123:bool is_existing_order(int oid, trader* t, exch_data* exch){
+    #####: 1124:	order* o = get_order_by_id(oid, t, exch->buy_books);
+    #####: 1125:	if (o == NULL){
+    #####: 1126:		o = get_order_by_id(oid, t, exch->sell_books);
+        -: 1127:	}
+    #####: 1128:	free(o);
+        -: 1129:
+    #####: 1130:	if (o == NULL) return false;
+    #####: 1131:	return true;		
+        -: 1132:}
+        -: 1133:
+    #####: 1134:bool is_valid_product(char* p, dyn_arr* books){
+    #####: 1135:	order_book* o = calloc(1, sizeof(order_book));
+    #####: 1136:	memmove(o->product, p, strlen(p)+1);
+    #####: 1137:	int idx = dyn_array_find(books, o, obook_cmp);
+    #####: 1138:	free(o);
+    #####: 1139:	if (idx == -1) return false;
+    #####: 1140:	return true;
+        -: 1141:}
+        -: 1142:
+    #####: 1143:bool is_valid_buy_sell_order_id(int oid, trader* t){
+    #####: 1144:	if (oid != t->next_order_id) return false;
+    #####: 1145:	return true;
+        -: 1146:}
+        -: 1147:
+    #####: 1148:bool is_valid_command(char* msg, trader* t, exch_data* exch){
+        -: 1149:	
+    #####: 1150:	if (strlen(msg) < 6) return false;
+        -: 1151:	// if (msg[strlen(msg)-1] != ';') return false; //TODO: Pass raw message to this function in main()
+        -: 1152:
+    #####: 1153:	char** args;
+    #####: 1154:	char* copy_msg = calloc(strlen(msg)+1, sizeof(char));
+    #####: 1155:	memmove(copy_msg, msg, strlen(msg)+1);
+    #####: 1156:	int args_size = get_args_from_msg(copy_msg, &args);
+    #####: 1157:	bool ret = true;
         -: 1158:
-        1: 1159:	if (!strcmp(cmd, "BUY") || !strcmp(cmd, "SELL")){
+    #####: 1159:	char* cmd = args[0];
         -: 1160:
-        2: 1161:		ret = args_size == BUYSELL_CMD_SIZE &&
-        2: 1162:			str_check_for_each(args[1], &isdigit) &&
-        2: 1163:			str_check_for_each(args[2], &isalnum) &&
-        2: 1164:			str_check_for_each(args[2], &isalnum) &&
-        2: 1165:			str_check_for_each(args[3], &isdigit) &&
-        2: 1166:			str_check_for_each(args[4], &isdigit) &&
-        2: 1167:			is_valid_product(args[2], exch->buy_books) &&
-       3*: 1168:			is_valid_price_qty(atoi(args[4]), atoi(args[3])) &&
-        1: 1169:			is_valid_buy_sell_order_id(atoi(args[1]), t);
-        -: 1170:			
-        -: 1171:		// TODO: Check if trader already has the product
-        -: 1172:
-    #####: 1173:	} else if (!strcmp(cmd, "AMEND")){
-        -: 1174:		
-    #####: 1175:		ret = args_size == AMEND_CMD_SIZE &&
-    #####: 1176:			str_check_for_each(args[1], &isdigit) &&
-    #####: 1177:			str_check_for_each(args[2], &isdigit) &&
-    #####: 1178:			str_check_for_each(args[3], &isdigit) &&
-    #####: 1179:			is_existing_order(atoi(args[1]), t, exch) &&
-    #####: 1180:			is_valid_price_qty(atoi(args[3]), atoi(args[2]));
-        -: 1181:	
-    #####: 1182:	} else if (!strcmp(cmd, "CANCEL")){
-        -: 1183:
-    #####: 1184:		ret = args_size == CANCEL_CMD_SIZE &&
-    #####: 1185:			is_existing_order(atoi(args[1]), t, exch);
-        -: 1186:	
-        -: 1187:	} else {
-    #####: 1188:		ret = false;
-        -: 1189:	}
-        -: 1190:
-        1: 1191:	free(args);
-        1: 1192:	free(copy_msg);
-        1: 1193:	return ret;
-        -: 1194:}
-        -: 1195:
-        -: 1196:// SECTION: Shutdown functions
+    #####: 1161:	if (!strcmp(cmd, "BUY") || !strcmp(cmd, "SELL")){
+        -: 1162:
+    #####: 1163:		ret = args_size == BUYSELL_CMD_SIZE &&
+    #####: 1164:			str_check_for_each(args[1], &isdigit) &&
+    #####: 1165:			str_check_for_each(args[2], &isalnum) &&
+    #####: 1166:			str_check_for_each(args[2], &isalnum) &&
+    #####: 1167:			str_check_for_each(args[3], &isdigit) &&
+    #####: 1168:			str_check_for_each(args[4], &isdigit) &&
+    #####: 1169:			is_valid_product(args[2], exch->buy_books) &&
+    #####: 1170:			is_valid_price_qty(atoi(args[4]), atoi(args[3])) &&
+    #####: 1171:			is_valid_buy_sell_order_id(atoi(args[1]), t);
+        -: 1172:			
+        -: 1173:		// TODO: Check if trader already has the product
+        -: 1174:
+    #####: 1175:	} else if (!strcmp(cmd, "AMEND")){
+        -: 1176:		
+    #####: 1177:		ret = args_size == AMEND_CMD_SIZE &&
+    #####: 1178:			str_check_for_each(args[1], &isdigit) &&
+    #####: 1179:			str_check_for_each(args[2], &isdigit) &&
+    #####: 1180:			str_check_for_each(args[3], &isdigit) &&
+    #####: 1181:			is_existing_order(atoi(args[1]), t, exch) &&
+    #####: 1182:			is_valid_price_qty(atoi(args[3]), atoi(args[2]));
+        -: 1183:	
+    #####: 1184:	} else if (!strcmp(cmd, "CANCEL")){
+        -: 1185:
+    #####: 1186:		ret = args_size == CANCEL_CMD_SIZE &&
+    #####: 1187:			is_existing_order(atoi(args[1]), t, exch);
+        -: 1188:	
+        -: 1189:	} else {
+    #####: 1190:		ret = false;
+        -: 1191:	}
+        -: 1192:
+    #####: 1193:	free(args);
+    #####: 1194:	free(copy_msg);
+    #####: 1195:	return ret;
+        -: 1196:}
         -: 1197:
-        -: 1198:// Terminates/waits for all child processes to close
-        1: 1199:void teardown_traders(dyn_arr* traders){
-        1: 1200:	trader* t = calloc(1, sizeof(trader));
-        3: 1201:	for (int i = 0; i < traders->used; i++){
-        2: 1202:		dyn_array_get(traders, i, t);
-        2: 1203:		int status = 0;
-        2: 1204:		if (waitpid(t->process_id, &status, WNOHANG) == 0){
-        2: 1205:			kill(t->process_id, SIGKILL);
-        -: 1206:		};
-        2: 1207:		unlink(t->fd_read_name);
-        2: 1208:		unlink(t->fd_write_name);
-        -: 1209:		// kill(t->process_id, SIGKILL);
-        -: 1210:	}
-        1: 1211:	free(t);
-        1: 1212:}
-        -: 1213:
-        -: 1214:// Frees all relevant memory for the program
-        1: 1215:void free_program(exch_data* exch, struct pollfd* poll_fds){
-        -: 1216:	// Teardown
-        1: 1217:	free(poll_fds);
-        1: 1218:	teardown_traders(exch->traders);
-        -: 1219:	
-        -: 1220:	// Free traders
-        1: 1221:	trader* t = calloc(1, sizeof(trader));
-        3: 1222:	for (int i = 0; i < exch->traders->used; i++){ 
-        2: 1223:		dyn_array_get(exch->traders, i, t);
-        2: 1224:		dyn_array_free(t->balances);
-        -: 1225:	}
-        1: 1226:	free(t);
-        1: 1227:	dyn_array_free(exch->traders);
-        -: 1228:
-        -: 1229:	// Free orderbooks
-        1: 1230:	order_book* ob = calloc(1, sizeof(order_book));
-        4: 1231:	for (int i = 0; i < exch->buy_books->used; i++){
-        3: 1232:		dyn_array_get(exch->buy_books, i, ob);
-        3: 1233:		dyn_array_free(ob->orders);
-        3: 1234:		dyn_array_get(exch->sell_books, i, ob);
-        3: 1235:		dyn_array_free(ob->orders);
-        -: 1236:	}
-        1: 1237:	free(ob);
-        1: 1238:	dyn_array_free(exch->buy_books);
-        1: 1239:	dyn_array_free(exch->sell_books);
-        -: 1240:
-        -: 1241:	// Free exch
-        1: 1242:	free(exch);
-        1: 1243:}
-        -: 1244:
-        -: 1245:// void update_trader_connected(int *no_fd_events, struct pollfd* poll_fds)
-        -: 1246:// Notes
-        -: 1247:// Poll_sp - self pipe/queue to read signals in from
-        -: 1248:// poll_fds - last element is poll_sp rest are for fds for detecting disconnections
-        -: 1249:
-        -: 1250:
+        -: 1198:// SECTION: Shutdown functions
+        -: 1199:
+        -: 1200:// Terminates/waits for all child processes to close
+    #####: 1201:void teardown_traders(dyn_arr* traders){
+    #####: 1202:	trader* t = calloc(1, sizeof(trader));
+    #####: 1203:	for (int i = 0; i < traders->used; i++){
+    #####: 1204:		dyn_array_get(traders, i, t);
+    #####: 1205:		int status = 0;
+    #####: 1206:		if (waitpid(t->process_id, &status, WNOHANG) == 0){
+    #####: 1207:			kill(t->process_id, SIGKILL);
+        -: 1208:		};
+    #####: 1209:		unlink(t->fd_read_name);
+    #####: 1210:		unlink(t->fd_write_name);
+        -: 1211:		// kill(t->process_id, SIGKILL);
+        -: 1212:	}
+    #####: 1213:	free(t);
+    #####: 1214:}
+        -: 1215:
+        -: 1216:// Frees all relevant memory for the program
+    #####: 1217:void free_program(exch_data* exch, struct pollfd* poll_fds){
+        -: 1218:	// Teardown
+    #####: 1219:	free(poll_fds);
+    #####: 1220:	teardown_traders(exch->traders);
+        -: 1221:	
+        -: 1222:	// Free traders
+    #####: 1223:	trader* t = calloc(1, sizeof(trader));
+    #####: 1224:	for (int i = 0; i < exch->traders->used; i++){ 
+    #####: 1225:		dyn_array_get(exch->traders, i, t);
+    #####: 1226:		dyn_array_free(t->balances);
+        -: 1227:	}
+    #####: 1228:	free(t);
+    #####: 1229:	dyn_array_free(exch->traders);
+        -: 1230:
+        -: 1231:	// Free orderbooks
+    #####: 1232:	order_book* ob = calloc(1, sizeof(order_book));
+    #####: 1233:	for (int i = 0; i < exch->buy_books->used; i++){
+    #####: 1234:		dyn_array_get(exch->buy_books, i, ob);
+    #####: 1235:		dyn_array_free(ob->orders);
+    #####: 1236:		dyn_array_get(exch->sell_books, i, ob);
+    #####: 1237:		dyn_array_free(ob->orders);
+        -: 1238:	}
+    #####: 1239:	free(ob);
+    #####: 1240:	dyn_array_free(exch->buy_books);
+    #####: 1241:	dyn_array_free(exch->sell_books);
+        -: 1242:
+        -: 1243:	// Free exch
+    #####: 1244:	free(exch);
+    #####: 1245:}
+        -: 1246:
+        -: 1247:// void update_trader_connected(int *no_fd_events, struct pollfd* poll_fds)
+        -: 1248:// Notes
+        -: 1249:// Poll_sp - self pipe/queue to read signals in from
+        -: 1250:// poll_fds - last element is poll_sp rest are for fds for detecting disconnections
         -: 1251:
-        1: 1252:int main(int argc, char **argv) {
-        -: 1253:
-        -: 1254:	// Handle startup
-        1: 1255:	if (argc < 3){
-    #####: 1256:		PREFIX_EXCH
-    #####: 1257:		printf("Insufficient arguments\n");
-    #####: 1258:		return -1;
-        -: 1259:	}	
-        -: 1260:
-        1: 1261:	PREFIX_EXCH
-        1: 1262:	printf("Starting\n");
-        -: 1263:
-        -: 1264:	// Self pipe for sending signals too (queue for signals)
-        2: 1265:	if (pipe(sig_pipe) == -1 || 
-        2: 1266:		fcntl(sig_pipe[0], F_SETFD, O_NONBLOCK) == -1 ||
-        1: 1267:		fcntl(sig_pipe[1], F_SETFD, O_NONBLOCK) == -1){
-    #####: 1268:		perror("sigpipe failed\n");
-    #####: 1269:		return -1;
-        -: 1270:	};
-        -: 1271:
-        -: 1272:	// Setup exchange data packet for all functions to use
-        1: 1273:	exch_data* exch = calloc(1, sizeof(exch_data));
-        1: 1274:	exch->order_uid = 0; // Unique id for the order (universal), indicates its time priority.
-        1: 1275:	exch->fees = 0;
-        -: 1276:
-        -: 1277:	// Read in product files from command line
-        1: 1278:	char* product_file = argv[1];
-        1: 1279:	dyn_arr* traders_bins = dyn_array_init(sizeof(char*), &int_cmp); // Use index of trader in array to set id
-        3: 1280:	for (int i = 2; i < argc; i++){
-        2: 1281:		dyn_array_append(traders_bins, (void*)&argv[i]);
-        -: 1282:	}
-        -: 1283:
-        -: 1284:	// Create order books for products 
-        1: 1285:	dyn_arr* buy_order_books = dyn_array_init(sizeof(order_book), &obook_cmp);
-        1: 1286:	dyn_arr* sell_order_books = dyn_array_init(sizeof(order_book), &obook_cmp);
-        1: 1287:	setup_product_order_books(buy_order_books, sell_order_books, product_file);
-        1: 1288:	exch->buy_books = buy_order_books;
-        1: 1289:	exch->sell_books = sell_order_books;
-        -: 1290:
-        1: 1291:	set_handler(SIGUSR1, sig_handler);
+        -: 1252:
+        -: 1253:#ifndef UNIT
+    #####: 1254:int main(int argc, char **argv) {
+        -: 1255:
+        -: 1256:	// Handle startup
+    #####: 1257:	if (argc < 3){
+    #####: 1258:		PREFIX_EXCH
+    #####: 1259:		printf("Insufficient arguments\n");
+    #####: 1260:		return -1;
+        -: 1261:	}	
+        -: 1262:
+    #####: 1263:	PREFIX_EXCH
+    #####: 1264:	printf("Starting\n");
+        -: 1265:
+        -: 1266:	// Self pipe for sending signals too (queue for signals)
+    #####: 1267:	if (pipe(sig_pipe) == -1 || 
+    #####: 1268:		fcntl(sig_pipe[0], F_SETFD, O_NONBLOCK) == -1 ||
+    #####: 1269:		fcntl(sig_pipe[1], F_SETFD, O_NONBLOCK) == -1){
+    #####: 1270:		perror("sigpipe failed\n");
+    #####: 1271:		return -1;
+        -: 1272:	};
+        -: 1273:
+        -: 1274:	// Setup exchange data packet for all functions to use
+    #####: 1275:	exch_data* exch = calloc(1, sizeof(exch_data));
+    #####: 1276:	exch->order_uid = 0; // Unique id for the order (universal), indicates its time priority.
+    #####: 1277:	exch->fees = 0;
+        -: 1278:
+        -: 1279:	// Read in product files from command line
+    #####: 1280:	char* product_file = argv[1];
+    #####: 1281:	dyn_arr* traders_bins = dyn_array_init(sizeof(char*), &int_cmp); // Use index of trader in array to set id
+    #####: 1282:	for (int i = 2; i < argc; i++){
+    #####: 1283:		dyn_array_append(traders_bins, (void*)&argv[i]);
+        -: 1284:	}
+        -: 1285:
+        -: 1286:	// Create order books for products 
+    #####: 1287:	dyn_arr* buy_order_books = dyn_array_init(sizeof(order_book), &obook_cmp);
+    #####: 1288:	dyn_arr* sell_order_books = dyn_array_init(sizeof(order_book), &obook_cmp);
+    #####: 1289:	setup_product_order_books(buy_order_books, sell_order_books, product_file);
+    #####: 1290:	exch->buy_books = buy_order_books;
+    #####: 1291:	exch->sell_books = sell_order_books;
         -: 1292:
-        -: 1293:	// Create and message traders that the market has opened
-        1: 1294:	dyn_arr* traders = create_traders(traders_bins, product_file);
-        1: 1295:	dyn_array_free(traders_bins);
-        1: 1296:	exch->traders = traders;
-        -: 1297:
-        -: 1298:	// Construct poll data structure
-        1: 1299:	int connected_traders = traders->used;
-        -: 1300:
-        1: 1301:	int no_poll_fds = traders->used + 1;
-        1: 1302:	struct pollfd *poll_fds = calloc(no_poll_fds, sizeof(struct pollfd));
-        1: 1303:	int no_fd_events = 0;
-        -: 1304:
-        1: 1305:	trader* t = calloc(1, sizeof(trader));
-        -: 1306:	// TODO: maybe this should be done before we even launch child , requires us to open child pipes without waiting though.
-        3: 1307:	for (int i = 0; i < traders->used; i++){
-        2: 1308:		dyn_array_get(traders, i, t);
-        2: 1309:		poll_fds[i].fd = t->fd_read; // Read/write does not matter for pollhup
-        2: 1310:		poll_fds[i].events = POLLHUP; // means poll only makes revents field not 0 if POLLHUP is detected
-        -: 1311:	}
-        1: 1312:	free(t);
-        1: 1313:	struct pollfd *poll_sp = &poll_fds[no_poll_fds-1];
-        1: 1314:	poll_sp->fd = sig_pipe[0];
-        1: 1315:	poll_sp->events = POLLIN;
-        1: 1316:	trader_message_all(traders, "MARKET OPEN;");
-        -: 1317:
-        -: 1318:	// Handle orders from traders
-        3: 1319:	while (true){
-        -: 1320:
-        4: 1321:		if (connected_traders == 0) break;
-        -: 1322:			
-        -: 1323:		// Pause CPU until we receive some signal or trader disconnects
-        -: 1324:		// no_fd_events = poll(poll_fds, no_poll_fds, -1);
-        -: 1325:		// printf("Pausing\n");
-        3: 1326:		poll(poll_fds, no_poll_fds, -1);
-        3: 1327:		bool has_signal = poll(poll_sp, 1, 0);
-        3: 1328:		int disconnect_events = poll(poll_fds, no_poll_fds-1, 0);
-        -: 1329:
-        -: 1330:		// TODO: Fix issue with main loop still occasionally getting stuck -> probably what's causing race condition
-        -: 1331:			// Only occurs when I try to redirect output
-        -: 1332:		// TODO: Check if if order of disconnection is correct, or us sigchild.
-        -: 1333:		// TODO: if trader disconnects before we get to poll will poll detect disconnection?
-        -: 1334:		// TODO: I think it will because the poll says revents is FILLED BY THE KERNEL i.e. even if you set it to 0 it just gets refilled 
-        -: 1335:		// TODO: consider order of disconnection, will it print in order if multiple trader disconnect at the same time
-        -: 1336:		// TEST
-        5: 1337:		while (disconnect_events > 0){
-        6: 1338:			for (int i = 0; i < traders->used; i++){
-        -: 1339:				//? I set poll_fds[i] to -1 so kernel populates it with some other error message? -> POLLNVAL
-        4: 1340:				if ((poll_fds[i].revents&POLLHUP) == POLLHUP){
-        -: 1341:					// Disconnect trader
-        2: 1342:					trader* t = calloc(1, sizeof(trader));
-        2: 1343:					t->fd_read = poll_fds[i].fd;
-        2: 1344:					int idx = dyn_array_find(traders, t, trader_cmp_by_fdread);
-        2: 1345:					if (idx != -1){
-        2: 1346:						dyn_array_get(traders, idx, t);
-        2: 1347:						t->connected = false;
-        2: 1348:						dyn_array_set(traders, idx, t);
-        2: 1349:						close(t->fd_read);
-        2: 1350:						close(t->fd_write);
-        2: 1351:						poll_fds[i].fd = -1;
-        2: 1352:						PREFIX_EXCH
-        2: 1353:						printf("Trader %d disconnected\n", t->id);
-        2: 1354:						connected_traders--;
-        -: 1355:						// no_fd_events--;		
-        2: 1356:						disconnect_events--;
-        2: 1357:						free(t);
-        -: 1358:					}
-        -: 1359:				}
-        -: 1360:			}
-        -: 1361:
-        -: 1362:		}
+    #####: 1293:	set_handler(SIGUSR1, sig_handler);
+        -: 1294:
+        -: 1295:	// Create and message traders that the market has opened
+    #####: 1296:	dyn_arr* traders = create_traders(traders_bins, product_file);
+    #####: 1297:	dyn_array_free(traders_bins);
+    #####: 1298:	exch->traders = traders;
+        -: 1299:
+        -: 1300:	// Construct poll data structure
+    #####: 1301:	int connected_traders = traders->used;
+        -: 1302:
+    #####: 1303:	int no_poll_fds = traders->used + 1;
+    #####: 1304:	struct pollfd *poll_fds = calloc(no_poll_fds, sizeof(struct pollfd));
+    #####: 1305:	int no_fd_events = 0;
+        -: 1306:
+    #####: 1307:	trader* t = calloc(1, sizeof(trader));
+        -: 1308:	// TODO: maybe this should be done before we even launch child , requires us to open child pipes without waiting though.
+    #####: 1309:	for (int i = 0; i < traders->used; i++){
+    #####: 1310:		dyn_array_get(traders, i, t);
+    #####: 1311:		poll_fds[i].fd = t->fd_read; // Read/write does not matter for pollhup
+    #####: 1312:		poll_fds[i].events = POLLHUP; // means poll only makes revents field not 0 if POLLHUP is detected
+        -: 1313:	}
+    #####: 1314:	free(t);
+    #####: 1315:	struct pollfd *poll_sp = &poll_fds[no_poll_fds-1];
+    #####: 1316:	poll_sp->fd = sig_pipe[0];
+    #####: 1317:	poll_sp->events = POLLIN;
+    #####: 1318:	trader_message_all(traders, "MARKET OPEN;");
+        -: 1319:
+        -: 1320:	// Handle orders from traders
+    #####: 1321:	while (true){
+        -: 1322:
+    #####: 1323:		if (connected_traders == 0) break;
+        -: 1324:			
+        -: 1325:		// Pause CPU until we receive some signal or trader disconnects
+        -: 1326:		// no_fd_events = poll(poll_fds, no_poll_fds, -1);
+        -: 1327:		// printf("Pausing\n");
+    #####: 1328:		poll(poll_fds, no_poll_fds, -1);
+    #####: 1329:		bool has_signal = poll(poll_sp, 1, 0);
+    #####: 1330:		int disconnect_events = poll(poll_fds, no_poll_fds-1, 0);
+        -: 1331:
+        -: 1332:		// TODO: Fix issue with main loop still occasionally getting stuck -> probably what's causing race condition
+        -: 1333:			// Only occurs when I try to redirect output
+        -: 1334:		// TODO: Check if if order of disconnection is correct, or us sigchild.
+        -: 1335:		// TODO: if trader disconnects before we get to poll will poll detect disconnection?
+        -: 1336:		// TODO: I think it will because the poll says revents is FILLED BY THE KERNEL i.e. even if you set it to 0 it just gets refilled 
+        -: 1337:		// TODO: consider order of disconnection, will it print in order if multiple trader disconnect at the same time
+        -: 1338:		// TEST
+    #####: 1339:		while (disconnect_events > 0){
+    #####: 1340:			for (int i = 0; i < traders->used; i++){
+        -: 1341:				//? I set poll_fds[i] to -1 so kernel populates it with some other error message? -> POLLNVAL
+    #####: 1342:				if ((poll_fds[i].revents&POLLHUP) == POLLHUP){
+        -: 1343:					// Disconnect trader
+    #####: 1344:					trader* t = calloc(1, sizeof(trader));
+    #####: 1345:					t->fd_read = poll_fds[i].fd;
+    #####: 1346:					int idx = dyn_array_find(traders, t, trader_cmp_by_fdread);
+    #####: 1347:					if (idx != -1){
+    #####: 1348:						dyn_array_get(traders, idx, t);
+    #####: 1349:						t->connected = false;
+    #####: 1350:						dyn_array_set(traders, idx, t);
+    #####: 1351:						close(t->fd_read);
+    #####: 1352:						close(t->fd_write);
+    #####: 1353:						poll_fds[i].fd = -1;
+    #####: 1354:						PREFIX_EXCH
+    #####: 1355:						printf("Trader %d disconnected\n", t->id);
+    #####: 1356:						connected_traders--;
+        -: 1357:						// no_fd_events--;		
+    #####: 1358:						disconnect_events--;
+    #####: 1359:						free(t);
+        -: 1360:					}
+        -: 1361:				}
+        -: 1362:			}
         -: 1363:
-        -: 1364:		// Test race
-        4: 1365:		while (has_signal){
-        1: 1366:			siginfo_t* ret = calloc(1, sizeof(siginfo_t));
-        1: 1367:			read(sig_pipe[0], ret, sizeof(siginfo_t));
-        1: 1368:			no_fd_events--;
-        -: 1369:	
-        -: 1370:			// find literal location of child with same process id
-        1: 1371:			trader* t = calloc(1, sizeof(trader));
-        1: 1372:			t->process_id = ret->si_pid;
-        1: 1373:			int idx = dyn_array_find(traders, t, &trader_cmp_by_process_id);
-        1: 1374:			free(t);
-        1: 1375:			t = dyn_array_get_literal(traders, idx);
-        -: 1376:			
-        -: 1377:			// Read message from the trader
-        1: 1378:			char* msg = fifo_read(t->fd_read);
-        1: 1379:			PREFIX_EXCH
-        1: 1380:			printf("[T%d] Parsing command: <%s>\n", t->id, msg);
-        -: 1381:
-        1: 1382:			if (!is_valid_command(msg, t, exch) ||
-        1: 1383:				t->connected == false){
-    #####: 1384:				trader_message(t, "INVALID;");
-        -: 1385:			} else {
-        1: 1386:				process_message(msg, t, exch);
-        -: 1387:			}
-        -: 1388:
-        1: 1389:			free(ret);
-        1: 1390:			free(msg);
-        1: 1391:			has_signal = poll(poll_sp, 1, 0);
-        -: 1392:			// TODO: Fix race condition issue on ed 
-        -: 1393:				// NB: Race condition persists with version that uses malloc too.
-        -: 1394:
-        -: 1395:			// Slight change in comment to see if race condition
-        -: 1396:			// Read from self pipe (i.e. signals) if it is non empty
-        -: 1397:			// while (poll(poll_sp, 1, 0) > 0){
-        -: 1398:				
-        -: 1399:			// }
-        -: 1400:
-        -: 1401:		}
+        -: 1364:		}
+        -: 1365:
+        -: 1366:		// Test race
+    #####: 1367:		while (has_signal){
+    #####: 1368:			siginfo_t* ret = calloc(1, sizeof(siginfo_t));
+    #####: 1369:			read(sig_pipe[0], ret, sizeof(siginfo_t));
+    #####: 1370:			no_fd_events--;
+        -: 1371:	
+        -: 1372:			// find literal location of child with same process id
+    #####: 1373:			trader* t = calloc(1, sizeof(trader));
+    #####: 1374:			t->process_id = ret->si_pid;
+    #####: 1375:			int idx = dyn_array_find(traders, t, &trader_cmp_by_process_id);
+    #####: 1376:			free(t);
+    #####: 1377:			t = dyn_array_get_literal(traders, idx);
+        -: 1378:			
+        -: 1379:			// Read message from the trader
+    #####: 1380:			char* msg = fifo_read(t->fd_read);
+    #####: 1381:			PREFIX_EXCH
+    #####: 1382:			printf("[T%d] Parsing command: <%s>\n", t->id, msg);
+        -: 1383:
+    #####: 1384:			if (!is_valid_command(msg, t, exch) ||
+    #####: 1385:				t->connected == false){
+    #####: 1386:				trader_message(t, "INVALID;");
+        -: 1387:			} else {
+    #####: 1388:				process_message(msg, t, exch);
+        -: 1389:			}
+        -: 1390:
+    #####: 1391:			free(ret);
+    #####: 1392:			free(msg);
+    #####: 1393:			has_signal = poll(poll_sp, 1, 0);
+        -: 1394:			// TODO: Fix race condition issue on ed 
+        -: 1395:				// NB: Race condition persists with version that uses malloc too.
+        -: 1396:
+        -: 1397:			// Slight change in comment to see if race condition
+        -: 1398:			// Read from self pipe (i.e. signals) if it is non empty
+        -: 1399:			// while (poll(poll_sp, 1, 0) > 0){
+        -: 1400:				
+        -: 1401:			// }
         -: 1402:
-        -: 1403:		// Walk through
-        -: 1404:		// TODO: Check for signals in between processing each signal?
-        -: 1405:
-        -: 1406:	}
-        -: 1407:	
-        -: 1408:	// Print termination message
-        1: 1409:	PREFIX_EXCH
-        1: 1410:	printf("Trading completed\n");
-        1: 1411:	PREFIX_EXCH
-        1: 1412:	printf("Exchange fees collected: $%ld\n", exch->fees);
-        -: 1413:
-        1: 1414:	free_program(exch, poll_fds);
+        -: 1403:		}
+        -: 1404:
+        -: 1405:		// Walk through
+        -: 1406:		// TODO: Check for signals in between processing each signal?
+        -: 1407:
+        -: 1408:	}
+        -: 1409:	
+        -: 1410:	// Print termination message
+    #####: 1411:	PREFIX_EXCH
+    #####: 1412:	printf("Trading completed\n");
+    #####: 1413:	PREFIX_EXCH
+    #####: 1414:	printf("Exchange fees collected: $%ld\n", exch->fees);
         -: 1415:
-        1: 1416:	return 0;
-        -: 1417:}
+    #####: 1416:	free_program(exch, poll_fds);
+        -: 1417:
+    #####: 1418:	return 0;
+        -: 1419:}
+        -: 1420:#endif

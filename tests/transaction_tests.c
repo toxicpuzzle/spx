@@ -23,7 +23,13 @@
 
 #include "spx_exchange.h"
 
-// Test dynamic array
+// Test transaction handling functions
+
+
+
+
+
+
 static int integers[] = {420, 560, 790, 100, 220, 560, 300};
 static int integers_post_insertion[] = {100001, 420, 560, 790, 100001, 100, 220, 560, 300, 100001};
 static int integers_post_appending[] = {420, 560, 790, 100, 220, 560, 300, 100001};
@@ -55,11 +61,82 @@ static int integers_post_get_literal[] = {420, 999999, 790, 100, 220, 560, 300};
 //     dyn_arr* balances; // Stores balance objects for every product.
 // };
 
+// struct order{
+//     int order_id;
+//     int order_uid;
+//     int trader_list_idx;
+//     trader* trader; // Trader that made the order //! a copy of original trader. must be freed //! Problematic as the copie's connected attribute is not updatd
+//     int order_book_idx;// index of order book in ob dyn_arr to which order belongs //! A copy of the order book. must be freed
+//     bool is_buy;
+//     char product[PRODUCT_STRING_LEN];
+//     int qty;
+//     int price;
+//     int _num_orders; // Private attribute used for reporting
+// };
+
+
 void is_same_array(dyn_arr* dyn, void* arr, int exp_len){
     bool same_array = (memcmp(dyn->array, arr, exp_len) == 0);
     assert_true(same_array);
     assert(dyn->used == exp_len);
 }
+
+void array_to_dyn_array(dyn_arr* dyn, void* arr, int exp_len){
+    for (int i = 0; i < exp_len; i++){
+        dyn_array_append(dyn, arr + i*(dyn->memb_size));
+    }
+}
+
+exch_data* exch;
+trader* t;
+
+// TODO: find out if when you try to signal invalid fd if that is allg.
+// TODO: or just disable signalling within function using cmocka.
+static int init_exch_data(void **state){
+    // Initiate buy boooks
+    order_book bbs[] = {
+        {"Oreos", true, NULL},
+        {"Peanuts", true, NULL}
+    };
+    order_book sbs[] = {
+        {"Oreos", false, NULL},
+        {"Peanuts", false, NULL}
+    };
+    order oreo_buy_orders[] = {
+        {0, 2, 1, NULL, 0, 0, "Oreos", 10, 30, 0},
+        {0, 1, 1, NULL, 0, 0, "Oreos", 12, 58, 0},
+        {0, 0, 1, NULL, 0, 0, "Oreos", 12, 58, 0},
+        {0, 4, 1, NULL, 0, 0, "Oreos", 8, 20, 0},
+        {0, 3, 1, NULL, 0, 0, "Oreos", 3, 56, 0},
+    };
+    order oreo_sell_orders[] = {
+        {0, 0, 0, NULL, 0, 0, "Oreos", 25, 58, 0}
+    };
+
+    bbs[0].orders = dyn_array_init(sizeof(order), NULL);
+    bbs[1].orders = dyn_array_init(sizeof(order), NULL);
+    array_to_dyn_array(bbs[0].orders, oreo_buy_orders, sizeof(oreo_buy_orders)/sizeof(order));
+    array_to_dyn_array(sbs[0].orders, oreo_sell_orders, sizeof(oreo_sell_orders)/sizeof(order));
+    
+
+
+
+    exch->buy_books = dyn_array_init();
+
+    dyn_array_free(bbs[0].orders);
+    dyn_array_free(bbs[1].orders);
+
+    return 0;
+}
+
+static void test_amend_orders(void** state){
+
+}
+
+static void test_process_trades(void** state){
+
+}
+
 
 // Test sorting ints
 
@@ -197,95 +274,14 @@ static void test_remove_from_empty(void** state){
     dyn_array_free(dyn);
 }
 
-// TODO: Tests to test sorting via various comparators
-// int order_cmp_sell_book(const void* a, const void* b);
-// int order_cmp_buy_book(const void* a, const void* b);
-// int order_id_cmp(const void* a, const void* b);
-// int int_cmp(const void* a, const void* b);
-// int obook_cmp(const void* a, const void* b);
-// int descending_order_cmp(const void* a, const void* b);
-// int trader_cmp(const void* a, const void* b);
-// int find_order_by_trader_cmp(const void* a, const void* b);
-// int trader_cmp_by_process_id(const void* a, const void* b);
-// int trader_cmp_by_fdread(const void* a, const void* b);
-// int balance_cmp(const void* a, const void* b);
-
-static void test_find_order_book(void** state){
-    order_book books[] = {
-        {"GOOG", false, NULL},
-        {"TSLA", false, NULL},
-        {"META", false, NULL},
-        {"CCL", false, NULL},
-        {"GME", false, NULL},
-    };
-
-    // Checks same array
-    dyn_arr* dyn = dyn_array_init(sizeof(order_book), NULL);
-    
-    for (int i = 0; i < sizeof(books)/sizeof(order_book); i++){
-        dyn_array_append(dyn, &books[i]);
-    }
-    is_same_array(dyn, books, sizeof(books)/sizeof(order_book));
-    
-    // Check finding
-    order_book target = {"META", false, NULL};
-    int idx = dyn_array_find(dyn, &target, &obook_cmp);
-    assert_true(idx == 2);
-    order_book target2 = {"GME", false, NULL};
-    idx = dyn_array_find(dyn, &target2, &obook_cmp);
-    assert_true(idx == 4);
-    dyn_array_free(dyn);
-}
-
-
-//  int order_id;
-//     int order_uid;
-//     int trader_list_idx;
-//     trader* trader; // Trader that made the order //! a copy of original trader. must be freed //! Problematic as the copie's connected attribute is not updatd
-//     int order_book_idx;// index of order book in ob dyn_arr to which order belongs //! A copy of the order book. must be freed
-//     bool is_buy;
-//     char product[PRODUCT_STRING_LEN];
-//     int qty;
-//     int price;
-//     int _num_orders;
-static void test_sell_book_time_priority_sort(void** state){
-    order orders[] = {
-        {0, 0, 0, NULL, 0, 0, "Router", 10, 35, 0},
-        {1, 7, 0, NULL, 0, 0, "Router", 10, 12, 0},
-        {1, 2, 0, NULL, 0, 0, "Router", 10, 12, 0},
-        {1, 3, 0, NULL, 0, 0, "Router", 10, 26, 0},
-        {2, 5, 0, NULL, 0, 0, "Router", 10, 78, 0},
-        {3, 6, 0, NULL, 0, 0, "Router", 10, 100, 0},
-        {2, 1, 0, NULL, 0, 0, "Router", 10, 67, 0}
-    };
-    order orders_expected[] = {
-        {1, 2, 0, NULL, 0, 0, "Router", 10, 12, 0},
-        {1, 7, 0, NULL, 0, 0, "Router", 10, 12, 0},
-        {1, 3, 0, NULL, 0, 0, "Router", 10, 26, 0},
-        {0, 0, 0, NULL, 0, 0, "Router", 10, 35, 0},
-        {2, 1, 0, NULL, 0, 0, "Router", 10, 67, 0},
-        {2, 5, 0, NULL, 0, 0, "Router", 10, 78, 0},
-        {3, 6, 0, NULL, 0, 0, "Router", 10, 100, 0}        
-    };
-
-    // Checks same array
-    dyn_arr* dyn = dyn_array_init(sizeof(order), NULL);
-    for (int i = 0; i < sizeof(orders)/sizeof(order); i++){
-        dyn_array_append(dyn, &orders[i]);
-    }
-    is_same_array(dyn, orders, sizeof(orders)/sizeof(order));
-
-    // Check sorting 
-    dyn_array_sort(dyn, &order_cmp_sell_book);
-    is_same_array(dyn, orders_expected, sizeof(orders_expected)/sizeof(order));
-    dyn_array_free(dyn);
-}
 
 static int destroy_state(void** state){
     dyn_arr* dyn = *state;
     dyn_array_free(dyn);
     return 0;
 }
+
+
 
 int main(void){
     const struct CMUnitTest tests[] = {
@@ -313,10 +309,6 @@ int main(void){
                                         initiate_int_da, destroy_state),                                
         cmocka_unit_test_setup_teardown(test_remove_from_empty,
                                         initiate_int_da, destroy_state), 
-        cmocka_unit_test_setup_teardown(test_find_order_book,
-                                        NULL, NULL),                                         
-        cmocka_unit_test_setup_teardown(test_sell_book_time_priority_sort,
-                                        NULL, NULL),      
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
