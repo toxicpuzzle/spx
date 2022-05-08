@@ -109,7 +109,9 @@ int main(int argc, char ** argv) {
     // pfd.events = POLLIN;  
 
     // Data structures for transaction processing
-    bool last_order_accepted = false;
+    // bool last_order_accepted = false;
+    // TODO: As soon as another sell order comes in, write to pipe, but and 
+    // TODO: keep signalling on regular intervals to get last order in.
    
     while (true){
     
