@@ -1,7 +1,12 @@
 CC=gcc
 CFLAGS=-Wall -Werror -Wvla -O0 -std=c11 -g -fsanitize=address,leak -fprofile-arcs -ftest-coverage
+
 # CFLAGS=-Wall -Wvla -O0 -std=c11 -g -fsanitize=address,leak
 OFLAGS=-c $(CFLAGS)
+
+CTESTFLAGS = -Wall -Werror -Wvla -O0 -std=c11 -g -fsanitize=address,leak 
+OTESTFLAGS = -c $(CTESTFLAGS)
+
 LDFLAGS=-lm # List of link/load directives
 LIBS=data_types/ds.a
 TFLAGS = tests/libcmocka-static.a
@@ -33,9 +38,10 @@ spx_trader.o: spx_trader.c
 # 	$(CC) $(LDFLAGS) $(OFLAGS) test_trader3.c -o test_trader3.o
 # all: $(BINARIES)
 
-unit:
-	$(CC) $(OFLAGS) tests/unit-tests.c -o tests/unit-test.o
-	$(CC) $(TFLAGS) tests/unit-test.o -o tests/unit-test
+unit: spx_exchange.o 
+	$(CC) $(LDFLAGS) $(OTESTFLAGS) -D UNIT spx_exchange.c -o spx_exchange.o 
+	$(CC) $(OTESTFLAGS) $(LDFLAGS) tests/unit-tests.c -o tests/unit-test.o
+	$(CC) $(CTESTFLAGS) $(LDFLAGS) tests/unit-test.o spx_exchange.o $(TFLAGS) -o tests/unit-test
 
 .PHONY: clean
 clean:

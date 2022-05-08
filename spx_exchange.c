@@ -12,7 +12,7 @@
 #define PREFIX_EXCH printf("[SPX] ");
 #define PREFIX_EXCH_L1 printf("[SPX]"); INDENT
 #define PREFIX_EXCH_L2 printf("[SPX]"); INDENT INDENT
-
+// #define UNIT
 #define AMEND_CMD_SIZE 4
 #define BUYSELL_CMD_SIZE 5
 #define CANCEL_CMD_SIZE 2
@@ -46,7 +46,8 @@ int dyn_array_get(dyn_arr *dyn, int index, void* ret){
 
 // Insert value to the array and resizes it;
 int dyn_array_insert(dyn_arr* dyn, void* value, int idx){
-    if (idx > dyn->used && !_dyn_array_is_valid_idx(dyn, idx)) return -1;
+	if (!(idx == dyn->used) && !_dyn_array_is_valid_idx(dyn, idx)) return -1;
+    // if (idx > dyn->used && !_dyn_array_is_valid_idx(dyn, idx)) return -1;
     if (dyn->used == dyn->capacity){
         dyn->capacity *= 2;
         dyn->array = realloc(dyn->array, dyn->capacity*dyn->memb_size);
@@ -80,7 +81,8 @@ int dyn_array_find(dyn_arr* dyn, void* target, int (*cmp) (const void* a, const 
 
 // Delete the value at index from an array, returns 0 if successful else -1
 int dyn_array_delete(dyn_arr* dyn, int idx){
-    if (idx != -1){
+	if (_dyn_array_is_valid_idx(dyn, idx) == true){
+    // if (idx != -1){
         memmove(dyn->array + idx * dyn->memb_size, 
             dyn->array + (idx + 1) * dyn->memb_size, 
             (dyn->used - idx) * dyn->memb_size);
@@ -1248,7 +1250,7 @@ void free_program(exch_data* exch, struct pollfd* poll_fds){
 // poll_fds - last element is poll_sp rest are for fds for detecting disconnections
 
 
-
+#ifndef UNIT
 int main(int argc, char **argv) {
 
 	// Handle startup
@@ -1415,3 +1417,4 @@ int main(int argc, char **argv) {
 
 	return 0;
 }
+#endif
