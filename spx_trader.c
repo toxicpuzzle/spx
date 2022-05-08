@@ -46,13 +46,18 @@ int get_args_from_msg(char* msg, char*** ret){
 	return args_size;
 }
 
+
+void write_to_parent(char* msg, int fd_write){
+    fifo_write(fd_write, msg);
+    signal_parent();
+}
+
 // TODO: Check product string is alphanumeric
 // Functions for testing:
 void buy(int order_id, char* product, int qty, int price, int fd_write){
     char* cmd = malloc(MAX_LINE*sizeof(char));
     sprintf(cmd, "BUY %d %s %d %d;", order_id, product, qty, price);
-    fifo_write(fd_write, cmd);
-    signal_parent();
+    write_to_parent(cmd, fd_write);
     free(cmd);
 }
 
@@ -93,22 +98,27 @@ int main(int argc, char ** argv) {
 	};
 
     // Poll to read if there are new signals
-    // struct pollfd poll_sp;
-	// poll_sp.fd = sig_pipe[0];
-	// poll_sp.events = POLLIN;
+    struct pollfd poll_sp;
+	poll_sp.fd = sig_pipe[0];
+	poll_sp.events = POLLIN;
 
     // Poll to read if there are additional messages for each signal (failsafe)
-    struct pollfd pfd;
-    pfd.fd = fd_read;
-    pfd.events = POLLIN;  
+    //! Don't use -> only read when signalled to do so?
+    // struct pollfd pfd;
+    // pfd.fd = fd_read;
+    // pfd.events = POLLIN;  
+
+    // Data structures for transaction processing
+    bool last_order_accepted = false;
    
     while (true){
     
         //! Process will not terminate even if you close terminal, must shut down parent process.
         // if (msgs_to_read == 0 && poll(&pfd, 1, 0) <= 0) {
-        if (poll(&pfd, 1, 0) <= 0){
-            pause();
-        }
+        poll(&poll_sp, 1, -1);
+        // if (poll(&poll_sp, 1, 0) <= 0){
+        //     pause();
+        // }
 
         char* result = fifo_read(fd_read);
 
