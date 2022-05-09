@@ -2,6 +2,25 @@
 
 2. Describe your design decisions for the trader and how it's fault-tolerant.
 
+Trader can deal with unreliable signal handling from parent by 
+repeatedly signalling the parent if it waits for more than 0.5
+seconds without a message and there are still orders waiting to be
+accepted. Everytime the trader receives an "ACCEPTED" message then
+we reduce the orders waiting to be accepted, and everytime the trader
+makes an order we increase it. This way the trader only signals the 
+parent to read when the trader still has trades left
+Issue potentially: what if parent does not deal well with traders
+that write nothing? i.e. might have multiple signals for one message
+if in the 0.5 seconds parent queued the signal but just hasn't processed
+it yet (false signal loss)
+
+Since signals are unreliable for the trader the trader will 
+TODO potential issue -> what happens if scheduler switches from
+parent to child right before the signal is sent -> child reads from
+pipe -> then parent signals again -> child reads nothing though so allg
+-> does not block like before
+
+
 3. Describe your tests and how to run them.
 
 Each folder contains 

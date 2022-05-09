@@ -238,7 +238,7 @@ int main(int argc, char ** argv) {
                 if (!strcmp(args[0], "ACCEPTED")){
                     orders_awaiting_accept--;
                 }
-
+                
                 // TODO: Ensure parent waits to become available
                 if (t.current_act < t.size_act && 
                     !strcmp(result, t.acts[t.current_act].trigger)){
