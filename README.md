@@ -1,5 +1,20 @@
 1. Describe how your exchange works.
 
+The exchange is driven by three functionalities
+
+1. Communication - Section provides functions to allow parent to signal and 
+communicate with its traders
+2. Setup - Creating and setting up data structures e.g. orderbooks, order arrays
+3. Data structures - Dynamic array abstraction to minimise debugging issues associated
+with memory allocation and to improve code reusability
+4. Transaction handling 
+5. Reporting - 
+5. Command line validation
+
+
+
+
+
 2. Describe your design decisions for the trader and how it's fault-tolerant.
 
 Trader can deal with unreliable signal handling from parent by 
