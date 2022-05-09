@@ -157,6 +157,18 @@ int trader_cmp_by_process_id(const void* a, const void* b);
 int trader_cmp_by_fdread(const void* a, const void* b);
 int balance_cmp(const void* a, const void* b);
 
+// Transaction processing functions
+order* order_init_from_msg(char* msg, trader* t, exch_data* exch);
+void _process_trade_add_to_trader(order* order_added, int amt_filled, int64_t value);
+void _process_trade_signal_trader(order* o, int amt_filled);
+void process_trade(order* buy, order* sell, 
+	order_book* buy_book, order_book* sell_book, exch_data* exch);
+void run_orders(order_book* ob, order_book* os, exch_data* exch);
+void process_order(char* msg, trader* t, exch_data* exch);
+order* get_order_by_id(int oid, trader* t, dyn_arr* books);
+void process_amend(char* msg, trader* t, exch_data* exch);
+void process_cancel(char* msg, trader* t, exch_data* exch);
+void process_message(char* msg, trader* t, exch_data* exch);
 
 
 

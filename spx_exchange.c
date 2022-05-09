@@ -205,6 +205,7 @@ void set_handler(int si, void (*handler) (int, siginfo_t*, void*)){
     }
 }
 
+//! Maybe try internal data structure instead of write e.g. 
 void sig_handler(int signal, siginfo_t *siginfo, void *context){
 	write(sig_pipe[1], siginfo, sizeof(siginfo_t));
 }
@@ -774,7 +775,7 @@ order* order_init_from_msg(char* msg, trader* t, exch_data* exch){
 	memmove(o->product, args[2], strlen(args[2])+1);
 	o->qty = atoi(args[3]);
 	o->price = atoi(args[4]);
-	
+
 	// Set is buy and link to buy/sell books
 	char* cmd_type = args[0];
 	int idx = -1;
@@ -793,6 +794,8 @@ order* order_init_from_msg(char* msg, trader* t, exch_data* exch){
 	free(args);
 	return o;
 }
+
+// SUBSECTION: Orderbook functions
 
 // Adds residual amount from ordedr to trader's positions if there is amount remaining.
 void _process_trade_add_to_trader(order* order_added, int amt_filled, int64_t value){
@@ -906,13 +909,15 @@ void run_orders(order_book* ob, order_book* os, exch_data* exch){
 	free(sell_min);
 }
 
+// SUBSECTION: Command line processing functions
+
 // Find the product sell/buy books with the product matching the orders
 // Perform processing in books
 void process_order(char* msg, trader* t, exch_data* exch){
 	
 	// Create order from message
 	order* order_added = order_init_from_msg(msg, t, exch);
-	
+
 	// Find the order books for the order
 	order_book* ob = calloc(1, sizeof(order_book));
 	order_book* os = calloc(1, sizeof(order_book));
@@ -1325,9 +1330,23 @@ int main(int argc, char **argv) {
 		// Pause CPU until we receive some signal or trader disconnects
 		// no_fd_events = poll(poll_fds, no_poll_fds, -1);
 		// printf("Pausing\n");
+		// TODO: Investigate if poll can miss signals
+		// TODO: See if sigpipe is reliable and if you're missing signals
+		#ifdef TEST
+			PREFIX_EXCH
+			printf("Pausing\n");
+		#endif
+
+
 		poll(poll_fds, no_poll_fds, -1);
+		
 		bool has_signal = poll(poll_sp, 1, 0);
 		int disconnect_events = poll(poll_fds, no_poll_fds-1, 0);
+
+		#ifdef TEST
+			PREFIX_EXCH
+			printf("has signal %d, disconnect events: %d\n", has_signal, disconnect_events);
+		#endif
 
 		// TODO: Fix issue with main loop still occasionally getting stuck -> probably what's causing race condition
 			// Only occurs when I try to redirect output
@@ -1338,7 +1357,8 @@ int main(int argc, char **argv) {
 		// TEST
 		while (disconnect_events > 0){
 			for (int i = 0; i < traders->used; i++){
-				//? I set poll_fds[i] to -1 so kernel populates it with some other error message? -> POLLNVAL
+				// Setting poll_fds[i] to -1 ensures kernel populates with other erorr message
+				// e.g. POLLNVAL
 				if ((poll_fds[i].revents&POLLHUP) == POLLHUP){
 					// Disconnect trader
 					trader* t = calloc(1, sizeof(trader));
@@ -1360,7 +1380,6 @@ int main(int argc, char **argv) {
 					}
 				}
 			}
-
 		}
 
 		// Test race

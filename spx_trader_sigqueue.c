@@ -129,6 +129,8 @@ int main(int argc, char ** argv) {
         // printf("Amount ot be read = %d\n", );
         //! Exchange relies on signal handling so if multiple traders send it signals at once it wil fail,
         //! which happesn with the autotrader
+
+        // Haven't received reply for e.g. 500ms -> then signal exchange again., will always timeout
         poll(&pfd, 1, -1);
         // TODO: polling pfd for pollin may not always guarantee there something to be read on other pipe
 

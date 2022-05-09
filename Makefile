@@ -41,7 +41,9 @@ spx_trader.o: spx_trader.c
 unit: spx_exchange.o 
 	$(CC) $(LDFLAGS) $(OTESTFLAGS) -D UNIT spx_exchange.c -o spx_exchange.o 
 	$(CC) $(OTESTFLAGS) $(LDFLAGS) tests/unit-tests.c -o tests/unit-test.o
+	$(CC) $(OTESTFLAGS) $(LDFLAGS) tests/transaction_tests.c -o tests/transaction_tests.o
 	$(CC) $(CTESTFLAGS) $(LDFLAGS) tests/unit-test.o spx_exchange.o $(TFLAGS) -o tests/unit-test
+	$(CC) $(CTESTFLAGS) $(LDFLAGS) tests/transaction_tests.o spx_exchange.o $(TFLAGS) -o tests/transaction_tests
 
 .PHONY: clean
 clean:

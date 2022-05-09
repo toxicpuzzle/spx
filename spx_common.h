@@ -47,7 +47,9 @@ void fifo_write(int fd_write, char* str){
         if (write(fd_write, str, strlen(str)) == -1){
                 perror("Write unsuccesful\n");
         }   
-    }     
+    } else {
+        // perror("Could not write, bad pipe\n");
+    }    
 }
 
 // TODO: change this to write using different protocol
@@ -98,6 +100,8 @@ char* fifo_read(int fd_read){
     char* str = calloc(size, sizeof(char));
     char curr;
     
+    // TODO: Maybe try reading more bytes at a time. (Fixed length buffer + dyn array) 
+    // TODO: To reduce read operations;
     while (true){
         if (read(fd_read, (void*) &curr, 1*sizeof(char)) <= 0 || curr == ';') break;
         // if (curr == EOF || curr == ';' || curr == '\0') break;

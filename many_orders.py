@@ -3,7 +3,7 @@ import math
 from random import random
 import sys
 
-entries : int = 500
+entries : int = 1000
 
 # Create 1000 entires testcase (all entries are linked to each other)
 def main():

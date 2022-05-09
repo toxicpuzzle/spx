@@ -25,30 +25,6 @@
 
 // Test transaction handling functions
 
-
-
-
-
-
-static int integers[] = {420, 560, 790, 100, 220, 560, 300};
-static int integers_post_insertion[] = {100001, 420, 560, 790, 100001, 100, 220, 560, 300, 100001};
-static int integers_post_appending[] = {420, 560, 790, 100, 220, 560, 300, 100001};
-static int integers_post_deletion[] = {560, 790, 220, 560};
-static int integers_post_set[] = {111, 560, 790, 111, 220, 560, 111};
-static int integers_post_remove_min[] = {420, 560, 790, 220, 560, 300};
-static int integers_post_remove_max[] = {420, 560, 100, 220, 560, 300};
-static int integers_post_sort[] = {100, 220, 300, 420, 560, 560, 790};
-static int integers_post_get_literal[] = {420, 999999, 790, 100, 220, 560, 300};
-
-// static char* strings[] = {"Router", "Cake", "GPU"};
-// static trader traders[] = {
-//     {0, 19250, 1, 100, 20, NULL, NULL, true, NULL}
-//     ,{2, 19150, 3, 102, 15, NULL, NULL, true, NULL}
-//     ,{1, 19350, 4, 101, 12, NULL, NULL, true, NULL}
-//     ,{3, 19450, 5, 103, 10, NULL, NULL, true, NULL}
-// };
-
-
 // struct trader{
 //     int id; 
 //     int process_id; 
@@ -87,340 +63,202 @@ void array_to_dyn_array(dyn_arr* dyn, void* arr, int exp_len){
     }
 }
 
-exch_data* exch;
-trader* t;
+static exch_data* exch;
 
-// TODO: find out if when you try to signal invalid fd if that is allg.
-// TODO: or just disable signalling within function using cmocka.
-static int init_exch_data(void **state){
-    // Initiate buy boooks
-    order_book bbs[] = {
-        {"Oreos", true, NULL},
-        {"Peanuts", true, NULL}
-    };
-    order_book sbs[] = {
-        {"Oreos", false, NULL},
-        {"Peanuts", false, NULL}
-    };
-    order oreo_buy_orders[] = {
-        {0, 2, 1, NULL, 0, 0, "Oreos", 10, 30, 0},
-        {0, 1, 1, NULL, 0, 0, "Oreos", 12, 58, 0},
-        {0, 0, 1, NULL, 0, 0, "Oreos", 12, 58, 0},
-        {0, 4, 1, NULL, 0, 0, "Oreos", 8, 20, 0},
-        {0, 3, 1, NULL, 0, 0, "Oreos", 3, 56, 0},
-    };
-    order oreo_sell_orders[] = {
-        {0, 0, 0, NULL, 0, 0, "Oreos", 25, 58, 0}
-    };
+// Test data
+static balance oreo_bal = {
+    .balance = 0,
+    .product = "Oreos",
+    .qty = 0
+};
 
+static trader t1 = {
+    .balances = NULL,
+    .connected = false,
+    .fd_read = -1,
+    .fd_write = -1,
+    .id = 1,
+    .next_order_id = 7,
+    .process_id = -1
+};
+
+// Initiate buy boooks
+static order_book bbs[] = {
+    {"Oreos", true, NULL},
+};
+static order_book sbs[] = {
+    {"Oreos", false, NULL},
+};
+
+// TESTCASE: sell_against_buy data
+
+static order bo_sell_against_buy[] = {
+    {2, 2, 1, &t1, 0, 1, "Oreos", 10, 30, 0},
+    {1, 1, 1, &t1, 0, 1, "Oreos", 12, 58, 0},
+    {0, 0, 1, &t1, 0, 1, "Oreos", 12, 58, 0},
+    {4, 4, 1, &t1, 0, 1, "Oreos", 8, 20, 0},
+    {3, 3, 1, &t1, 0, 1, "Oreos", 3, 56, 0},
+};
+static order so_sell_against_buy[] = {
+    {6, 6, 1, &t1, 0, 0, "Oreos", 25, 80, 0},
+    {5, 5, 1, &t1, 0, 0, "Oreos", 25, 90, 0},
+    {7, 7, 1, &t1, 0, 0, "Oreos", 25, 55, 0},
+};
+
+static order bo_sell_against_buy_after[] = {
+    {3, 3, 1, &t1, 0, 1, "Oreos", 1, 56, 0},
+    {2, 2, 1, &t1, 0, 1, "Oreos", 10, 30, 0},
+    {4, 4, 1, &t1, 0, 1, "Oreos", 8, 20, 0},
+};
+static order so_sell_against_buy_after[] = {
+    {5, 5, 1, &t1, 0, 0, "Oreos", 25, 90, 0},
+    {6, 6, 1, &t1, 0, 0, "Oreos", 25, 80, 0},
+};
+
+// TESTCASE: buy_against_sell data
+
+static order bo_buy_against_sell[] = {
+    {3, 3, 1, &t1, 0, 1, "Oreos", 31, 69, 0},
+};
+static order so_buy_against_sell[] = {
+    {0, 0, 1, &t1, 0, 0, "Oreos", 10, 65, 0},
+    {2, 2, 1, &t1, 0, 0, "Oreos", 10, 60, 0},
+    {1, 1, 1, &t1, 0, 0, "Oreos", 10, 55, 0},
+};
+
+static order bo_buy_against_sell_after[] = {
+   {3, 3, 1, &t1, 0, 1, "Oreos", 1, 50, 0},   
+};
+static order so_buy_against_sell_after[] = {
+};
+
+// TESTCASE: no_match data
+
+static order bo_no_match[] = {
+    {1, 1, 1, &t1, 0, 1, "Oreos", 12, 58, 0},
+    {0, 0, 1, &t1, 0, 1, "Oreos", 12, 58, 0},
+    {3, 3, 1, &t1, 0, 1, "Oreos", 3, 56, 0},
+    {2, 2, 1, &t1, 0, 1, "Oreos", 10, 30, 0},
+    {4, 4, 1, &t1, 0, 1, "Oreos", 8, 20, 0},
+};
+static order so_no_match[] = {
+    {5, 5, 1, &t1, 0, 0, "Oreos", 25, 90, 0},
+    {6, 6, 1, &t1, 0, 0, "Oreos", 25, 80, 0},
+};
+
+static void setup_exch(order* buy_orders, order* sell_orders, int buy_len, int sell_len){
+
+    dyn_arr* t1_balance = dyn_array_init(sizeof(balance), NULL);
+    dyn_array_append(t1_balance, &oreo_bal);
+    t1.balances = t1_balance;
+
+    // Convert order arrays to orderbooks;
     bbs[0].orders = dyn_array_init(sizeof(order), NULL);
-    bbs[1].orders = dyn_array_init(sizeof(order), NULL);
-    array_to_dyn_array(bbs[0].orders, oreo_buy_orders, sizeof(oreo_buy_orders)/sizeof(order));
-    array_to_dyn_array(sbs[0].orders, oreo_sell_orders, sizeof(oreo_sell_orders)/sizeof(order));
+    sbs[0].orders = dyn_array_init(sizeof(order), NULL);
+    array_to_dyn_array(bbs[0].orders, buy_orders, buy_len);
+    array_to_dyn_array(sbs[0].orders, sell_orders, sell_len);
+
+    // Add order books to orderbook arrays
+    exch = calloc(1, sizeof(exch_data));
+    exch->buy_books = dyn_array_init(sizeof(order_book), NULL);
+    exch->sell_books = dyn_array_init(sizeof(order_book), NULL);
+
+    array_to_dyn_array(exch->buy_books, bbs, sizeof(bbs)/sizeof(order_book));
+    array_to_dyn_array(exch->sell_books, sbs, sizeof(sbs)/sizeof(order_book));
+    exch->traders = dyn_array_init(sizeof(trader), NULL);
+    dyn_array_append(exch->traders, &t1);
+
+    exch->order_uid = 7;
+
+}
+
+// Test orderbook matching matches based on price time priority
+static void tests_run_orders_sell_against_buy(void** state){
+    setup_exch(bo_sell_against_buy, so_sell_against_buy, sizeof(bo_sell_against_buy)/sizeof(order), sizeof(so_sell_against_buy)/sizeof(order));
+
+    order_book* oreo_book_buy = exch->buy_books->array;
+    order_book* oreo_book_sell = exch->sell_books->array;
+
+    run_orders(oreo_book_buy, oreo_book_sell, exch);
+    dyn_array_sort(oreo_book_buy->orders, &descending_order_cmp);
+    dyn_array_sort(oreo_book_sell->orders, &descending_order_cmp);
+
+    is_same_array(oreo_book_buy->orders, bo_sell_against_buy_after, sizeof(bo_sell_against_buy_after)/sizeof(order));
+    is_same_array(oreo_book_sell->orders, so_sell_against_buy_after, sizeof(so_sell_against_buy_after)/sizeof(order));
+
+    balance* t1_oreo_bal = t1.balances->array;
+    assert_true((t1_oreo_bal->balance) == -15);
+}
+
+static void tests_run_orders_buy_against_sell(void** state){
+    setup_exch(bo_buy_against_sell, so_buy_against_sell, sizeof(bo_buy_against_sell)/sizeof(order), sizeof(so_buy_against_sell)/sizeof(order));
     
+    order_book* oreo_book_buy = exch->buy_books->array;
+    order_book* oreo_book_sell = exch->sell_books->array;
 
+    run_orders(oreo_book_buy, oreo_book_sell, exch);
+    dyn_array_sort(oreo_book_buy->orders, &descending_order_cmp);
+    dyn_array_sort(oreo_book_sell->orders, &descending_order_cmp);
 
+    is_same_array(oreo_book_buy->orders, bo_buy_against_sell_after, sizeof(bo_buy_against_sell_after)/sizeof(order));
+    is_same_array(oreo_book_sell->orders, so_buy_against_sell_after, sizeof(so_buy_against_sell_after)/sizeof(order));
 
-    exch->buy_books = dyn_array_init();
-
-    dyn_array_free(bbs[0].orders);
-    dyn_array_free(bbs[1].orders);
-
-    return 0;
+    balance* t1_oreo_bal = t1.balances->array;
+    assert_true((t1_oreo_bal->balance) == -19);
 }
 
-static void test_amend_orders(void** state){
+static void tests_run_orders_no_match(void** state){
+    setup_exch(bo_no_match, so_no_match, sizeof(bo_no_match)/sizeof(order), sizeof(so_no_match)/sizeof(order));
+    
+    order_book* oreo_book_buy = exch->buy_books->array;
+    order_book* oreo_book_sell = exch->sell_books->array;
 
+    run_orders(oreo_book_buy, oreo_book_sell, exch);
+    dyn_array_sort(oreo_book_buy->orders, &descending_order_cmp);
+    dyn_array_sort(oreo_book_sell->orders, &descending_order_cmp);
+
+    is_same_array(oreo_book_buy->orders, bo_no_match, sizeof(bo_no_match)/sizeof(order));
+    is_same_array(oreo_book_sell->orders, so_no_match, sizeof(so_no_match)/sizeof(order));
+
+    balance* t1_oreo_bal = t1.balances->array;
+    assert_true((t1_oreo_bal->balance) == 0);
 }
-
-static void test_process_trades(void** state){
-
-}
-
-
-// Test sorting ints
-
-// Test sorting traders by id
-
-// Test sorting order books
-static int initiate_int_da(void** state){
-    *state = (void*)dyn_array_init(sizeof(int), NULL);
-    dyn_arr* dyn = *state;
-    for (int i = 0; i < sizeof(integers)/sizeof(int); i++){
-        dyn_array_append(dyn, &integers[i]);
-    }
-    is_same_array(dyn, integers, sizeof(integers)/sizeof(int));
-    return 0;
-}   
-
-// Check if we append values to the array it is true
-static void test_append_values(void** state){
-    dyn_arr* dyn = *state;
-    // printf("Dyn used:%d\n", dyn->used);
-    int val = 100001;
-    dyn_array_append(dyn, &val);
-    is_same_array(dyn, integers_post_appending, 
-                sizeof(integers_post_appending)/sizeof(int));
-}
-
-// Check if insertion results in correct results array
-static void test_insert_values(void** state){
-    dyn_arr* dyn = *state;
-    int val = 100001;
-    dyn_array_insert(dyn, &val, 3);
-    dyn_array_insert(dyn, &val, 0);
-    dyn_array_insert(dyn, &val, -1);
-    dyn_array_insert(dyn, &val, dyn->used);
-    is_same_array(dyn, integers_post_insertion, 
-                sizeof(integers_post_insertion)/sizeof(int));
-}
-
-// Check if value deleted are at the right indexes
-static void test_delete_values(void** state){
-    dyn_arr* dyn = *state;
-    dyn_array_delete(dyn, 0);
-    dyn_array_delete(dyn, dyn->used-1);
-    dyn_array_delete(dyn, 2);
-    is_same_array(dyn, integers_post_deletion, 
-                sizeof(integers_post_deletion)/sizeof(int));
-}
-
-// Check kthat the values after set are the same
-static void test_set_values(void** state){
-    dyn_arr* dyn = *state;
-    int val = 111;
-    dyn_array_set(dyn, 0, &val);
-    dyn_array_set(dyn, dyn->used-1, &val);
-    dyn_array_set(dyn, 3, &val);
-    is_same_array(dyn, integers_post_set, 
-                sizeof(integers_post_set)/sizeof(int));
-}
-
-// Test the methods remove the correct minimum value 
-static void test_remove_min(void** state){
-    dyn_arr* dyn = *state;
-    int ret = 0;
-    dyn_array_remove_min(dyn, &ret, &int_cmp); 
-    is_same_array(dyn, integers_post_remove_min, 
-                sizeof(integers_post_remove_min)/sizeof(int));
-    assert_true(ret == 100);
-}
-
-// Test the methods remove the correct maximum value 
-static void test_remove_max(void** state){
-    dyn_arr* dyn = *state;
-    int ret = 0;
-    dyn_array_remove_max(dyn, &ret, &int_cmp); 
-    is_same_array(dyn, integers_post_remove_max, 
-                sizeof(integers_post_remove_max)/sizeof(int));
-    assert_true(ret == 790);
-}
-
-// Test correct index is gotten and mem is independent
-static void test_get_values(void** state){
-    dyn_arr* dyn = *state;
-    int ret = 0;
-    assert_true(dyn_array_get(dyn, 5, &ret) == 0); 
-    assert_true(ret == 560);
-    ret = 10;
-    is_same_array(dyn, integers, 
-                sizeof(integers)/sizeof(int));
-}
-
-// Test the dynamic array provides a correctly sorted array
-static void test_sort_values(void** state){
-    dyn_arr* dyn = *state;
-    dyn_array_sort(dyn, &int_cmp);
-    is_same_array(dyn, integers_post_sort, 
-                sizeof(integers_post_sort)/sizeof(int));
-}
-
-// Test finding returns first instance of number found
-static void test_find_value(void** state){
-    dyn_arr* dyn = *state;
-    int tgt = 560;
-    int idx = dyn_array_find(dyn, &tgt, &int_cmp);
-    assert_true(idx == 1);
-    tgt = 0;
-    idx = dyn_array_find(dyn, &tgt, &int_cmp);
-    assert_true(idx == -1);
-}
-
-// Test that getting the literal location of the idx and changing changes array
-static void test_get_literal(void** state){
-    dyn_arr* dyn = *state;
-    int* location = dyn_array_get_literal(dyn, 1);
-    *location = 999999;
-    is_same_array(dyn, integers_post_get_literal, 
-                sizeof(integers_post_get_literal)/sizeof(int));
-}
-
-static void test_init_copy(void** state){
-    dyn_arr* dyn = *state;
-    dyn_arr* copy = dyn_array_init_copy(dyn);
-    int* location = dyn_array_get_literal(copy, 1);
-    *location = 999999;
-    is_same_array(dyn, integers, 
-                sizeof(integers)/sizeof(int));
-    dyn_array_free(copy);
-}
-
-static void test_remove_from_empty(void** state){
-    dyn_arr* dyn = dyn_array_init(sizeof(int), NULL);
-    int ret = 0;
-    assert_true(dyn_array_remove_max(dyn, &ret, &int_cmp) == -1);
-    assert_true(dyn_array_remove_min(dyn, &ret, &int_cmp) == -1);
-    assert_true(dyn_array_delete(dyn, 0) == -1);
-    dyn_array_free(dyn);
-}
-
 
 static int destroy_state(void** state){
-    dyn_arr* dyn = *state;
-    dyn_array_free(dyn);
+    // Free traders
+	trader* t = calloc(1, sizeof(trader));
+	for (int i = 0; i < exch->traders->used; i++){ 
+		dyn_array_get(exch->traders, i, t);
+		dyn_array_free(t->balances);
+	}
+	free(t);
+	dyn_array_free(exch->traders);
+
+	// Free orderbooks
+	order_book* ob = calloc(1, sizeof(order_book));
+	for (int i = 0; i < exch->buy_books->used; i++){
+		dyn_array_get(exch->buy_books, i, ob);
+		dyn_array_free(ob->orders);
+		dyn_array_get(exch->sell_books, i, ob);
+		dyn_array_free(ob->orders);
+	}
+	free(ob);
+	dyn_array_free(exch->buy_books);
+	dyn_array_free(exch->sell_books);
+
+    free(exch);
     return 0;
 }
-
-
 
 int main(void){
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test_setup_teardown(test_append_values,
-                                        initiate_int_da, destroy_state),
-        cmocka_unit_test_setup_teardown(test_insert_values,
-                                        initiate_int_da, destroy_state),
-        cmocka_unit_test_setup_teardown(test_delete_values,
-                                        initiate_int_da, destroy_state),
-        cmocka_unit_test_setup_teardown(test_set_values,
-                                        initiate_int_da, destroy_state),
-        cmocka_unit_test_setup_teardown(test_remove_min,
-                                        initiate_int_da, destroy_state),
-        cmocka_unit_test_setup_teardown(test_remove_max,
-                                        initiate_int_da, destroy_state),
-        cmocka_unit_test_setup_teardown(test_get_values,
-                                        initiate_int_da, destroy_state),
-        cmocka_unit_test_setup_teardown(test_sort_values,
-                                        initiate_int_da, destroy_state),
-        cmocka_unit_test_setup_teardown(test_find_value,
-                                        initiate_int_da, destroy_state),
-        cmocka_unit_test_setup_teardown(test_get_literal,
-                                        initiate_int_da, destroy_state),
-        cmocka_unit_test_setup_teardown(test_init_copy,
-                                        initiate_int_da, destroy_state),                                
-        cmocka_unit_test_setup_teardown(test_remove_from_empty,
-                                        initiate_int_da, destroy_state), 
+        cmocka_unit_test_setup_teardown(tests_run_orders_sell_against_buy,
+                                        NULL, destroy_state),
+        cmocka_unit_test_setup_teardown(tests_run_orders_buy_against_sell,
+                                        NULL, destroy_state), 
+        cmocka_unit_test_setup_teardown(tests_run_orders_no_match,
+                                        NULL, destroy_state),                                        
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
-
-
-// int main(void) {
-//     const struct CMUnitTest tests[] = {
-
-//         //?Unit test way of running tests
-
-
-
-//         //? SETUP teardown method of running unit tests
-//         // 1. f - function that you want to test
-//         // 2. setup - setup function to intialise values for test (can be null)
-//         // 3. teardown - teardown function reset state after test (can be null)
-//         cmocka_unit_test_setup_teardown(test_find_item_by_value,
-//                                         create_key_values, destroy_key_values),
-//         cmocka_unit_test_setup_teardown(test_sort_items_by_key,
-//                                         create_key_values, destroy_key_values),
-//     };
-//     return cmocka_run_group_tests(tests, NULL, NULL);
-    
-// }
-//dfd
-
-// static exch_data exch_values = {
-//     dyn_arr
-// }
-
-
-
-// static KeyValue key_values[] = {
-//     { 10, "this" },
-//     { 52, "test" },
-//     { 20, "a" },
-//     { 13, "is" },
-// };
-
-// void **state - ptr to area of memory affected by fs we want to test
-// Here, state = array of keyvalue pairs
-
-// Static function = function is limited to own object file
-// i.e. it cannot be used/collide with function calls in in key_value.c
-
-// static int create_key_values(void **state) {
-//     // Create values for a sample exchange add to dynamic array e.t.c.
-//     // Scenario has 5 traders, 3 products.
-
-//     // Testing order processing
-//     // Create order book with overlapping orders,
-//     // Test adding orders
-//     // Test removing orders
-//     // Test amending orders
-//     // Test order overlapping 
-
-//     KeyValue * const items = (KeyValue*)test_malloc(sizeof(key_values));
-//     memcpy(items, key_values, sizeof(key_values));
-//     *state = (void*)items;
-//     set_key_values(items, sizeof(key_values) / sizeof(key_values[0]));
-
-//     return 0;
-// }
-
-// static int destroy_key_values(void **state) {
-//     test_free(*state);
-//     set_key_values(NULL, 0);
-
-//     return 0;
-// }
-
-// static void test_find_item_by_value(void **state) {
-//     unsigned int i;
-
-//     (void) state; /* unused */
-
-//     for (i = 0; i < sizeof(key_values) / sizeof(key_values[0]); i++) {
-//         KeyValue * const found  = find_item_by_value(key_values[i].value);
-//         assert_true(found != NULL);
-//         assert_int_equal(found->key, key_values[i].key);
-//         assert_string_equal(found->value, key_values[i].value);
-//     }
-// }
-
-
-
-// static void test_sort_items_by_key(void **state) {
-//     unsigned int i;
-//     KeyValue * const kv = *state;
-//     sort_items_by_key();
-//     for (i = 1; i < sizeof(key_values) / sizeof(key_values[0]); i++) {
-//         assert_true(kv[i - 1].key < kv[i].key);
-//     }
-// }
-
-// int main(void) {
-//     const struct CMUnitTest tests[] = {
-
-//         //?Unit test way of running tests
-
-
-
-//         //? SETUP teardown method of running unit tests
-//         // 1. f - function that you want to test
-//         // 2. setup - setup function to intialise values for test (can be null)
-//         // 3. teardown - teardown function reset state after test (can be null)
-//         cmocka_unit_test_setup_teardown(test_find_item_by_value,
-//                                         create_key_values, destroy_key_values),
-//         cmocka_unit_test_setup_teardown(test_sort_items_by_key,
-//                                         create_key_values, destroy_key_values),
-//     };
-//     return cmocka_run_group_tests(tests, NULL, NULL);
-    
-// }
 
