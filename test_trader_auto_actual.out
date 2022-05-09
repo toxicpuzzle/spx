@@ -1,0 +1,12 @@
+[T1] Received: MARKET OPEN
+[T1] Received: ACCEPTED 0
+[T1] Received: MARKET BUY Router 10 50
+[T1] Received: FILL 0 10
+[T1] Received: ACCEPTED 1
+[T1] Received: MARKET BUY Cake 100 500
+[T1] Received: FILL 1 100
+[T1] Received: ACCEPTED 2
+[T1] Received: MARKET BUY GPU 1 2000
+[T1] Received: FILL 2 1
+[T1] Received: ACCEPTED 3
+[T1] Event: DISCONNECT
