@@ -1,6 +1,6 @@
 make
 
-count=1
+count=100
 for i in $(seq $count); do
     ./spx_exchange products.txt ./test_trader_auto ./spx_trader
 done
