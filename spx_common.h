@@ -99,11 +99,19 @@ char* fifo_read(int fd_read){
     int size = 1;
     char* str = calloc(size, sizeof(char));
     char curr;
+
+    struct pollfd p;
+    p.fd = fd_read;
+    p.events = POLLIN;
     
-    // TODO: Maybe try reading more bytes at a time. (Fixed length buffer + dyn array) 
-    // TODO: To reduce read operations;
+    //! read() blocks when you try to read from empty pipe (when non-blocking)
+    //! So poll before reading to avoid blocking (might happen when you try to read without signals)
     while (true){
+        int result = 0;
+        if ((result = poll(&p, 1, 0)) == 0) break;
+        // printf("Poll result is %d\n", result);
         if (read(fd_read, (void*) &curr, 1*sizeof(char)) <= 0 || curr == ';') break;
+        
         // if (curr == EOF || curr == ';' || curr == '\0') break;
         memmove(str+size-1, &curr, 1);
         str = realloc(str, ++size);

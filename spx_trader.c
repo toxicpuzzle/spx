@@ -1,6 +1,6 @@
 #include "spx_trader.h" // Order of inclusion matters to sa_sigaction and siginfo_t
 #define PREFIX_CHILD(CHILD_ID) printf("[CHILD %d] ", CHILD_ID);
-
+#define RESIGNAL_INTERVAL 500
 volatile int msgs_to_read = 0;
 int ppid = 0;
 bool market_is_open = 0;
@@ -111,11 +111,13 @@ int main(int argc, char ** argv) {
     pfd.events = POLLIN;  
 
     // Data structures for transaction processing
-    // bool last_order_accepted = false;
+    int orders_awaiting_accept = 0;
+    bool has_signal = false;
+    // int buf;
     // TODO: As soon as another sell order comes in, write to pipe, but and 
     // TODO: keep signalling on regular intervals to get last order in.
     // TODO: Busy exchange signals too long.
-    // int buf;
+    
 
     while (true){
     
@@ -128,15 +130,24 @@ int main(int argc, char ** argv) {
         // printf("Amount ot be read = %d\n", );
         //! Exchange relies on signal handling so if multiple traders send it signals at once it wil fail,
         //! which happesn with the autotrader
-        poll(&pfd, 1, -1);
+
+
+        // Keep sending signals between every
+        // message we receive if last order was not accepted
+        // So that if parent loses signal they will eventually get it
+        while (!has_signal){
+            has_signal = poll(&pfd, 1, RESIGNAL_INTERVAL);
+           
+            if (orders_awaiting_accept > 0 && !has_signal){
+                signal_parent();
+            }
+        }
+        
+
         // TODO: polling pfd for pollin may not always guarantee there something to be read on other pipe
-        // if (poll(&pfd, 1, 0) <= 0){
-        //     pause();
-        // }
-
         char* result = fifo_read(fd_read);
-        // printf("result %s\n", result);
-
+        // int len = strlen(result);
+        // printf("+++++len result: %d\n", len);
         if (strlen(result) > 0) {
             #ifdef TEST
                 PREFIX_CHILD(id);
@@ -152,7 +163,8 @@ int main(int argc, char ** argv) {
                 printf("Current action: %s via trigger %s\n", t.acts[t.current_act].command, t.acts[t.current_act].trigger);
                 printf("Disconnect trigger: %s\n", t.disconnect_trigger);
             #endif
-            if (!strcmp(args[0], "MARKET") && !strcmp(args[1], "OPEN")) market_is_open = true;
+            if (!strcmp(args[0], "MARKET") && 
+                !strcmp(args[1], "OPEN")) market_is_open = true;
 
             if (market_is_open){
                 
@@ -160,7 +172,9 @@ int main(int argc, char ** argv) {
                 if (!strcmp(args[0], "MARKET") && 
                     !strcmp(args[1], "SELL") && 
                     atoi(args[3]) >= 1000){
+        
 
+                        
                     // DISCONNECT
                     free(args);
                     free(result);
@@ -170,15 +184,26 @@ int main(int argc, char ** argv) {
                     free(fifo_trader);
                     return 0;
                 
-                // Respond to market sell order buy buying it
+                
                 // TODO: Write to pipe and keep signalling until you get response 
                 // Maybe only place next order after first order has been accepted
-                } else if (!strcmp(args[0], "MARKET") && !strcmp(args[1], "SELL")){
+                // Respond to market sell order buy buying it
+                } else if (!strcmp(args[0], "MARKET") && 
+                    !strcmp(args[1], "SELL")){
+                    
                     char* product = args[2];
                     int qty = atoi(args[3]);
                     int price = atoi(args[4]);
                     buy(order_id++, product, qty, price, fd_write);
+                    orders_awaiting_accept++;
+                
+                } else if (!strcmp(args[0], "ACCEPTED")){
+                    orders_awaiting_accept--;
                 }
+                
+                
+                // TODO: Ensure there is nothing left on the pipe
+                
             }
 
             free(args);
@@ -186,6 +211,7 @@ int main(int argc, char ** argv) {
         }
 
         free(result);
+        has_signal = false;
     }
     free(fifo_exch);
     free(fifo_trader);

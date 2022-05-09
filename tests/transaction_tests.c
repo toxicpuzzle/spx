@@ -207,6 +207,7 @@ static void tests_run_orders_buy_against_sell(void** state){
     assert_true((t1_oreo_bal->balance) == -19);
 }
 
+
 static void tests_run_orders_no_match(void** state){
     setup_exch(bo_no_match, so_no_match, sizeof(bo_no_match)/sizeof(order), sizeof(so_no_match)/sizeof(order));
     
@@ -223,6 +224,16 @@ static void tests_run_orders_no_match(void** state){
     balance* t1_oreo_bal = t1.balances->array;
     assert_true((t1_oreo_bal->balance) == 0);
 }
+
+extern char msg[MAX_LINE];
+
+static void tests_amend_orders(void** state){
+    setup_exch(bo_sell_against_buy, so_sell_against_buy, sizeof(bo_sell_against_buy)/sizeof(order), sizeof(so_sell_against_buy)/sizeof(order));
+    strcpy(msg, "BUY 7 Oreos 10 10");
+    
+    process_order(msg, &t1, exch);
+}
+
 
 static int destroy_state(void** state){
     // Free traders
@@ -258,6 +269,9 @@ int main(void){
                                         NULL, destroy_state), 
         cmocka_unit_test_setup_teardown(tests_run_orders_no_match,
                                         NULL, destroy_state),                                        
+        cmocka_unit_test_setup_teardown(tests_amend_orders,
+                                        NULL, destroy_state),     
+
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
