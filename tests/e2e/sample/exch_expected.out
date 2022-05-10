@@ -2,87 +2,78 @@
 [SPX] Trading 3 products: GPU Router Cake
 [SPX] Created FIFO /tmp/spx_exchange_0
 [SPX] Created FIFO /tmp/spx_trader_0
-[SPX] Starting trader 0 (./test_trader2)
+[SPX] Starting trader 0 (./test_trader)
 [SPX] Connected to /tmp/spx_exchange_0
 [SPX] Connected to /tmp/spx_trader_0
-[SPX] Sending msg to child 0
-[SPX] Write successful
 [SPX] [T0] Parsing command: <BUY 0 GPU 800 20>
-[SPX] Sending msg to child 0
-[SPX] Write successful
 [SPX]	--ORDERBOOK--
-	Product: GPU		[T0] $20 Q800 UID:0 isbuy: 1
+[SPX]	Product: GPU; Buy levels: 1; Sell levels: 0
+[SPX]		BUY 800 @ $20 (1 order)
+[SPX]	Product: Router; Buy levels: 0; Sell levels: 0
+[SPX]	Product: Cake; Buy levels: 0; Sell levels: 0
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: GPU 0 ($0), Router 0 ($0), Cake 0 ($0)
 [SPX] [T0] Parsing command: <BUY 1 Router 30 20>
-[SPX] Sending msg to child 0
-[SPX] Write successful
 [SPX]	--ORDERBOOK--
-	Product: GPU		[T0] $20 Q800 UID:0 isbuy: 1
-	Product: Router		[T0] $20 Q30 UID:1 isbuy: 1
+[SPX]	Product: GPU; Buy levels: 1; Sell levels: 0
+[SPX]		BUY 800 @ $20 (1 order)
+[SPX]	Product: Router; Buy levels: 1; Sell levels: 0
+[SPX]		BUY 30 @ $20 (1 order)
+[SPX]	Product: Cake; Buy levels: 0; Sell levels: 0
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: GPU 0 ($0), Router 0 ($0), Cake 0 ($0)
 [SPX] [T0] Parsing command: <SELL 2 GPU 30 50>
-[SPX] Sending msg to child 0
-[SPX] Write successful
 [SPX]	--ORDERBOOK--
-	Product: GPU		[T0] $20 Q800 UID:0 isbuy: 1
-	Product: GPU		[T0] $50 Q30 UID:2 isbuy: 0
-	Product: Router		[T0] $20 Q30 UID:1 isbuy: 1
+[SPX]	Product: GPU; Buy levels: 1; Sell levels: 1
+[SPX]		SELL 30 @ $50 (1 order)
+[SPX]		BUY 800 @ $20 (1 order)
+[SPX]	Product: Router; Buy levels: 1; Sell levels: 0
+[SPX]		BUY 30 @ $20 (1 order)
+[SPX]	Product: Cake; Buy levels: 0; Sell levels: 0
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: GPU 0 ($0), Router 0 ($0), Cake 0 ($0)
 [SPX] [T0] Parsing command: <AMEND 0 700 23>
-Getting order by id: order_id 0 trader_id 0
-Getting order by id: order_id 0 trader_id 0
-get_order_by_id id: 0 find id: 0
-[SPX] Sending msg to child 0
-[SPX] Write successful
 [SPX]	--ORDERBOOK--
-	Product: GPU		[T0] $23 Q700 UID:3 isbuy: 1
-	Product: GPU		[T0] $50 Q30 UID:2 isbuy: 0
-	Product: Router		[T0] $20 Q30 UID:1 isbuy: 1
+[SPX]	Product: GPU; Buy levels: 1; Sell levels: 1
+[SPX]		SELL 30 @ $50 (1 order)
+[SPX]		BUY 700 @ $23 (1 order)
+[SPX]	Product: Router; Buy levels: 1; Sell levels: 0
+[SPX]		BUY 30 @ $20 (1 order)
+[SPX]	Product: Cake; Buy levels: 0; Sell levels: 0
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: GPU 0 ($0), Router 0 ($0), Cake 0 ($0)
 [SPX] [T0] Parsing command: <BUY 3 GPU 750 25>
-[SPX] Sending msg to child 0
-[SPX] Write successful
 [SPX]	--ORDERBOOK--
-	Product: GPU		[T0] $23 Q700 UID:3 isbuy: 1
-	Product: GPU		[T0] $25 Q750 UID:4 isbuy: 1
-	Product: GPU		[T0] $50 Q30 UID:2 isbuy: 0
-	Product: Router		[T0] $20 Q30 UID:1 isbuy: 1
+[SPX]	Product: GPU; Buy levels: 2; Sell levels: 1
+[SPX]		SELL 30 @ $50 (1 order)
+[SPX]		BUY 750 @ $25 (1 order)
+[SPX]		BUY 700 @ $23 (1 order)
+[SPX]	Product: Router; Buy levels: 1; Sell levels: 0
+[SPX]		BUY 30 @ $20 (1 order)
+[SPX]	Product: Cake; Buy levels: 0; Sell levels: 0
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: GPU 0 ($0), Router 0 ($0), Cake 0 ($0)
 [SPX] [T0] Parsing command: <AMEND 0 700 23>
-Getting order by id: order_id 0 trader_id 0
-Getting order by id: order_id 0 trader_id 0
-get_order_by_id id: 0 find id: 0
-[SPX] Sending msg to child 0
-[SPX] Write successful
 [SPX]	--ORDERBOOK--
-	Product: GPU		[T0] $23 Q700 UID:5 isbuy: 1
-	Product: GPU		[T0] $25 Q750 UID:4 isbuy: 1
-	Product: GPU		[T0] $50 Q30 UID:2 isbuy: 0
-	Product: Router		[T0] $20 Q30 UID:1 isbuy: 1
+[SPX]	Product: GPU; Buy levels: 2; Sell levels: 1
+[SPX]		SELL 30 @ $50 (1 order)
+[SPX]		BUY 750 @ $25 (1 order)
+[SPX]		BUY 700 @ $23 (1 order)
+[SPX]	Product: Router; Buy levels: 1; Sell levels: 0
+[SPX]		BUY 30 @ $20 (1 order)
+[SPX]	Product: Cake; Buy levels: 0; Sell levels: 0
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: GPU 0 ($0), Router 0 ($0), Cake 0 ($0)
 [SPX] [T0] Parsing command: <SELL 4 GPU 850 22>
-[SPX] Sending msg to child 0
-[SPX] Write successful
 [SPX] Match: Order 3 [T0], New Order 4 [T0], value: $18750, fee: $188.
-[SPX] Sending msg to child 0
-[SPX] Write successful
-[SPX] Sending msg to child 0
-[SPX] Write successful
 [SPX] Match: Order 0 [T0], New Order 4 [T0], value: $2300, fee: $23.
-[SPX] Sending msg to child 0
-[SPX] Write successful
-[SPX] Sending msg to child 0
-[SPX] Write successful
 [SPX]	--ORDERBOOK--
-	Product: GPU		[T0] $23 Q600 UID:5 isbuy: 1
-	Product: GPU		[T0] $50 Q30 UID:2 isbuy: 0
-	Product: Router		[T0] $20 Q30 UID:1 isbuy: 1
+[SPX]	Product: GPU; Buy levels: 1; Sell levels: 1
+[SPX]		SELL 30 @ $50 (1 order)
+[SPX]		BUY 600 @ $23 (1 order)
+[SPX]	Product: Router; Buy levels: 1; Sell levels: 0
+[SPX]		BUY 30 @ $20 (1 order)
+[SPX]	Product: Cake; Buy levels: 0; Sell levels: 0
 [SPX]	--POSITIONS--
 [SPX]	Trader 0: GPU 0 ($-211), Router 0 ($0), Cake 0 ($0)
 [SPX] Trader 0 disconnected

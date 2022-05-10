@@ -1337,7 +1337,7 @@ int main(int argc, char **argv) {
 			printf("Pausing\n");
 		#endif
 
-
+		// Parent is stuck waiting -> Maybe get test_trader to occasionally read from pipe too?
 		poll(poll_fds, no_poll_fds, -1);
 		
 		bool has_signal = poll(poll_sp, 1, 0);
@@ -1397,6 +1397,11 @@ int main(int argc, char **argv) {
 			
 			// Read message from the trader
 			char* msg = fifo_read(t->fd_read);
+			
+			if (strlen(msg) == 0){
+				perror("[EXCHANGE] Failed at reading mesage\n");
+			}
+
 			PREFIX_EXCH
 			printf("[T%d] Parsing command: <%s>\n", t->id, msg);
 

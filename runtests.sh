@@ -18,6 +18,12 @@ for dir in $DIRS; do
     printf "\n"
     
     chmod 777 ${E2E}/${dir}/./run.sh
+    
+    cp test_trader ${E2E}/${dir}/test_trader
+    cp test_trader2 ${E2E}/${dir}/test_trader2
+    cp spx_trader ${E2E}/${dir}/spx_trader
+    cp spx_exchange ${E2E}/${dir}/spx_exchange
+
     (cd ${E2E}/${dir}; ./run.sh) | cat -> ${E2E}/${dir}/exch_actual.out
     # sh ${E2E}/${dir}/./run.sh | cat - > ${E2E}/${dir}/actual_exch.out
 
@@ -31,6 +37,11 @@ for dir in $DIRS; do
         fi
     done;
 
+    rm ${E2E}/${dir}/test_trader
+    rm ${E2E}/${dir}/test_trader2
+    rm ${E2E}/${dir}/spx_exchange
+    rm ${E2E}/${dir}/spx_trader
+
 
 
     # sh tests/e2e/${dir}/run.sh | cat - > actual_exch.out
@@ -42,10 +53,7 @@ for dir in $DIRS; do
 
 done;
 
-# Remove exchange from every test directory
-for dir in $DIRS; do
-    rm ${E2E}/${dir}/spx_exchange
-done;
+
 
 # FILES=$(ls tests/e2e/*.in | sed -e 's/\.in$//')
 # F=0 # No spaces in assignment

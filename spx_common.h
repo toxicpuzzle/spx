@@ -95,7 +95,6 @@ void fifo_write(int fd_write, char* str){
 
 
 char* fifo_read(int fd_read){
-    
     int size = 1;
     char* str = calloc(MAX_LINE, sizeof(char));
     char curr;
@@ -106,11 +105,48 @@ char* fifo_read(int fd_read){
     
     //! read() blocks when you try to read from empty pipe (when non-blocking)
     //! So poll before reading to avoid blocking (might happen when you try to read without signals)
-    int result = 0;
-    if ((result = poll(&p, 1, 0)) == 0) {
-        perror("read failed");
+    errno = 0;
+    int result = poll(&p, 1, 0);
+
+    while (result == -1){
+        perror("Sighandler interrupted read");
+        result = poll(&p, 1, 0);
+    }
+
+    if (result == 0) {
+
+        perror("fifo reading failed: no messages");
         return str;
-    };
+        // if (errno == EINTR){
+        //     perror("because of interruption");
+        //     result = poll(&p, 1, 0);
+        //     if (result == 0){
+        //         return str;
+        //     }
+        // } else {
+        // }
+    }  
+
+
+    // else if (result == -1){
+    //     perror("Interrupted by sig handler");
+    //     while (poll(&p, 1, 0) == -1){
+    //         poll(&p, 1,)
+    //     }
+        
+        
+    // } 
+    // while ((result = poll(&p, 1, 0)) == -1){
+
+
+    // }
+    // if ((result = poll(&p, 1, 0)) != 1) {
+    //     perror("fifo read failed ");
+    //     if (errno == EINTR){
+    //         perror("because of interruption\n");
+    //     }
+    //     return str;
+    // };
 
     while (true){
         // printf("Poll result is %d\n", result);

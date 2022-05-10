@@ -2,7 +2,7 @@
 [SPX] Trading 3 products: GPU Router Cake
 [SPX] Created FIFO /tmp/spx_exchange_0
 [SPX] Created FIFO /tmp/spx_trader_0
-[SPX] Starting trader 0 (./test_trader2)
+[SPX] Starting trader 0 (./test_trader)
 [SPX] Connected to /tmp/spx_exchange_0
 [SPX] Connected to /tmp/spx_trader_0
 [SPX] [T0] Parsing command: <BUY 0 GPU 800 20>

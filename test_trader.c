@@ -1,11 +1,13 @@
 #include "spx_trader.h" // Order of inclusion matters to sa_sigaction and siginfo_t
 #define PREFIX_CHILD(CHILD_ID) printf("[CHILD %d] ", CHILD_ID);
 #define MAX_ACTIONS 2000
+#define RESIGNAL_INTERVAL 500
+
 
 volatile int msgs_to_read = 0;
 int ppid = 0;
 bool market_is_open = 0;
-#define TEST
+// #define TEST
 // TODO: Use real time signals to signal parent within autotrader.
 //? Don't think real time signals is way to go as it !contains SIGUSR1
 //? Alternate approach -> Check if parent process has pending signal, if not then write
@@ -178,7 +180,11 @@ int main(int argc, char ** argv) {
     //! Setup poll so that when signals are unreliable we use poll to read msgs
     struct pollfd pfd;
     pfd.fd = fd_read;
-    pfd.events = POLLIN;    
+    pfd.events = POLLIN;   
+
+    // Data structures for transaction processing
+    int orders_awaiting_accept = 0;
+    bool has_signal = false; 
 
     // Setup timeout so trader quits if 
     // time_t start = time(NULL);
@@ -190,37 +196,18 @@ int main(int argc, char ** argv) {
     
     while (true){
     
-        //! Process will not terminate even if you close terminal, must shut down parent process.
-        // TODO: How to avoid read huge number of messages sent from exchange?
-        // TODO: Use poll to read messages from traders in parent/exchange too! so that signal loss is avoided, but then
-        // TODO: How'd you know which trader was written -> easy just use poll on fds and then find the one with revents&POLLIN > 1;
-        // TODO: Even easier Use epoll to get the sdubset/list of fds that have stuff to read from directly rather than loop/searching.
-
-        // TODO: use epoll epfd to add/remove entries in interest list
-            // USE: EPOLL_CTL_ADD to add the event to interest list
-            // USE: epoll evnet struct EPOLLIN , check if this is the same as POLLIN
-            // NOTE: ready list is dynamically populated by kernel for events of interest
-        // printf("Poll has messages to read: %d\n", poll(&pfd, 1, 0));
-        // printf("msgs to read: %d\n", msgs_to_read);
-
-        if (msgs_to_read == 0 && poll(&pfd, 1, 0) <= 0) {
-            //! Do not put anything before pausing as scheduler might switch
-            //! make current process catch a signal before pausing.
-            pause();
-            // TIMEOUT
-            // sigtimedwait(&s, NULL, &t);
-            // t.tv_sec = 5;
-            // printf("Finished waiting\n");
+        while (!has_signal){
+            has_signal = poll(&pfd, 1, RESIGNAL_INTERVAL);
+           
+            if (orders_awaiting_accept > 0 && !has_signal){
+                signal_parent();
+            }
         }
 
-        // TODO: Get trader to keep reading from pipe even if parent writes to child multiple times
-        
+     
         char* result = fifo_read(fd_read);
 
-        // printf("msgs to read: %d, reading\n", msgs_to_read);			
-
         if (strlen(result) > 0) {
-            msgs_to_read--;
             
             #ifdef TEST
                 PREFIX_CHILD(id);
@@ -243,14 +230,21 @@ int main(int argc, char ** argv) {
                 printf("Current action: %s via trigger %s\n", t.acts[t.current_act].command, t.acts[t.current_act].trigger);
                 printf("Disconnect trigger: %s\n", t.disconnect_trigger);
             #endif
-            if (!strcmp(args[0], "MARKET") && !strcmp(args[1], "OPEN")) market_is_open = true;
+            if (!strcmp(args[0], "MARKET") && 
+                !strcmp(args[1], "OPEN")) market_is_open = true;
 
             if (market_is_open){
+
+                if (!strcmp(args[0], "ACCEPTED")){
+                    orders_awaiting_accept--;
+                }
+                
                 // TODO: Ensure parent waits to become available
                 if (t.current_act < t.size_act && 
                     !strcmp(result, t.acts[t.current_act].trigger)){
                     // printf("Child 1 is sending command to parent %s\n", )
                     write_to_parent(t.acts[t.current_act++].command, fd_write);
+                    orders_awaiting_accept++;
                     // TODO: insert close pipe to test half close scenarios
                 } else if (t.current_act == t.size_act &&
                     !strcmp(result, t.disconnect_trigger)){
@@ -274,6 +268,7 @@ int main(int argc, char ** argv) {
             free(result_cpy);
         }
 
+        has_signal = false;
         free(result);
     }
 
