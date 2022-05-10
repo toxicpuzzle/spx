@@ -1,0 +1,12 @@
+[T1] Received: MARKET OPEN
+[T1] Received: MARKET BUY GPU 30 500
+[T1] Received: MARKET BUY GPU 30 501
+[T1] Received: MARKET BUY GPU 30 501
+[T1] Received: MARKET BUY GPU 30 502
+[T1] Received: ACCEPTED 0
+[T1] Received: ACCEPTED 1
+[T1] Received: FILL 1 30
+[T1] Received: FILL 1 30
+[T1] Received: FILL 1 30
+[T1] Received: FILL 1 9
+[T1] Event: DISCONNECT
