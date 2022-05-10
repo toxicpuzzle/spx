@@ -1332,7 +1332,7 @@ int main(int argc, char **argv) {
 		// printf("Pausing\n");
 		// TODO: Investigate if poll can miss signals
 		// TODO: See if sigpipe is reliable and if you're missing signals
-		#ifdef TEST
+		#ifdef TEST_RACE
 			PREFIX_EXCH
 			printf("Pausing\n");
 		#endif
@@ -1343,7 +1343,7 @@ int main(int argc, char **argv) {
 		bool has_signal = poll(poll_sp, 1, 0);
 		int disconnect_events = poll(poll_fds, no_poll_fds-1, 0);
 
-		#ifdef TEST
+		#ifdef TEST_RACE
 			PREFIX_EXCH
 			printf("has signal %d, disconnect events: %d\n", has_signal, disconnect_events);
 		#endif
@@ -1398,9 +1398,11 @@ int main(int argc, char **argv) {
 			// Read message from the trader
 			char* msg = fifo_read(t->fd_read);
 			
-			if (strlen(msg) == 0){
-				perror("[EXCHANGE] Failed at reading mesage\n");
-			}
+			#ifdef TEST_RACE
+				if (strlen(msg) == 0){
+					perror("[EXCHANGE] Failed at reading mesage\n");
+				}
+			#endif
 
 			PREFIX_EXCH
 			printf("[T%d] Parsing command: <%s>\n", t->id, msg);

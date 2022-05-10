@@ -28,7 +28,7 @@
 #define MAX_LINE 128
 #define MAX_INT 999999
 #define INDENT printf("\t");
-
+// #define TEST_READ
 //! Don't put function definition in header files since then you'll have to clean and compile every time 
 
 /**
@@ -109,13 +109,17 @@ char* fifo_read(int fd_read){
     int result = poll(&p, 1, 0);
 
     while (result == -1){
-        perror("Sighandler interrupted read");
+        #ifdef TEST_READ
+            perror("Sighandler interrupted read");
+        #endif
         result = poll(&p, 1, 0);
     }
 
     if (result == 0) {
 
-        perror("fifo reading failed: no messages");
+        #ifdef TEST_READ
+            perror("fifo reading failed: no messages");
+        #endif
         return str;
         // if (errno == EINTR){
         //     perror("because of interruption");
