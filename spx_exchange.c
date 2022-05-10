@@ -17,6 +17,7 @@
 #define BUYSELL_CMD_SIZE 5
 #define CANCEL_CMD_SIZE 2
 // #define TEST
+#define TEST_RACE
 
 // Queue containing most recent signals received from child processes
 int sig_pipe[2] = {0, 0};
@@ -1332,7 +1333,7 @@ int main(int argc, char **argv) {
 		// printf("Pausing\n");
 		// TODO: Investigate if poll can miss signals
 		// TODO: See if sigpipe is reliable and if you're missing signals
-		#ifdef TEST_RACE
+		#ifdef TEST
 			PREFIX_EXCH
 			printf("Pausing\n");
 		#endif
@@ -1343,7 +1344,7 @@ int main(int argc, char **argv) {
 		bool has_signal = poll(poll_sp, 1, 0);
 		int disconnect_events = poll(poll_fds, no_poll_fds-1, 0);
 
-		#ifdef TEST_RACE
+		#ifdef TEST
 			PREFIX_EXCH
 			printf("has signal %d, disconnect events: %d\n", has_signal, disconnect_events);
 		#endif
