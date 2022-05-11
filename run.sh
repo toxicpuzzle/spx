@@ -2,7 +2,7 @@ make
 
 count=1
 for i in $(seq $count); do
-    ./spx_exchange products.txt ./test_trader ./test_trader2
+    ./spx_exchange products.txt ./non_existant_trader
 done
 
 # gcc test_trader.c -o test_trader

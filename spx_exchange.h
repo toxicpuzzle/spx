@@ -170,7 +170,12 @@ void process_amend(char* msg, trader* t, exch_data* exch);
 void process_cancel(char* msg, trader* t, exch_data* exch);
 void process_message(char* msg, trader* t, exch_data* exch);
 
-
-
+// Command line validation functions
+bool str_check_for_each(char* str, int (*check)(int c));
+bool is_valid_price_qty(int price, int qty);
+bool is_existing_order(int oid, trader* t, exch_data* exch);
+bool is_valid_product(char* p, dyn_arr* books);
+bool is_valid_buy_sell_order_id(int oid, trader* t);
+bool is_valid_command(char* msg, trader* t, exch_data* exch);
 
 #endif
