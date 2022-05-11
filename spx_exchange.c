@@ -736,7 +736,7 @@ void report_position_for_trader(trader* t){
 }
 
 // TODO: Fix up race condition in output during reporting
-//Test 8
+//Test 9
 // Reports the order boook and positions for every product/trader on the exchange
 void report(exch_data* exch){
 	sigset_t s;
