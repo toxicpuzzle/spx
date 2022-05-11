@@ -212,7 +212,8 @@ void set_handler(int si, void (*handler) (int, siginfo_t*, void*)){
 
 // Writes signal to self pipe for reading later.
 void sig_handler(int signal, siginfo_t *siginfo, void *context){
-	write(sig_pipe[1], siginfo, sizeof(siginfo_t));
+	// write(sig_pipe[1], siginfo, sizeof(siginfo_t));
+	write(sig_pipe[1], &(siginfo->si_pid), sizeof(int));
 }
 
 // SECTION: Comparator functions
@@ -1364,8 +1365,6 @@ int main(int argc, char **argv) {
 	}
 	setup_product_order_books(buy_order_books, sell_order_books, product_file);
 	
-	// perror("Here");
-
 	set_handler(SIGUSR1, sig_handler);
 
 	// Create and message traders that the market has opened
@@ -1379,7 +1378,7 @@ int main(int argc, char **argv) {
 
 	int no_poll_fds = traders->used + 1;
 	struct pollfd *poll_fds = calloc(no_poll_fds, sizeof(struct pollfd));
-	int no_fd_events = 0;
+	// int no_fd_events = 0;
 
 	trader* t = calloc(1, sizeof(trader));
 	// TODO: maybe this should be done before we even launch child , requires us to open child pipes without waiting though.
@@ -1457,13 +1456,15 @@ int main(int argc, char **argv) {
 		// Test race
 		// TODO: Try signal safe printf and see if race conditions persists?
 		while (has_signal){
-			siginfo_t* ret = calloc(1, sizeof(siginfo_t));
-			read(sig_pipe[0], ret, sizeof(siginfo_t));
-			no_fd_events--;
+			// siginfo_t* ret = calloc(1, sizeof(siginfo_t));
+			int ret;
+			read(sig_pipe[0], &ret, sizeof(int));
+			// no_fd_events--;
 	
 			// find literal location of child with same process id
 			trader* t = calloc(1, sizeof(trader));
-			t->process_id = ret->si_pid;
+			// t->process_id = ret->si_pid;
+			t->process_id = ret;
 			int idx = dyn_array_find(traders, t, &trader_cmp_by_process_id);
 			free(t);
 			t = dyn_array_get_literal(traders, idx);
@@ -1481,14 +1482,13 @@ int main(int argc, char **argv) {
 			PREFIX_EXCH
 			printf("[T%d] Parsing command: <%s>\n", t->id, msg);
 
-			if (!is_valid_command(msg, t, exch) ||
-				t->connected == false){
+			if (!is_valid_command(msg, t, exch) || t->connected == false){
 				trader_message(t, "INVALID;");
 			} else {
 				process_message(msg, t, exch);
 			}
 
-			free(ret);
+			// free(ret);
 			free(msg);
 			has_signal = poll(poll_sp, 1, 0);
 			// TODO: Fix race condition issue on ed 
