@@ -1498,6 +1498,10 @@ int main(int argc, char **argv) {
 			// free(ret);
 			free(msg);
 			has_signal = poll(poll_sp, 1, 0);
+
+			// TODO: Add processing of commands with no commas
+			// Store characters read without ";" into buffer, and concatenate message to
+			// buffer? Ask on ed
 			// TODO: Fix race condition issue on ed 
 				// NB: Race condition persists with version that uses malloc too.
 
