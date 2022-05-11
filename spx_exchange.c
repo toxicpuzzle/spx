@@ -738,7 +738,11 @@ void report_position_for_trader(trader* t){
 // TODO: Fix up race condition in output during reporting
 // Reports the order boook and positions for every product/trader on the exchange
 void report(exch_data* exch){
+	sigset_t s;
+	sigemptyset(&s);
+	sigaddset(&s, SIGUSR1);
 	#ifndef TEST
+		sigprocmask(SIG_BLOCK, &s, NULL);
 		PREFIX_EXCH_L1
 		printf("--ORDERBOOK--\n");
 		order_book* buy_book = calloc(1, sizeof(order_book));
@@ -759,6 +763,7 @@ void report(exch_data* exch){
 			report_position_for_trader(t);
 		}
 		free(t);
+		sigprocmask(SIG_UNBLOCK, &s, NULL);
 	#else
 		PREFIX_EXCH_L1
 		printf("--ORDERBOOK--\n");
