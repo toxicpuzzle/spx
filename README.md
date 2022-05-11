@@ -6,13 +6,30 @@ The exchange is driven by three functionalities
 communicate with its traders
 2. Setup - Creating and setting up data structures e.g. orderbooks, order arrays
 3. Data structures - Dynamic array abstraction to minimise debugging issues associated
-with memory allocation and to improve code reusability
+with memory allocation and to improve code reusability. 
 4. Transaction handling 
 5. Reporting - 
 5. Command line validation
 
+For each trader the exchange forks a new process and execs the trader binary in this new process.
+The process_id, id, pipe fds and other information associated with the trader is stored
+in a trader object within a dynamic array for easy access by all functions via the exch_data struct.
+
+The exchange writes any signal it receives into a self pipe, which serves as a queue
+for all signals, within the signal hander. This ensures it can process those signals
+when the exchange returns the user space/main function in the order they are received.
+siginfo_t containing the trader's processid is written to the pipe so the main function
+can then search for the trader's pipes in the main function. 
+
+Writing is trivially done using write(), however reading involves reading one character
+at a time into a dynamically expanded buffer which stops when a ";" is reached. Poll() is
+used check the other end of the pipe has POLLIN before reading to prevent the exchange
+from blocking in case of potential signal misfires.
 
 
+
+
+Use drawings as well
 
 
 2. Describe your design decisions for the trader and how it's fault-tolerant.
@@ -27,7 +44,17 @@ parent to read when the trader still has trades left
 Issue potentially: what if parent does not deal well with traders
 that write nothing? i.e. might have multiple signals for one message
 if in the 0.5 seconds parent queued the signal but just hasn't processed
-it yet (false signal loss)
+it yet (false signal loss).
+
+The autotrader's signals may not always be reliable as the scheduler may
+let the parent send multiple signals to the autotrader before letting the autotrader
+handle the signals, this results in signal and thus message loss. To avoid
+this drawback of signals, instead the autotrader (and test traders) use poll
+to check if the parent has written to them regularly after the processing of every 
+command. This ensures that the child can respond to the parent's messages even if
+signals are lost.
+
+
 
 Since signals are unreliable for the trader the trader will 
 TODO potential issue -> what happens if scheduler switches from
@@ -48,7 +75,16 @@ It is not possible to syncronise the disconnection time and order with such a
 trigger based system because traders do not know when another trader disconnects unlike
 with orders as the exchange does not send that information to all traders. When a trader
 receives the trigger to disconnect is completely dependent on the system scheduler and is 
-thus not deterministic.
+thus not deterministic. Accordingly, when checking for differences between files, any line that
+involves the line "disconnected" is ignored.
+
+e2e tests is used for testing all functions, including checking whether a command is valid,
+whether the exchange can handle multiple traders, valid/invalid product files, fee
+calculation and provision, command processing, time priority of orders, and more.
+
+unit testing is focused on testing the dynamic array which is heavily relied on
+for all operations within the exchange, in addition to order book matching functions.
+
 
 
 To add libraries to intllisense, got to /usr/include to get the libraries
