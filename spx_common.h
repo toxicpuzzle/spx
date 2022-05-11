@@ -28,7 +28,7 @@
 #define MAX_LINE 128
 #define MAX_INT 999999
 #define INDENT printf("\t");
-// #define TEST_READ
+#define TEST_READ
 //! Don't put function definition in header files since then you'll have to clean and compile every time 
 
 /**

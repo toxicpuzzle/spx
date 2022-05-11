@@ -1,0 +1,37 @@
+[SPX] Starting
+[SPX] Trading 3 products: GOOG GooG gooG
+[SPX] Created FIFO /tmp/spx_exchange_0
+[SPX] Created FIFO /tmp/spx_trader_0
+[SPX] Starting trader 0 (./test_trader)
+[SPX] Connected to /tmp/spx_exchange_0
+[SPX] Connected to /tmp/spx_trader_0
+[SPX] [T0] Parsing command: <BUY 0 GOOG 1 1>
+[SPX]	--ORDERBOOK--
+[SPX]	Product: GOOG; Buy levels: 1; Sell levels: 0
+[SPX]		BUY 1 @ $1 (1 order)
+[SPX]	Product: GooG; Buy levels: 0; Sell levels: 0
+[SPX]	Product: gooG; Buy levels: 0; Sell levels: 0
+[SPX]	--POSITIONS--
+[SPX]	Trader 0: GOOG 0 ($0), GooG 0 ($0), gooG 0 ($0)
+[SPX] [T0] Parsing command: <BUY 1 GooG 1 1>
+[SPX]	--ORDERBOOK--
+[SPX]	Product: GOOG; Buy levels: 1; Sell levels: 0
+[SPX]		BUY 1 @ $1 (1 order)
+[SPX]	Product: GooG; Buy levels: 1; Sell levels: 0
+[SPX]		BUY 1 @ $1 (1 order)
+[SPX]	Product: gooG; Buy levels: 0; Sell levels: 0
+[SPX]	--POSITIONS--
+[SPX]	Trader 0: GOOG 0 ($0), GooG 0 ($0), gooG 0 ($0)
+[SPX] [T0] Parsing command: <BUY 2 gooG 1 1>
+[SPX]	--ORDERBOOK--
+[SPX]	Product: GOOG; Buy levels: 1; Sell levels: 0
+[SPX]		BUY 1 @ $1 (1 order)
+[SPX]	Product: GooG; Buy levels: 1; Sell levels: 0
+[SPX]		BUY 1 @ $1 (1 order)
+[SPX]	Product: gooG; Buy levels: 1; Sell levels: 0
+[SPX]		BUY 1 @ $1 (1 order)
+[SPX]	--POSITIONS--
+[SPX]	Trader 0: GOOG 0 ($0), GooG 0 ($0), gooG 0 ($0)
+[SPX] Trader 0 disconnected
+[SPX] Trading completed
+[SPX] Exchange fees collected: $0

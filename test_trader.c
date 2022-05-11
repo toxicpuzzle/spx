@@ -261,7 +261,7 @@ int main(int argc, char ** argv) {
                     free(fifo_exch);
                     free(fifo_trader);
                     return 1;
-                }
+                } 
             }
 
             free(args);

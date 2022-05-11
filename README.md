@@ -44,6 +44,11 @@ Each folder contains
 3. script runs tests with the .in files in subdirectory.
 + don't have to recompile c file everytime you want to add a different test
 
+It is not possible to syncronise the disconnection time and order with such a 
+trigger based system because traders do not know when another trader disconnects unlike
+with orders as the exchange does not send that information to all traders. When a trader
+receives the trigger to disconnect is completely dependent on the system scheduler and is 
+thus not deterministic.
 
 
 To add libraries to intllisense, got to /usr/include to get the libraries

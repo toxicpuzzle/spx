@@ -436,6 +436,10 @@ void setup_product_order_books(dyn_arr* buy_order_books,
 dyn_arr* sell_order_books, char* product_file_path){
 	char buf[PRODUCT_STRING_LEN];
 	FILE* f = fopen(product_file_path, "r");
+	if (f == NULL){
+		perror("Failed to open file");
+		exit(1);
+	}
 	fgets(buf, PRODUCT_STRING_LEN, f); // Do this to get rid of the number of items line;
 	int num_products = atoi(buf);
 	PREFIX_EXCH
@@ -444,7 +448,7 @@ dyn_arr* sell_order_books, char* product_file_path){
 		fgets(buf, PRODUCT_STRING_LEN, f);
 		// TODO: Formalise checks for product order book
 		if (buf == NULL || buf[0] == '\n') {
-			perror("ERROR: Product file is incorrect\n");
+			perror("ERROR: Product file is incorrect");
 			exit(1);
 		}
 		str_remove_new_line(buf);
@@ -1384,6 +1388,7 @@ int main(int argc, char **argv) {
 		}
 
 		// Test race
+		// TODO: Try signal safe printf and see if race conditions persists?
 		while (has_signal){
 			siginfo_t* ret = calloc(1, sizeof(siginfo_t));
 			read(sig_pipe[0], ret, sizeof(siginfo_t));
@@ -1400,8 +1405,9 @@ int main(int argc, char **argv) {
 			char* msg = fifo_read(t->fd_read);
 			
 			#ifdef TEST_RACE
+				//! Does not create issue: Only with invalid_multiple delims testcase does this occur
 				if (strlen(msg) == 0){
-					perror("[EXCHANGE] Failed at reading mesage\n");
+					perror("[EXCHANGE] Read in message with 0 bytes\n");
 				}
 			#endif
 
