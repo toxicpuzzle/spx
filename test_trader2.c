@@ -27,6 +27,7 @@ bool market_is_open = 0;
 typedef struct test_data test_data;
 typedef struct action action;
 
+// Data structures for reading in commands and triggers
 struct action{
     char command[MAX_LINE];
     char trigger[MAX_LINE];
@@ -39,10 +40,63 @@ struct test_data{
     char disconnect_trigger[MAX_LINE];
 };
 
+// Writes the message to the trader if the other end of the pipe is open
+void fifo_write(int fd_write, char* str){
+    struct pollfd p;
+    p.fd = fd_write;
+    p.events = POLLOUT;
+    poll(&p, 1, 0);
+    if (!(p.revents & POLLERR)){
+        if (write(fd_write, str, strlen(str)) == -1){
+                perror("Write unsuccesful\n");
+        }   
+    }
+}
+
+// Reads message until ";" or EOF if fd_read has POLLIN 
+char* fifo_read(int fd_read){
+    int size = 1;
+    char* str = calloc(MAX_LINE, sizeof(char));
+    char curr;
+
+    struct pollfd p;
+    p.fd = fd_read;
+    p.events = POLLIN;
+
+    errno = 0;
+    int result = poll(&p, 1, 0);
+
+	// Keep polling until we get either 1 or 0 (i.e. not interrupted by signal)
+    while (result == -1){
+        result = poll(&p, 1, 0);
+    }
+
+	// Return null string immediately if there is nothing to read
+    if (result == 0) {
+        return str;
+    }  
+
+	// Keep reading until entire message is read.
+    while (true){
+        if (read(fd_read, (void*) &curr, 1*sizeof(char)) <= 0 || curr == ';') break;
+        
+        memmove(str+size-1, &curr, 1);
+        if (size > MAX_LINE) str = realloc(str, ++size);
+        else ++size;
+    }
+
+    str[size-1] = '\0';    
+  
+    return str;
+}
+
+
+// Signals the parent
 void signal_parent(){
     kill(ppid, SIGUSR1);
 }
 
+// Generic function used to create a new signal handler
 void set_handler(int signal, void (*handler) (int, siginfo_t*, void*)){
     struct sigaction sig;
     memset(&sig, 0, sizeof(struct sigaction));
@@ -74,13 +128,13 @@ int get_args_from_msg(char* msg, char*** ret){
 	return args_size;
 }
 
+// Writes to the exch's read pipe for this trader and signals parent
 void write_to_parent(char* msg, int fd_write){
     fifo_write(fd_write, msg);
     signal_parent();
 }
 
-// TODO: Check product string is alphanumeric
-// Functions for testing:
+// Makes a buy order to the parent exchange
 void buy(int order_id, char* product, int qty, int price, int fd_write){
     char* cmd = malloc(MAX_LINE*sizeof(char));
     sprintf(cmd, "BUY %d %s %d %d;", order_id, product, qty, price);
@@ -88,6 +142,7 @@ void buy(int order_id, char* product, int qty, int price, int fd_write){
     free(cmd);
 }
 
+// Obtain the file with some associated extension based on c file name
 FILE* get_file_with_extension(char* prefix, char* extension, char* mode){
     char* filename = calloc(MAX_LINE, sizeof(char));
     memmove(filename, prefix, strlen(prefix));
@@ -105,6 +160,8 @@ FILE* get_file_with_extension(char* prefix, char* extension, char* mode){
     return file;
 }
 
+
+// Read the input file and convert this into the test_data struct
 void read_input_file(FILE* in, test_data* t){
     char buf[MAX_LINE];
     char cmd[MAX_LINE];
@@ -177,7 +234,7 @@ int main(int argc, char ** argv) {
     fclose(in);
     FILE* out = get_file_with_extension(__FILE__, "_actual.out", "w");
 
-    //! Setup poll so that when signals are unreliable we use poll to read msgs
+    // Use poll to detect when the exchange has written a new message
     struct pollfd pfd;
     pfd.fd = fd_read;
     pfd.events = POLLIN;   
@@ -186,14 +243,6 @@ int main(int argc, char ** argv) {
     int orders_awaiting_accept = 0;
     bool has_signal = false; 
 
-    // Setup timeout so trader quits if 
-    // time_t start = time(NULL);
-    // sigset_t s;
-    // sigemptyset(&s);
-    // sigaddset(&s, SIGUSR1);
-    // struct timespec t;
-    // t.tv_sec = 5;
-    
     while (true){
     
         while (!has_signal){
@@ -215,11 +264,6 @@ int main(int argc, char ** argv) {
             #endif
             // TODO: Output to text file
             fprintf(out, "[T%d] Received: %s\n", id, result);
-                // fwrite(result, strlen(result), 1, out);
-                // Get exec file name -> turn it into directory full of .out files
-                // Diff output of trader against actual out file.
-                // TODO: alternatively, store output in some text buffer/file
-                // Then when trader quits
 
             char** args = 0;
             char* result_cpy = calloc(strlen(result)+1, sizeof(char));
@@ -235,17 +279,16 @@ int main(int argc, char ** argv) {
 
             if (market_is_open){
 
+
                 if (!strcmp(args[0], "ACCEPTED")){
                     orders_awaiting_accept--;
                 }
-                
-                // TODO: Ensure parent waits to become available
+
+                // Make the next command if trigger is read from parent
                 if (t.current_act < t.size_act && 
                     !strcmp(result, t.acts[t.current_act].trigger)){
-                    // printf("Child 1 is sending command to parent %s\n", )
                     write_to_parent(t.acts[t.current_act++].command, fd_write);
                     orders_awaiting_accept++;
-                    // TODO: insert close pipe to test half close scenarios
                 } else if (t.current_act == t.size_act &&
                     !strcmp(result, t.disconnect_trigger)){
                     #ifdef TEST
@@ -261,7 +304,7 @@ int main(int argc, char ** argv) {
                     free(fifo_exch);
                     free(fifo_trader);
                     return 1;
-                }
+                } 
             }
 
             free(args);

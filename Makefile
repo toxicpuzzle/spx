@@ -10,7 +10,7 @@ OTESTFLAGS = -c $(CTESTFLAGS)
 LDFLAGS=-lm # List of link/load directives
 LIBS=data_types/ds.a
 TFLAGS = tests/libcmocka-static.a
-BINARIES=spx_exchange spx_trader test_trader
+BINARIES=spx_exchange spx_trader test_trader test_trader2 
 
 all: spx_exchange.o test_trader.o spx_trader.o test_trader2.o
 	$(CC) $(LDFLAGS) $(CFLAGS) spx_exchange.o -o spx_exchange 
@@ -42,6 +42,7 @@ spx_trader.o: spx_trader.c
 # 	$(CC) $(LDFLAGS) $(OFLAGS) test_trader3.c -o test_trader3.o
 # all: $(BINARIES)
 
+# Call make unit to make the binaries for the unit testcases
 unit: spx_exchange.o 
 	$(CC) $(LDFLAGS) $(OTESTFLAGS) -D UNIT spx_exchange.c -o spx_exchange.o 
 	$(CC) $(OTESTFLAGS) $(LDFLAGS) tests/unit-tests.c -o tests/unit-test.o
@@ -51,5 +52,5 @@ unit: spx_exchange.o
 
 .PHONY: clean
 clean:
-	rm -f $(BINARIES) *.o
+	rm -f $(BINARIES) *.o *.gcov *.gcda *.gcno
 

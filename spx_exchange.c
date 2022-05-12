@@ -112,19 +112,6 @@ void dyn_array_free(dyn_arr *dyn){
     free(dyn);
 }
 
-// Prints out elements of array using to_string method;
-void dyn_array_print(dyn_arr* dyn, void (*elem_to_string) (void* element)){
-    void *ret = malloc(dyn->memb_size);
-    printf("[ ");
-    for (int idx = 0; idx < dyn->used; idx++){
-        dyn_array_get(dyn, idx, ret);
-        elem_to_string(ret);
-        if (idx != dyn->used - 1) printf(", ");
-	}
-    printf(" ]\n");
-    free(ret);
-}
-
 // Remove the element with the minimum priority from the dynamic array;
 int dyn_array_remove_min(dyn_arr* dyn, void* ret, 
 						int (*cmp) (const void* a, const void* b)){

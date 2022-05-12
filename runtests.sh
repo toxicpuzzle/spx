@@ -6,13 +6,6 @@ DIRS=$(ls tests/e2e/)
 TESTS=0
 PASSED=0
 
-# Copy exchange file into every directory
-# for dir in $DIRS; do
-#     cp spx_exchange ${E2E}/${dir}
-# done;
-
-
-#! cd does not change Bash's working directory
 for dir in $DIRS; do
 
     printf "\n"
@@ -20,8 +13,10 @@ for dir in $DIRS; do
     printf "\n"
     TESTS=$((TESTS+1))
 
+    # Give each individual test's bash scripts execute permissions
     chmod 777 ${E2E}/${dir}/./run.sh
     
+    # Copy binaries to directories so they can launch traders
     cp test_trader ${E2E}/${dir}/test_trader
     cp test_trader2 ${E2E}/${dir}/test_trader2
     cp spx_trader ${E2E}/${dir}/spx_trader
@@ -29,7 +24,7 @@ for dir in $DIRS; do
 
     (cd ${E2E}/${dir}; ./run.sh) | cat -> ${E2E}/${dir}/exch_actual.out
 
-    # TODO: diff the output
+    # Diff the output (ignoring disconnect messages) to see how many testcases pass
     OUTFILES=$(ls tests/e2e/${dir}/*_actual.out | sed -e 's/\_actual.out$//')
     HAS_PASSED=1
     for OUT in $OUTFILES; do
@@ -46,7 +41,7 @@ for dir in $DIRS; do
         PASSED=$((PASSED + 1))
     fi
 
-
+    # Remove files from directory to save space
     rm ${E2E}/${dir}/test_trader
     rm ${E2E}/${dir}/test_trader2
     rm ${E2E}/${dir}/spx_exchange
@@ -55,29 +50,3 @@ for dir in $DIRS; do
 done;
 
 printf "Passed ${PASSED}/${TESTS} tests\n"
-
-
-
-# FILES=$(ls tests/e2e/*.in | sed -e 's/\.in$//')
-# F=0 # No spaces in assignment
-# C=0
-# for file in $FILES; do
-    
-#     if (test -f "$file.in") && (test -f "$file.out"); then
-#         printf "\n"
-#         printf "Executing test case: ${file}%5s\n"
-#         printf "\n"
-#         if [[ $(./ymirdb < ${file}.in | diff - ${file}.out) ]]; then
-#             echo "     Test case failed"
-#             echo " "
-#             ./ymirdb < ${file}.in | diff - ${file}.out
-#         else
-#             echo "     Test case passed"
-#             C=$((C + 1))
-#         fi
-#         F=$((F + 1))
-#     fi
-#     #include the diff command to differentitate test case output with actual output
-# done;
-
-# printf "\nPassed ${C}/${F} test cases\n"
