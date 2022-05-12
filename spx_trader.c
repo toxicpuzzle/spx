@@ -5,11 +5,60 @@ volatile int msgs_to_read = 0;
 int ppid = 0;
 bool market_is_open = 0;
 
-// TODO: Use real time signals to signal parent within autotrader.
-//? Don't think real time signals is way to go as it !contains SIGUSR1
-//? Alternate approach -> Check if parent process has pending signal, if not then write
+// Self pipe to receive signals if we were to use signal approach to reading messages
 static int sig_pipe[2];
 
+// Writes the message to the trader if the other end of the pipe is open
+void fifo_write(int fd_write, char* str){
+    struct pollfd p;
+    p.fd = fd_write;
+    p.events = POLLOUT;
+    poll(&p, 1, 0);
+    if (!(p.revents & POLLERR)){
+        if (write(fd_write, str, strlen(str)) == -1){
+                perror("Write unsuccesful\n");
+        }   
+    }
+}
+
+// Reads message until ";" or EOF if fd_read has POLLIN 
+char* fifo_read(int fd_read){
+    int size = 1;
+    char* str = calloc(MAX_LINE, sizeof(char));
+    char curr;
+
+    struct pollfd p;
+    p.fd = fd_read;
+    p.events = POLLIN;
+
+    errno = 0;
+    int result = poll(&p, 1, 0);
+
+	// Keep polling until we get either 1 or 0 (i.e. not interrupted by signal)
+    while (result == -1){
+        result = poll(&p, 1, 0);
+    }
+
+	// Return null string immediately if there is nothing to read
+    if (result == 0) {
+        return str;
+    }  
+
+	// Keep reading until entire message is read.
+    while (true){
+        if (read(fd_read, (void*) &curr, 1*sizeof(char)) <= 0 || curr == ';') break;
+        
+        memmove(str+size-1, &curr, 1);
+        if (size > MAX_LINE) str = realloc(str, ++size);
+        else ++size;
+    }
+
+    str[size-1] = '\0';    
+  
+    return str;
+}
+
+// Signals parent to read the child's pipe
 void signal_parent(){
     kill(ppid, SIGUSR1);
 }
@@ -19,12 +68,12 @@ void read_exch_handler(int signo, siginfo_t *sinfo, void *context){
     write(sig_pipe[1], &(sinfo->si_pid), sizeof(int));
 }
 
+// Creates signal handler using sigaction struct
 void set_handler(int signal, void (*handler) (int, siginfo_t*, void*)){
     struct sigaction sig;
     memset(&sig, 0, sizeof(struct sigaction));
     sig.sa_sigaction = handler;
-    // sigemptyset(&sig.sa_mask);
-    // sigaddset(&sig.sa_mask, SIGUSR1);
+
     if (sigaction(signal, &sig, NULL)){
         perror("sigaction failed\n");
         exit(1);
@@ -47,14 +96,13 @@ int get_args_from_msg(char* msg, char*** ret){
 	return args_size;
 }
 
-
+// Writes to parent and then signal them to read from their pipe
 void write_to_parent(char* msg, int fd_write){
     fifo_write(fd_write, msg);
     signal_parent();
 }
 
-// TODO: Check product string is alphanumeric
-// Functions for testing:
+// Makes buy order to parent
 void buy(int order_id, char* product, int qty, int price, int fd_write){
     char* cmd = malloc(MAX_LINE*sizeof(char));
     sprintf(cmd, "BUY %d %s %d %d;", order_id, product, qty, price);
@@ -62,8 +110,6 @@ void buy(int order_id, char* product, int qty, int price, int fd_write){
     free(cmd);
 }
 
-
-// When you use exec to execute a program, the first arg becomes arg[0] instead of arg[0]
 int main(int argc, char ** argv) {
     if (argc < 1) {
         printf("Not enough arguments\n");
@@ -98,6 +144,7 @@ int main(int argc, char ** argv) {
         return -1;
     }
     
+    // TODO: IS the poll only approach okay?
     // dfddf
     // Poll to read if there are new signals
     // struct pollfd poll_sp;
@@ -105,7 +152,6 @@ int main(int argc, char ** argv) {
 	// poll_sp.events = POLLIN;
 
     // Poll to read if there are additional messages for each signal (failsafe)
-    //! Don't use -> only read when signalled to do so?
     struct pollfd pfd;
     pfd.fd = fd_read;
     pfd.events = POLLIN;  
@@ -113,24 +159,8 @@ int main(int argc, char ** argv) {
     // Data structures for transaction processing
     int orders_awaiting_accept = 0;
     bool has_signal = false;
-    // int buf;
-    // TODO: As soon as another sell order comes in, write to pipe, but and 
-    // TODO: keep signalling on regular intervals to get last order in.
-    // TODO: Busy exchange signals too long.
-    
 
     while (true){
-    
-        //! Process will not terminate even if you close terminal, must shut down parent process.
-        // if (msgs_to_read == 0 && poll(&pfd, 1, 0) <= 0) {
-        // If there is no signals to be read after 500ms then check if we missed something on the pipe
-        // poll(&poll_sp, 1, -1);
-        // read(poll_sp.fd, &buf, sizeof(int));
-        // Problem with test trader -> they are not fault tolerant -> might not send signal to sell.
-        // printf("Amount ot be read = %d\n", );
-        //! Exchange relies on signal handling so if multiple traders send it signals at once it wil fail,
-        //! which happesn with the autotrader
-
 
         // Keep sending signals between every
         // message we receive if last order was not accepted
@@ -143,26 +173,16 @@ int main(int argc, char ** argv) {
             }
         }
         
-
-        // TODO: polling pfd for pollin may not always guarantee there something to be read on other pipe
+        // Read from parent if we have received a signal
         char* result = fifo_read(fd_read);
-        // int len = strlen(result);
-        // printf("+++++len result: %d\n", len);
+   
         if (strlen(result) > 0) {
-            #ifdef TEST
-                PREFIX_CHILD(id);
-                printf("Received message: %s\n", result);
-            #endif
 
             char** args = 0;
             char* result_cpy = calloc(strlen(result)+1, sizeof(char));
             memmove(result_cpy, result, strlen(result)+1);
             get_args_from_msg(result_cpy, &args);
             
-            #ifdef TEST
-                printf("Current action: %s via trigger %s\n", t.acts[t.current_act].command, t.acts[t.current_act].trigger);
-                printf("Disconnect trigger: %s\n", t.disconnect_trigger);
-            #endif
             if (!strcmp(args[0], "MARKET") && 
                 !strcmp(args[1], "OPEN")) market_is_open = true;
 
@@ -173,8 +193,6 @@ int main(int argc, char ** argv) {
                     !strcmp(args[1], "SELL") && 
                     atoi(args[3]) >= 1000){
         
-
-                        
                     // DISCONNECT
                     free(args);
                     free(result);
@@ -184,10 +202,7 @@ int main(int argc, char ** argv) {
                     free(fifo_trader);
                     return 0;
                 
-                
-                // TODO: Write to pipe and keep signalling until you get response 
-                // Maybe only place next order after first order has been accepted
-                // Respond to market sell order buy buying it
+                // Make buy order if we received a sell order from exchange
                 } else if (!strcmp(args[0], "MARKET") && 
                     !strcmp(args[1], "SELL")){
                     
@@ -197,13 +212,10 @@ int main(int argc, char ** argv) {
                     buy(order_id++, product, qty, price, fd_write);
                     orders_awaiting_accept++;
                 
+                // Reduce orders_awaiting accepted if one of our orders was accepted
                 } else if (!strcmp(args[0], "ACCEPTED")){
                     orders_awaiting_accept--;
-                }
-                
-                
-                // TODO: Ensure there is nothing left on the pipe
-                
+                }     
             }
 
             free(args);

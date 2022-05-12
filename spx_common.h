@@ -15,9 +15,6 @@
 #include <stdbool.h>
 #include <errno.h>
 #include <math.h>
-// #include "data_types/dyn_array.h"
-// #include "data_types/prio_queue.h"
-// #include "data_types/linked_list.h"
 #include <poll.h>
 #include <sys/wait.h>
 #include <ctype.h>
@@ -29,7 +26,6 @@
 #define MAX_INT 999999
 #define INDENT printf("\t");
 #define TEST_READ
-//! Don't put function definition in header files since then you'll have to clean and compile every time 
 
 /**
  * @brief Writes message to one end of pipe (excludes null byte at end of string)
@@ -37,20 +33,21 @@
  * @param fd_write fd of write end of pipe
  * @param str message to be sent (terminate with null byte)
  */
-void fifo_write(int fd_write, char* str){
-    // TODO: Investigate reason for spx_exchange quitting.
-    struct pollfd p;
-    p.fd = fd_write;
-    p.events = POLLOUT;
-    poll(&p, 1, 0);
-    if (!(p.revents & POLLERR)){
-        if (write(fd_write, str, strlen(str)) == -1){
-                perror("Write unsuccesful\n");
-        }   
-    } else {
-        // perror("Could not write, bad pipe\n");
-    }    
-}
+//
+
+void fifo_write(int fd_write, char* str);
+char *fifo_read(int fd_read);
+// void fifo_write(int fd_write, char* str){
+//     struct pollfd p;
+//     p.fd = fd_write;
+//     p.events = POLLOUT;
+//     poll(&p, 1, 0);
+//     if (!(p.revents & POLLERR)){
+//         if (write(fd_write, str, strlen(str)) == -1){
+//                 perror("Write unsuccesful\n");
+//         }   
+//     }
+// }
 
 // TODO: change this to write using different protocol
 // void fifo_write(int fd_write, char* str){
@@ -94,79 +91,51 @@ void fifo_write(int fd_write, char* str){
 
 
 
-char* fifo_read(int fd_read){
-    int size = 1;
-    char* str = calloc(MAX_LINE, sizeof(char));
-    char curr;
+// // Reads message until ";" or EOF if fd_read has POLLIN 
+// char* fifo_read(int fd_read){
+//     int size = 1;
+//     char* str = calloc(MAX_LINE, sizeof(char));
+//     char curr;
 
-    struct pollfd p;
-    p.fd = fd_read;
-    p.events = POLLIN;
+//     struct pollfd p;
+//     p.fd = fd_read;
+//     p.events = POLLIN;
     
-    //! read() blocks when you try to read from empty pipe (when non-blocking)
-    //! So poll before reading to avoid blocking (might happen when you try to read without signals)
-    errno = 0;
-    int result = poll(&p, 1, 0);
+//     //! read() blocks when you try to read from empty pipe (when non-blocking)
+//     //! So poll before reading to avoid blocking (might happen when you try to read without signals)
+//     errno = 0;
+//     int result = poll(&p, 1, 0);
 
-    while (result == -1){
-        #ifdef TEST_READ
-            perror("Sighandler interrupted read");
-        #endif
-        result = poll(&p, 1, 0);
-    }
+//     while (result == -1){
+//         #ifdef TEST_READ
+//             perror("Sighandler interrupted read");
+//         #endif
+//         result = poll(&p, 1, 0);
+//     }
 
-    if (result == 0) {
+//     if (result == 0) {
 
-        #ifdef TEST_READ
-            perror("fifo reading failed: no messages");
-        #endif
-        return str;
-        // if (errno == EINTR){
-        //     perror("because of interruption");
-        //     result = poll(&p, 1, 0);
-        //     if (result == 0){
-        //         return str;
-        //     }
-        // } else {
-        // }
-    }  
+//         #ifdef TEST_READ
+//             perror("fifo reading failed: no messages");
+//         #endif
+//         return str;
+//     }  
 
-
-    // else if (result == -1){
-    //     perror("Interrupted by sig handler");
-    //     while (poll(&p, 1, 0) == -1){
-    //         poll(&p, 1,)
-    //     }
+//     while (true){
+//         // printf("Poll result is %d\n", result);
+//         if (read(fd_read, (void*) &curr, 1*sizeof(char)) <= 0 || curr == ';') break;
         
-        
-    // } 
-    // while ((result = poll(&p, 1, 0)) == -1){
+//         // if (curr == EOF || curr == ';' || curr == '\0') break;
+//         memmove(str+size-1, &curr, 1);
+//         if (size > MAX_LINE) str = realloc(str, ++size);
+//         else ++size;
+//     }
 
-
-    // }
-    // if ((result = poll(&p, 1, 0)) != 1) {
-    //     perror("fifo read failed ");
-    //     if (errno == EINTR){
-    //         perror("because of interruption\n");
-    //     }
-    //     return str;
-    // };
-
-    while (true){
-        // printf("Poll result is %d\n", result);
-        if (read(fd_read, (void*) &curr, 1*sizeof(char)) <= 0 || curr == ';') break;
-        
-        // if (curr == EOF || curr == ';' || curr == '\0') break;
-        memmove(str+size-1, &curr, 1);
-        if (size > MAX_LINE) str = realloc(str, ++size);
-        else ++size;
-    }
-
-    str[size-1] = '\0';    
-    // printf("Amount read: %d, String is: %s\n", size-1, str);
+//     str[size-1] = '\0';    
+//     // printf("Amount read: %d, String is: %s\n", size-1, str);
   
-    return str;
-}
+//     return str;
+// }
 
 
 

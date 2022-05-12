@@ -292,7 +292,6 @@ int balance_cmp(const void* a, const void* b){
 	return strcmp(first->product, second->product);
 }
 
-
 // SECTION: SETUP FUNCTIONS
 
 // Helper function for setting up product file
@@ -508,6 +507,56 @@ void setup_product_order_books(dyn_arr* buy_order_books,
 }
 
 // SECTION: Trader communication functions
+
+// Writes the message to the trader if the other end of the pipe is open
+void fifo_write(int fd_write, char* str){
+    struct pollfd p;
+    p.fd = fd_write;
+    p.events = POLLOUT;
+    poll(&p, 1, 0);
+    if (!(p.revents & POLLERR)){
+        if (write(fd_write, str, strlen(str)) == -1){
+                perror("Write unsuccesful\n");
+        }   
+    }
+}
+
+// Reads message until ";" or EOF if fd_read has POLLIN 
+char* fifo_read(int fd_read){
+    int size = 1;
+    char* str = calloc(MAX_LINE, sizeof(char));
+    char curr;
+
+    struct pollfd p;
+    p.fd = fd_read;
+    p.events = POLLIN;
+
+    errno = 0;
+    int result = poll(&p, 1, 0);
+
+	// Keep polling until we get either 1 or 0 (i.e. not interrupted by signal)
+    while (result == -1){
+        result = poll(&p, 1, 0);
+    }
+
+	// Return null string immediately if there is nothing to read
+    if (result == 0) {
+        return str;
+    }  
+
+	// Keep reading until entire message is read.
+    while (true){
+        if (read(fd_read, (void*) &curr, 1*sizeof(char)) <= 0 || curr == ';') break;
+        
+        memmove(str+size-1, &curr, 1);
+        if (size > MAX_LINE) str = realloc(str, ++size);
+        else ++size;
+    }
+
+    str[size-1] = '\0';    
+  
+    return str;
+}
 
 // Write to the pipe of a trader if they are connected to the exchange
 void trader_write_to(trader*t, char* msg){
@@ -971,7 +1020,6 @@ void process_order(char* msg, trader* t, exch_data* exch){
 }
 
 // Returns order if it exists, else NULL, allocates memory and must be freed by parent
-// TODO: Find the book from the books containing the matching trader and order id;
 order* get_order_by_id(int oid, trader* t, dyn_arr* books){
 	order* o = calloc(1, sizeof(order));
 	o->order_id = oid;
