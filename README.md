@@ -18,8 +18,12 @@ in a trader object within a dynamic array for easy access by all functions via t
 The exchange writes any signal it receives into a self pipe, which serves as a queue
 for all signals, within the signal hander. This ensures it can process those signals
 when the exchange returns the user space/main function in the order they are received.
-siginfo_t containing the trader's processid is written to the pipe so the main function
-can then search for the trader's pipes in the main function. 
+The trader's processid is written to the pipe so the main function
+can then search for the trader by that process id and read the relevant fd_read in the main function. 
+
+The exchange will pause until either 1) a trader disconnects or 2) its self-pipe/signal-queue has
+information to be read. This is achieved using poll with an infinite time out, which
+ensures the exchange does not have a busy waiting loop.
 
 Writing is trivially done using write(), however reading involves reading one character
 at a time into a dynamically expanded buffer which stops when a ";" is reached. Poll() is
