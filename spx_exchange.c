@@ -49,7 +49,6 @@ int dyn_array_get(dyn_arr *dyn, int index, void* ret){
 // Insert value to the array and resizes it;
 int dyn_array_insert(dyn_arr* dyn, void* value, int idx){
 	if (!(idx == dyn->used) && !_dyn_array_is_valid_idx(dyn, idx)) return -1;
-    // if (idx > dyn->used && !_dyn_array_is_valid_idx(dyn, idx)) return -1;
     if (dyn->used == dyn->capacity){
         dyn->capacity *= 2;
         dyn->array = realloc(dyn->array, dyn->capacity*dyn->memb_size);
@@ -85,7 +84,6 @@ int dyn_array_find(dyn_arr* dyn, void* target,
 // Delete the value at index from an array, returns 0 if successful else -1
 int dyn_array_delete(dyn_arr* dyn, int idx){
 	if (_dyn_array_is_valid_idx(dyn, idx) == true){
-    // if (idx != -1){
         memmove(dyn->array + idx * dyn->memb_size, 
             dyn->array + (idx + 1) * dyn->memb_size, 
             (dyn->used - idx) * dyn->memb_size);
@@ -191,12 +189,7 @@ void* dyn_array_get_literal(dyn_arr* dyn, int idx){
 
 // SECTION: Signal handlers
 
-/**
- * @brief Creates signal handler using sigaction struct
- * 
- * @param signal the signal that triggers the sighandler e.g. SIGUSR1
- * @param handler the function is called when the signal is received
- */
+// Creates signal handler using sigaction struct
 void set_handler(int si, void (*handler) (int, siginfo_t*, void*)){
     
 	struct sigaction sig;
@@ -212,7 +205,6 @@ void set_handler(int si, void (*handler) (int, siginfo_t*, void*)){
 
 // Writes signal to self pipe for reading later.
 void sig_handler(int signal, siginfo_t *siginfo, void *context){
-	// write(sig_pipe[1], siginfo, sizeof(siginfo_t));
 	write(sig_pipe[1], &(siginfo->si_pid), sizeof(int));
 }
 
@@ -318,7 +310,7 @@ dyn_arr* _create_traders_setup_trader_balances(char* product_file_path){
 	dyn_arr* balances = dyn_array_init(sizeof(balance), balance_cmp);
 	char buf[PRODUCT_STRING_LEN];
 	FILE* f = fopen(product_file_path, "r");
-	fgets(buf, PRODUCT_STRING_LEN, f); // Do this to get rid of the number of items line;
+	fgets(buf, PRODUCT_STRING_LEN, f); 
 	int num_products = atoi(buf);
 	for (int i = 0; i < num_products; i++){
 		fgets(buf, PRODUCT_STRING_LEN, f);
@@ -332,7 +324,7 @@ dyn_arr* _create_traders_setup_trader_balances(char* product_file_path){
 }
 
 // Launches traders and returns trader objects from trader binary names
-// Returns NULL if error was encountered during trader launch
+// Sets global error_during_init true if error was encountered during trader launch
 dyn_arr* create_traders(dyn_arr* traders_bins, char* product_file){
 	dyn_arr* traders = dyn_array_init(sizeof(trader), &trader_cmp);
 	trader* temp = calloc(1, sizeof(trader));
@@ -465,7 +457,7 @@ void check_product_file(char* product_file_path){
 	}
 
 	// Check it has starting int
-	fgets(buf, PRODUCT_STRING_LEN, f); // Do this to get rid of the number of items line;
+	fgets(buf, PRODUCT_STRING_LEN, f); 
 	str_remove_new_line(buf);
 	if (!str_check_for_each(buf, &isdigit)){
 		perror("Product file is incorrect");
@@ -494,23 +486,16 @@ void setup_product_order_books(dyn_arr* buy_order_books,
 								dyn_arr* sell_order_books, char* product_file_path){
 	char buf[PRODUCT_STRING_LEN];
 	FILE* f = fopen(product_file_path, "r");
-	// if (f == NULL){
-	// 	perror("Failed to open file");
-	// 	error_during_init = true;
-	// 	return;
-	// }
-	fgets(buf, PRODUCT_STRING_LEN, f); // Do this to get rid of the number of items line;
+	
+	fgets(buf, PRODUCT_STRING_LEN, f); 
 	int num_products = atoi(buf);
+
 	PREFIX_EXCH
 	printf("Trading %d products: ", num_products);
+	
 	for (int i = 0; i < num_products; i++){
 		fgets(buf, PRODUCT_STRING_LEN, f);
-		// TODO: Formalise checks for product order book
-		// if (buf == NULL || buf[0] == '\n') {
-		// 	perror("ERROR: Product file is incorrect");
-		// 	error_during_init = true;
-		// 	return;
-		// }
+		
 		str_remove_new_line(buf);
 		if (i < num_products-1) printf("%s ", buf);
 		else printf("%s", buf);
@@ -524,12 +509,7 @@ void setup_product_order_books(dyn_arr* buy_order_books,
 
 // SECTION: Trader communication functions
 
-/**
- * @brief Writes to the pipe of a single trader
- * 
- * @param t 
- * @param msg 
- */
+// Write to the pipe of a trader if they are connected to the exchange
 void trader_write_to(trader*t, char* msg){
 	#ifdef TEST
 		PREFIX_EXCH
@@ -543,33 +523,18 @@ void trader_write_to(trader*t, char* msg){
 	#endif
 }
 
-/**
- * @brief Signals a signal trader
- * 
- * @param t 
- */
+// Signals a trader to read their pipe
 void trader_signal(trader* t){
 	kill(t->process_id, SIGUSR1);
 }
 
-/**
- * @brief messages a single trader their message, and signals them to receive the 
- * message
- * 
- * @param t  the trader to be messaged 
- * @param msg the message
- */
+// Writes to and signals some trader
 void trader_message(trader* t, char* msg){
 	trader_write_to(t, msg);
 	trader_signal(t);
 }
 
-/**
- * @brief Writes some message to pipes of all traders
- * 
- * @param traders 
- * @param msg 
- */
+// Writes some string to the pipes of all traders
 void trader_writeto_all(dyn_arr* traders, char* msg){
 	trader* t = calloc(1, sizeof(trader));
 	for (int i = 0; i < traders->used; i++){
@@ -579,11 +544,7 @@ void trader_writeto_all(dyn_arr* traders, char* msg){
 	free(t);
 }
 
-/**
- * @brief Signals all traders
- * 
- * @param traders 
- */
+// Signals all traders to read their pipes
 void trader_signal_all(dyn_arr* traders){
 	trader* t = calloc(1, sizeof(trader));
 	for (int i = 0; i < traders->used; i++){
@@ -593,20 +554,13 @@ void trader_signal_all(dyn_arr* traders){
 	free(t);
 }
 
-
-/**
- * @brief Tells all traders some message terminated with ";"
- * 1. Writes to ALL traders' pipes first
- * 2. Signals ALL traders after all pipes have been written to
- * 
- * @param traders dynamic array of trader structs
- */
+// Messages all traders somee message terminated with a ";" character
 void trader_message_all(dyn_arr* traders, char* msg){
 	trader_writeto_all(traders, msg);
 	trader_signal_all(traders);
 }
 
-
+// Helper function for message other traders if a command is successful
 void success_msg(trader* t, char* msg, int order_id){
 	char buf[MAX_LINE];
 	sprintf(buf, "%s %d;", msg, order_id);
@@ -735,8 +689,6 @@ void report_position_for_trader(trader* t){
 	free(curr);
 }
 
-// TODO: Fix up race condition in output during reporting
-//Test 10
 // Reports the order boook and positions for every product/trader on the exchange
 void report(exch_data* exch){
 	sigset_t s;
@@ -834,7 +786,7 @@ int get_args_from_msg(char* msg, char*** ret){
 	return args_size;
 }
 
-// Creates an order object from the string message sent by the child (has copy of trader)
+// Creates an order object from the message sent by the trader
 order* order_init_from_msg(char* msg, trader* t, exch_data* exch){
 	order* o = calloc(1, sizeof(order));
 	o->trader = t;
@@ -871,10 +823,9 @@ order* order_init_from_msg(char* msg, trader* t, exch_data* exch){
 
 // SUBSECTION: Orderbook functions
 
-// Adds residual amount from ordedr to trader's positions if there is amount remaining.
+// Adds residual amount from order to trader's position if there is amount remaining.
 void _process_trade_add_to_trader(order* order_added, int amt_filled, int64_t value){
 	balance* b = calloc(1, sizeof(balance));
-	// printf("Trader has balances: %s\n", order_added->trader->)
 	dyn_arr* balances = order_added->trader->balances;
 	memmove(b->product, order_added->product, PRODUCT_STRING_LEN);
 	int idx = dyn_array_find(balances, b, balance_cmp);
@@ -890,18 +841,11 @@ void _process_trade_add_to_trader(order* order_added, int amt_filled, int64_t va
 	free(b);
 }
 
-/**
- * @brief Private helper method for process_trader() for signalling traders about traders
- * 
- * @param o order that was involved in trade
- * @param amt_filled amount from order that was filled
- * @param traders array of traders on the system
- */
+// Private helper method for process_trader() for signalling traders about traders
 void _process_trade_signal_trader(order* o, int amt_filled){
 	trader* target = o->trader;
 	if (target->connected == false) return;
 	char msg[MAX_LINE];
-	// sprintf(msg, "FILL %d %d price%d time%d isbuy:%d ;", o->order_id, amt_filled, o->price, o->order_uid, o->is_buy);
 	sprintf(msg, "FILL %d %d;", o->order_id, amt_filled);
 	trader_message(target, msg);
 }
@@ -954,12 +898,10 @@ void process_trade(order* buy, order* sell,
 			new_order->order_id, new_order->trader->id, value, fee);
 
 	// Signal traders that their order was filled
-	// TODO: Check order to signal traders. buyer first or seller first for wash trades?
 	_process_trade_signal_trader(buy, amt_filled);	
 	_process_trade_signal_trader(sell, amt_filled);
 }
 
-// TODO: Question? Do we only attempt to match the amended order with other orders after amending? or do we run the entire order book?
 // Reruns the order books against each other to see if any new trades are made for that product
 void run_orders(order_book* ob, order_book* os, exch_data* exch){
 	order* buy_max = calloc(1, sizeof(order));
@@ -998,7 +940,6 @@ void process_order(char* msg, trader* t, exch_data* exch){
 	memmove(ob->product, order_added->product, PRODUCT_STRING_LEN);
 	int idx = dyn_array_find(exch->buy_books, ob, &obook_cmp);
 	if (idx == -1) {
-		// TODO: broadcast invalid if product of order added does not exist;
 		printf("Book not found!\n");
 		free(ob);
 		free(os);
@@ -1076,16 +1017,13 @@ void process_amend(char* msg, trader* t, exch_data* exch){
 		free(o);
 		o = get_order_by_id(order_id, t, exch->sell_books);
 	} 
-	// TODO: I think the process is getting the wrong book! -> mistake in both amend/cancel
 	dyn_array_get(exch->buy_books, o->order_book_idx, ob);		
 	dyn_array_get(exch->sell_books, o->order_book_idx, os);
 
-	// TODO: FIx issue of order matching with itself.
 	order_book* contains = o->is_buy ? ob : os;	
 
 	// Amend order in order book
 	int order_idx = dyn_array_find(contains->orders, o, &find_order_by_trader_cmp);
-	//! Change time prirority before or after attempting to match?
 	o->order_uid = (exch->order_uid)++;
 	o->qty = qty;
 	o->price = price;
@@ -1113,6 +1051,7 @@ void process_amend(char* msg, trader* t, exch_data* exch){
 	free(os);
 }
 
+// Processes the cancel command
 void process_cancel(char* msg, trader* t, exch_data* exch){
 	// Get values from message
 	char** args = NULL;
@@ -1158,14 +1097,16 @@ void process_message(char* msg, trader* t, exch_data* exch){
 		process_order(msg, t, exch);
 	} else if (!strncmp(msg, "AMEND", 5)){
 		process_amend(msg, t, exch);
-	} else if (!strncmp(msg, "CANCEL", 6)){ //TODO: turn into macros to avoid magic nums
+	} else if (!strncmp(msg, "CANCEL", 6)){ 
 		process_cancel(msg, t, exch);
 	} 
 
-	report(exch); //TODO: Only report if NOT invalid
+	report(exch); 
 }
 
 // SECTION: Command line validation
+
+// Helper function to check if entire string matches certain criteria.
 bool str_check_for_each(char* str, int (*check)(int c)){
 	int len = strlen(str);
 	for (int i = 0; i < len; i++) {
@@ -1174,12 +1115,14 @@ bool str_check_for_each(char* str, int (*check)(int c)){
 	return true;
 }
 
+// Returns true if price/qty is within 1-999999
 bool is_valid_price_qty(int price, int qty){
 	if (qty > MAX_INT || qty <= 0) return false;
 	if (price > MAX_INT || price <= 0) return false;
 	return true;
 }
 
+// Returns true if an order is an existing order (for amending/cancelling)
 bool is_existing_order(int oid, trader* t, exch_data* exch){
 	order* o = get_order_by_id(oid, t, exch->buy_books);
 	if (o == NULL){
@@ -1191,6 +1134,7 @@ bool is_existing_order(int oid, trader* t, exch_data* exch){
 	return true;		
 }
 
+// REtursn true if the product name matches the product of one of the orderbooks
 bool is_valid_product(char* p, dyn_arr* books){
 	order_book* o = calloc(1, sizeof(order_book));
 	memmove(o->product, p, strlen(p)+1);
@@ -1200,11 +1144,13 @@ bool is_valid_product(char* p, dyn_arr* books){
 	return true;
 }
 
+// Returns true if the buy/sell order id is sequential for the trader
 bool is_valid_buy_sell_order_id(int oid, trader* t){
 	if (oid != t->next_order_id) return false;
 	return true;
 }
 
+// Returns true if the msg is a valid command for trader t in the exchange exch
 bool is_valid_command(char* msg, trader* t, exch_data* exch){
 	
 	if (strlen(msg) < 6) return false;
@@ -1268,7 +1214,6 @@ void teardown_traders(dyn_arr* traders){
 		};
 		unlink(t->fd_read_name);
 		unlink(t->fd_write_name);
-		// kill(t->process_id, SIGKILL);
 	}
 	free(t);
 }
@@ -1321,12 +1266,9 @@ bool precheck_for_quit(exch_data* exch){
 	return true;
 }
 
-// void update_trader_connected(int *no_fd_events, struct pollfd* poll_fds)
 // Notes
 // Poll_sp - self pipe/queue to read signals in from
 // poll_fds - last element is poll_sp rest are for fds for detecting disconnections
-
-
 #ifndef UNIT
 int main(int argc, char **argv) {
 
@@ -1350,12 +1292,12 @@ int main(int argc, char **argv) {
 
 	// Setup exchange data packet for all functions to use
 	exch_data* exch = calloc(1, sizeof(exch_data));
-	exch->order_uid = 0; // Unique id for the order (universal), indicates its time priority.
+	exch->order_uid = 0; 
 	exch->fees = 0;
 
 	// Read in product files from command line
 	char* product_file = argv[1];
-	dyn_arr* traders_bins = dyn_array_init(sizeof(char*), &int_cmp); // Use index of trader in array to set id
+	dyn_arr* traders_bins = dyn_array_init(sizeof(char*), &int_cmp);
 	for (int i = 2; i < argc; i++){
 		dyn_array_append(traders_bins, (void*)&argv[i]);
 	}
@@ -1380,19 +1322,17 @@ int main(int argc, char **argv) {
 	exch->traders = traders;
 	if (!precheck_for_quit(exch)) return 1;
 
-	// Construct poll data structure
+	// Construct poll data structure to detect disconnects/signals
 	int connected_traders = traders->used;
 
 	int no_poll_fds = traders->used + 1;
 	struct pollfd *poll_fds = calloc(no_poll_fds, sizeof(struct pollfd));
-	// int no_fd_events = 0;
 
 	trader* t = calloc(1, sizeof(trader));
-	// TODO: maybe this should be done before we even launch child , requires us to open child pipes without waiting though.
 	for (int i = 0; i < traders->used; i++){
 		dyn_array_get(traders, i, t);
 		poll_fds[i].fd = t->fd_read; // Read/write does not matter for pollhup
-		poll_fds[i].events = POLLHUP; // means poll only makes revents field not 0 if POLLHUP is detected
+		poll_fds[i].events = POLLHUP; // Revents field not 0 if POLLHUP is detected
 	}
 	free(t);
 	struct pollfd *poll_sp = &poll_fds[no_poll_fds-1];
@@ -1404,18 +1344,13 @@ int main(int argc, char **argv) {
 	while (true){
 
 		if (connected_traders == 0) break;
-			
-		// Pause CPU until we receive some signal or trader disconnects
-		// no_fd_events = poll(poll_fds, no_poll_fds, -1);
-		// printf("Pausing\n");
-		// TODO: Investigate if poll can miss signals
-		// TODO: See if sigpipe is reliable and if you're missing signals
+
 		#ifdef TEST
 			PREFIX_EXCH
 			printf("Pausing\n");
 		#endif
-
-		// Parent is stuck waiting -> Maybe get test_trader to occasionally read from pipe too?
+		
+		// Wait until either we receive signal from traders or a trader disconnects
 		poll(poll_fds, no_poll_fds, -1);
 		
 		bool has_signal = poll(poll_sp, 1, 0);
@@ -1426,16 +1361,11 @@ int main(int argc, char **argv) {
 			printf("has signal %d, disconnect events: %d\n", has_signal, disconnect_events);
 		#endif
 
-		// TODO: Fix issue with main loop still occasionally getting stuck -> probably what's causing race condition
-			// Only occurs when I try to redirect output
-		// TODO: Check if if order of disconnection is correct, or us sigchild.
-		// TODO: if trader disconnects before we get to poll will poll detect disconnection?
-		// TODO: I think it will because the poll says revents is FILLED BY THE KERNEL i.e. even if you set it to 0 it just gets refilled 
-		// TODO: consider order of disconnection, will it print in order if multiple trader disconnect at the same time
-		// TEST
+		// Check for disconnected trader events
 		while (disconnect_events > 0){
 			for (int i = 0; i < traders->used; i++){
-				// Setting poll_fds[i] to -1 ensures kernel populates with other erorr message
+				// Setting poll_fds[i] to -1 ensures kernel populates with 
+				// The poll_fd with other another error message we don't care about
 				// e.g. POLLNVAL
 				if ((poll_fds[i].revents&POLLHUP) == POLLHUP){
 					// Disconnect trader
@@ -1452,7 +1382,6 @@ int main(int argc, char **argv) {
 						PREFIX_EXCH
 						printf("Trader %d disconnected\n", t->id);
 						connected_traders--;
-						// no_fd_events--;		
 						disconnect_events--;
 						free(t);
 					}
@@ -1460,17 +1389,13 @@ int main(int argc, char **argv) {
 			}
 		}
 
-		// Test race
-		// TODO: Try signal safe printf and see if race conditions persists?
+		// Check for messages received from traders if we received a signal
 		while (has_signal){
-			// siginfo_t* ret = calloc(1, sizeof(siginfo_t));
 			int ret;
 			read(sig_pipe[0], &ret, sizeof(int));
-			// no_fd_events--;
 	
 			// find literal location of child with same process id
 			trader* t = calloc(1, sizeof(trader));
-			// t->process_id = ret->si_pid;
 			t->process_id = ret;
 			int idx = dyn_array_find(traders, t, &trader_cmp_by_process_id);
 			free(t);
@@ -1480,7 +1405,6 @@ int main(int argc, char **argv) {
 			char* msg = fifo_read(t->fd_read);
 			
 			#ifdef TEST_RACE
-				//! Does not create issue: Only with invalid_multiple delims testcase does this occur
 				if (strlen(msg) == 0){
 					perror("[EXCHANGE] Read in message with 0 bytes\n");
 				}
@@ -1495,27 +1419,9 @@ int main(int argc, char **argv) {
 				process_message(msg, t, exch);
 			}
 
-			// free(ret);
 			free(msg);
 			has_signal = poll(poll_sp, 1, 0);
-
-			// TODO: Add processing of commands with no commas
-			// Store characters read without ";" into buffer, and concatenate message to
-			// buffer? Ask on ed
-			// TODO: Fix race condition issue on ed 
-				// NB: Race condition persists with version that uses malloc too.
-
-			// Slight change in comment to see if race condition
-			// Read from self pipe (i.e. signals) if it is non empty
-			// while (poll(poll_sp, 1, 0) > 0){
-				
-			// }
-
 		}
-
-		// Walk through
-		// TODO: Check for signals in between processing each signal?
-
 	}
 	
 	// Print termination message

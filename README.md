@@ -25,12 +25,24 @@ The exchange will pause until either 1) a trader disconnects or 2) its self-pipe
 information to be read. This is achieved using poll with an infinite time out, which
 ensures the exchange does not have a busy waiting loop.
 
+When the exchange reads the command from the correct pipe, it will then process the command
+if it is valid. A valid buy/sell command will involve creating a new order object, which is 
+then added to the buy/sell orderbooks a product corresponding to that object's. Then, the 
+exchange will proceed to run the orders in that book to see if any orders are matched, and 
+if so, write/signal the relevant traders that their order has been filled.
+
 Writing is trivially done using write(), however reading involves reading one character
 at a time into a dynamically expanded buffer which stops when a ";" is reached. Poll() is
 used check the other end of the pipe has POLLIN before reading to prevent the exchange
 from blocking in case of potential signal misfires.
 
+Upon doing so, the exchange will report the orders in the orderbook by combining the buy
+and sell order books for each product into a new temporary order book that sorts the orders
+by levels, and then ready itself for future disconnection/signal events from traders.
 
+When there are no connected traders, the exchange closes all pipes it has with traders,
+and waits for their termination. If they are not terminated yet the exchange will send a 
+SIGKILL to stop the trader. All memory associated with the exchange is then freed.
 
 
 Use drawings as well
