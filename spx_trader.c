@@ -1,6 +1,7 @@
 #include "spx_trader.h" // Order of inclusion matters to sa_sigaction and siginfo_t
 #define PREFIX_CHILD(CHILD_ID) printf("[CHILD %d] ", CHILD_ID);
 #define STARTING_INTERVAL 300
+#define MAX_INTERVAL 4000
 volatile int msgs_to_read = 0;
 int ppid = 0;
 bool market_is_open = 0;
@@ -168,7 +169,9 @@ int main(int argc, char ** argv) {
         // message we receive if last order was not accepted
         // So that if parent loses signal they will eventually get it
         while (!has_signal){
+            
             resignal_interval = STARTING_INTERVAL * pow(2.0, resignal_times_tried);
+            if (resignal_interval > MAX_INTERVAL) resignal_interval = MAX_INTERVAL;
             // printf("Resignalling with interval %d\n", resignal_interval);
             has_signal = poll(&pfd, 1, resignal_interval);   
             // has_signal = poll(&pfd, 1, RESIGNAL_INTERVAL);   
