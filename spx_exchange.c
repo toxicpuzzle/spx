@@ -956,7 +956,7 @@ void process_order(char* msg, trader* t, exch_data* exch){
 	free(order_added);
 }
 
-// Returns order if it exists, else NULL, allocates memory and must be freed by parent
+// Returns order if it exists, else NULL, allocates memory and freed by caller
 order* get_order_by_id(int oid, trader* t, dyn_arr* books){
 	order* o = calloc(1, sizeof(order));
 	o->order_id = oid;
@@ -1012,9 +1012,6 @@ void process_amend(char* msg, trader* t, exch_data* exch){
 	o->price = price;
 	order* temp = calloc(1, sizeof(order));
 	dyn_array_get(contains->orders, order_idx, temp);
-	#ifdef TEST
-		printf("get_order_by_id id: %d find id: %d\n", o->order_id, temp->order_id);
-	#endif
 	free(temp);
 	dyn_array_set(contains->orders, order_idx, o);
 

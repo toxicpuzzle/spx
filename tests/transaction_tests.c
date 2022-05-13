@@ -132,6 +132,26 @@ static order bo_buy_against_sell_after[] = {
 static order so_buy_against_sell_after[] = {
 };
 
+// TESTCASE: buy_against_sell_same_price data
+
+
+static order bo_buy_against_sell_same_price[] = {
+    {3, 3, 1, &t1, 0, 1, "Oreos", 11, 69, 0},
+};
+static order so_buy_against_sell_same_price[] = {
+    {0, 0, 1, &t1, 0, 0, "Oreos", 10, 65, 0},
+    {2, 2, 1, &t1, 0, 0, "Oreos", 10, 65, 0},
+    {1, 1, 1, &t1, 0, 0, "Oreos", 10, 65, 0},
+};
+
+static order bo_buy_against_sell_same_price_after[] = {
+};
+
+static order so_buy_against_sell_same_price_after[] = {
+    {2, 2, 1, &t1, 0, 0, "Oreos", 10, 65, 0},
+    {1, 1, 1, &t1, 0, 0, "Oreos", 9, 65, 0},
+};
+
 // TESTCASE: no_match data
 
 static order bo_no_match[] = {
@@ -208,6 +228,28 @@ static void tests_run_orders_buy_against_sell(void** state){
     assert_true((t1_oreo_bal->balance) == -19);
 }
 
+// Test matching of buy order with sell orders of the same price
+static void tests_run_orders_buy_against_sell_same_price(void** state){
+    setup_exch(bo_buy_against_sell_same_price, so_buy_against_sell_same_price, 
+                sizeof(bo_buy_against_sell_same_price)/sizeof(order), 
+                sizeof(so_buy_against_sell_same_price)/sizeof(order));
+    
+    order_book* oreo_book_buy = exch->buy_books->array;
+    order_book* oreo_book_sell = exch->sell_books->array;
+
+    run_orders(oreo_book_buy, oreo_book_sell, exch);
+    dyn_array_sort(oreo_book_buy->orders, &descending_order_cmp);
+    dyn_array_sort(oreo_book_sell->orders, &descending_order_cmp);
+
+    is_same_array(oreo_book_buy->orders, bo_buy_against_sell_same_price_after, 
+                    sizeof(bo_buy_against_sell_same_price_after)/sizeof(order));
+    is_same_array(oreo_book_sell->orders, so_buy_against_sell_same_price_after, 
+                    sizeof(so_buy_against_sell_same_price_after)/sizeof(order));
+
+    balance* t1_oreo_bal = t1.balances->array;
+    assert_true((t1_oreo_bal->balance) == -8);
+}
+
 
 static void tests_run_orders_no_match(void** state){
     setup_exch(bo_no_match, so_no_match, sizeof(bo_no_match)/sizeof(order), sizeof(so_no_match)/sizeof(order));
@@ -228,12 +270,12 @@ static void tests_run_orders_no_match(void** state){
 
 extern char msg[MAX_LINE];
 
-static void tests_amend_orders(void** state){
-    setup_exch(bo_sell_against_buy, so_sell_against_buy, sizeof(bo_sell_against_buy)/sizeof(order), sizeof(so_sell_against_buy)/sizeof(order));
-    strcpy(msg, "BUY 7 Oreos 10 10");
+// static void tests_amend_orders(void** state){
+//     setup_exch(bo_sell_against_buy, so_sell_against_buy, sizeof(bo_sell_against_buy)/sizeof(order), sizeof(so_sell_against_buy)/sizeof(order));
+//     strcpy(msg, "BUY 7 Oreos 10 10");
     
-    process_order(msg, &t1, exch);
-}
+//     process_order(msg, &t1, exch);
+// }
 
 
 static int destroy_state(void** state){
@@ -269,10 +311,9 @@ int main(void){
         cmocka_unit_test_setup_teardown(tests_run_orders_buy_against_sell,
                                         NULL, destroy_state), 
         cmocka_unit_test_setup_teardown(tests_run_orders_no_match,
+                                        NULL, destroy_state),    
+        cmocka_unit_test_setup_teardown(tests_run_orders_buy_against_sell_same_price,
                                         NULL, destroy_state),                                        
-        cmocka_unit_test_setup_teardown(tests_amend_orders,
-                                        NULL, destroy_state),     
-
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

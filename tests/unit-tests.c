@@ -34,27 +34,6 @@ static int integers_post_remove_max[] = {420, 560, 100, 220, 560, 300};
 static int integers_post_sort[] = {100, 220, 300, 420, 560, 560, 790};
 static int integers_post_get_literal[] = {420, 999999, 790, 100, 220, 560, 300};
 
-// static char* strings[] = {"Router", "Cake", "GPU"};
-// static trader traders[] = {
-//     {0, 19250, 1, 100, 20, NULL, NULL, true, NULL}
-//     ,{2, 19150, 3, 102, 15, NULL, NULL, true, NULL}
-//     ,{1, 19350, 4, 101, 12, NULL, NULL, true, NULL}
-//     ,{3, 19450, 5, 103, 10, NULL, NULL, true, NULL}
-// };
-
-
-// struct trader{
-//     int id; 
-//     int process_id; 
-//     int next_order_id;
-//     int fd_write;
-//     int fd_read;
-//     char fd_write_name[MAX_LINE];
-//     char fd_read_name[MAX_LINE];
-//     bool connected;
-//     dyn_arr* balances; // Stores balance objects for every product.
-// };
-
 void is_same_array(dyn_arr* dyn, void* arr, int exp_len){
     bool same_array = (memcmp(dyn->array, arr, exp_len) == 0);
     assert_true(same_array);
@@ -197,19 +176,6 @@ static void test_remove_from_empty(void** state){
     dyn_array_free(dyn);
 }
 
-// TODO: Tests to test sorting via various comparators
-// int order_cmp_sell_book(const void* a, const void* b);
-// int order_cmp_buy_book(const void* a, const void* b);
-// int order_id_cmp(const void* a, const void* b);
-// int int_cmp(const void* a, const void* b);
-// int obook_cmp(const void* a, const void* b);
-// int descending_order_cmp(const void* a, const void* b);
-// int trader_cmp(const void* a, const void* b);
-// int find_order_by_trader_cmp(const void* a, const void* b);
-// int trader_cmp_by_process_id(const void* a, const void* b);
-// int trader_cmp_by_fdread(const void* a, const void* b);
-// int balance_cmp(const void* a, const void* b);
-
 static void test_find_order_book(void** state){
     order_book books[] = {
         {"GOOG", false, NULL},
@@ -237,17 +203,6 @@ static void test_find_order_book(void** state){
     dyn_array_free(dyn);
 }
 
-
-//  int order_id;
-//     int order_uid;
-//     int trader_list_idx;
-//     trader* trader; // Trader that made the order //! a copy of original trader. must be freed //! Problematic as the copie's connected attribute is not updatd
-//     int order_book_idx;// index of order book in ob dyn_arr to which order belongs //! A copy of the order book. must be freed
-//     bool is_buy;
-//     char product[PRODUCT_STRING_LEN];
-//     int qty;
-//     int price;
-//     int _num_orders;
 static void test_sell_book_time_priority_sort(void** state){
     order orders[] = {
         {0, 0, 0, NULL, 0, 0, "Router", 10, 35, 0},
@@ -320,115 +275,3 @@ int main(void){
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
-
-
-// int main(void) {
-//     const struct CMUnitTest tests[] = {
-
-//         //?Unit test way of running tests
-
-
-
-//         //? SETUP teardown method of running unit tests
-//         // 1. f - function that you want to test
-//         // 2. setup - setup function to intialise values for test (can be null)
-//         // 3. teardown - teardown function reset state after test (can be null)
-//         cmocka_unit_test_setup_teardown(test_find_item_by_value,
-//                                         create_key_values, destroy_key_values),
-//         cmocka_unit_test_setup_teardown(test_sort_items_by_key,
-//                                         create_key_values, destroy_key_values),
-//     };
-//     return cmocka_run_group_tests(tests, NULL, NULL);
-    
-// }
-//dfd
-
-// static exch_data exch_values = {
-//     dyn_arr
-// }
-
-
-
-// static KeyValue key_values[] = {
-//     { 10, "this" },
-//     { 52, "test" },
-//     { 20, "a" },
-//     { 13, "is" },
-// };
-
-// void **state - ptr to area of memory affected by fs we want to test
-// Here, state = array of keyvalue pairs
-
-// Static function = function is limited to own object file
-// i.e. it cannot be used/collide with function calls in in key_value.c
-
-// static int create_key_values(void **state) {
-//     // Create values for a sample exchange add to dynamic array e.t.c.
-//     // Scenario has 5 traders, 3 products.
-
-//     // Testing order processing
-//     // Create order book with overlapping orders,
-//     // Test adding orders
-//     // Test removing orders
-//     // Test amending orders
-//     // Test order overlapping 
-
-//     KeyValue * const items = (KeyValue*)test_malloc(sizeof(key_values));
-//     memcpy(items, key_values, sizeof(key_values));
-//     *state = (void*)items;
-//     set_key_values(items, sizeof(key_values) / sizeof(key_values[0]));
-
-//     return 0;
-// }
-
-// static int destroy_key_values(void **state) {
-//     test_free(*state);
-//     set_key_values(NULL, 0);
-
-//     return 0;
-// }
-
-// static void test_find_item_by_value(void **state) {
-//     unsigned int i;
-
-//     (void) state; /* unused */
-
-//     for (i = 0; i < sizeof(key_values) / sizeof(key_values[0]); i++) {
-//         KeyValue * const found  = find_item_by_value(key_values[i].value);
-//         assert_true(found != NULL);
-//         assert_int_equal(found->key, key_values[i].key);
-//         assert_string_equal(found->value, key_values[i].value);
-//     }
-// }
-
-
-
-// static void test_sort_items_by_key(void **state) {
-//     unsigned int i;
-//     KeyValue * const kv = *state;
-//     sort_items_by_key();
-//     for (i = 1; i < sizeof(key_values) / sizeof(key_values[0]); i++) {
-//         assert_true(kv[i - 1].key < kv[i].key);
-//     }
-// }
-
-// int main(void) {
-//     const struct CMUnitTest tests[] = {
-
-//         //?Unit test way of running tests
-
-
-
-//         //? SETUP teardown method of running unit tests
-//         // 1. f - function that you want to test
-//         // 2. setup - setup function to intialise values for test (can be null)
-//         // 3. teardown - teardown function reset state after test (can be null)
-//         cmocka_unit_test_setup_teardown(test_find_item_by_value,
-//                                         create_key_values, destroy_key_values),
-//         cmocka_unit_test_setup_teardown(test_sort_items_by_key,
-//                                         create_key_values, destroy_key_values),
-//     };
-//     return cmocka_run_group_tests(tests, NULL, NULL);
-    
-// }
-
