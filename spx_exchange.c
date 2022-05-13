@@ -14,7 +14,6 @@
 #define AMEND_CMD_SIZE 4
 #define BUYSELL_CMD_SIZE 5
 #define CANCEL_CMD_SIZE 2
-#define TEST_RACE
 
 // Queue containing most recent signals received from child processes
 int sig_pipe[2] = {0, 0};
@@ -448,8 +447,13 @@ void check_product_file(char* product_file_path){
 		return;
 	}
 
-	// Check file has alphanumeric
+	// Check file has alphanumeric and valid number of products is provided
 	int num_products = atoi(buf);
+	if (num_products == 0){
+		perror("Product file is incorrect");
+		error_during_init = true;
+		return;
+	}	
 	for (int i = 0; i < num_products; i++){
 		fgets(buf, PRODUCT_STRING_LEN, f);
 		str_remove_new_line(buf);
@@ -1324,21 +1328,11 @@ int main(int argc, char **argv) {
 
 		if (connected_traders == 0) break;
 
-		#ifdef TEST
-			PREFIX_EXCH
-			printf("Pausing\n");
-		#endif
-		
 		// Wait until either we receive signal from traders or a trader disconnects
 		poll(poll_fds, no_poll_fds, -1);
 		
 		bool has_signal = poll(poll_sp, 1, 0);
 		int disconnect_events = poll(poll_fds, no_poll_fds-1, 0);
-
-		#ifdef TEST
-			PREFIX_EXCH
-			printf("has signal %d, disconnect events: %d\n", has_signal, disconnect_events);
-		#endif
 
 		// Check for disconnected trader events
 		while (disconnect_events > 0){
@@ -1383,12 +1377,6 @@ int main(int argc, char **argv) {
 			// Read message from the trader
 			char* msg = fifo_read(t->fd_read);
 			
-			#ifdef TEST_RACE
-				if (strlen(msg) == 0){
-					perror("[EXCHANGE] Read in message with 0 bytes\n");
-				}
-			#endif
-
 			PREFIX_EXCH
 			printf("[T%d] Parsing command: <%s>\n", t->id, msg);
 
