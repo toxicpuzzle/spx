@@ -190,6 +190,7 @@ static void tests_run_orders_sell_against_buy(void** state){
     assert_true((t1_oreo_bal->balance) == -15);
 }
 
+// Test matching one buy order against multiple sell orders
 static void tests_run_orders_buy_against_sell(void** state){
     setup_exch(bo_buy_against_sell, so_buy_against_sell, sizeof(bo_buy_against_sell)/sizeof(order), sizeof(so_buy_against_sell)/sizeof(order));
     
