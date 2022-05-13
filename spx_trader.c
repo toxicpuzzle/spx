@@ -172,7 +172,7 @@ int main(int argc, char ** argv) {
             
             resignal_interval = STARTING_INTERVAL * pow(2.0, resignal_times_tried);
             if (resignal_interval > MAX_INTERVAL) resignal_interval = MAX_INTERVAL;
-            // printf("Resignalling with interval %d\n", resignal_interval);
+
             has_signal = poll(&pfd, 1, resignal_interval);   
             // has_signal = poll(&pfd, 1, RESIGNAL_INTERVAL);   
 
