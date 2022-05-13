@@ -169,7 +169,7 @@ int main(int argc, char ** argv) {
         // So that if parent loses signal they will eventually get it
         while (!has_signal){
             resignal_interval = STARTING_INTERVAL * pow(2.0, resignal_times_tried);
-            printf("Resignalling with interval %d\n", resignal_interval);
+            // printf("Resignalling with interval %d\n", resignal_interval);
             has_signal = poll(&pfd, 1, resignal_interval);   
             // has_signal = poll(&pfd, 1, RESIGNAL_INTERVAL);   
 
