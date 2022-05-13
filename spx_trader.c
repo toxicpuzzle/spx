@@ -174,7 +174,6 @@ int main(int argc, char ** argv) {
             if (resignal_interval > MAX_INTERVAL) resignal_interval = MAX_INTERVAL;
 
             has_signal = poll(&pfd, 1, resignal_interval);   
-            // has_signal = poll(&pfd, 1, RESIGNAL_INTERVAL);   
 
             if (orders_awaiting_accept > 0 && !has_signal){
                 resignal_times_tried++;

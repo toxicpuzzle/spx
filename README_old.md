@@ -8,10 +8,9 @@
 
 2. Describe your design decisions for the trader and how it's fault-tolerant.
 
-The trader handles the exchange’s unreliable signal handling by repeatedly signalling the exchange with a starting timeout of 300ms, doubling its timeout everytime if it fails to get reply up to 4000ms. Everytime the trader receives "ACCEPTED" we reduce orders_waiting and reset the timeout, and everytime the trader makes an order we increase orders_waiting. This way the trader only signals the exchange to read when the trader is waiting for a reply, which is efficient as it prevents overloading the exchange with signals. 
+The trader handles the exchange’s unreliable signal handling by repeatedly signalling the exchange if it has waited 0.5 seconds or more for a reply after it sends a command. Everytime the trader receives an "ACCEPTED" message then we reduce the orders waiting to be accepted, and everytime the trader makes an order we increase it. This way the trader only signals the exchange to read when the trader is waiting for a reply, which is efficient as it prevents overloading the exchange with signals. 
 
 Using signals to receive messages is unreliable as the scheduler may let the parent send multiple signals to the autotrader before letting the autotrader handle the signals, this results in signal/message loss. To avoid this, the autotrader polls/waits for messages on the spx_exchange after buying, which ensures the autotrader always responds to messages written to its pipe without having to consume excessive CPU power when idle.
-
 
 3. Describe your tests and how to run them.
 
