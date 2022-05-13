@@ -5,7 +5,7 @@ import sys
 
 entries : int = 1000
 
-# Create 1000 entires testcase (all entries are linked to each other)
+# Creates the many_orderes testcase
 def main():
     filename = sys.argv[1];
     print(filename);

@@ -1,6 +1,6 @@
 #include "spx_trader.h" // Order of inclusion matters to sa_sigaction and siginfo_t
 #define PREFIX_CHILD(CHILD_ID) printf("[CHILD %d] ", CHILD_ID);
-#define STARTING_INTERVAL 100
+#define RESIGNAL_INTERVAL 500
 volatile int msgs_to_read = 0;
 int ppid = 0;
 bool market_is_open = 0;
@@ -159,8 +159,6 @@ int main(int argc, char ** argv) {
     // Data structures for transaction processing
     int orders_awaiting_accept = 0;
     bool has_signal = false;
-    int resignal_interval = 0;
-    int resignal_times_tried = 0;
 
     while (true){
 
@@ -168,18 +166,13 @@ int main(int argc, char ** argv) {
         // message we receive if last order was not accepted
         // So that if parent loses signal they will eventually get it
         while (!has_signal){
-            resignal_interval = STARTING_INTERVAL * pow(2.0, resignal_times_tried);
-            has_signal = poll(&pfd, 1, resignal_interval);   
-            // has_signal = poll(&pfd, 1, RESIGNAL_INTERVAL);   
-
+            has_signal = poll(&pfd, 1, RESIGNAL_INTERVAL);
+           
             if (orders_awaiting_accept > 0 && !has_signal){
-                resignal_times_tried++;
                 signal_parent();
             }
         }
-
-        resignal_times_tried = 0;
-
+        
         // Read from parent if we have received a signal
         char* result = fifo_read(fd_read);
    
