@@ -8,15 +8,12 @@
 #include "spx_exchange.h"
 
 #define PERM_BITS_ALL 0777
-// #define TEST
 #define PREFIX_EXCH printf("[SPX] ");
 #define PREFIX_EXCH_L1 printf("[SPX]"); INDENT
 #define PREFIX_EXCH_L2 printf("[SPX]"); INDENT INDENT
-// #define UNIT
 #define AMEND_CMD_SIZE 4
 #define BUYSELL_CMD_SIZE 5
 #define CANCEL_CMD_SIZE 2
-// #define TEST
 #define TEST_RACE
 
 // Queue containing most recent signals received from child processes
@@ -547,16 +544,7 @@ char* fifo_read(int fd_read){
 
 // Write to the pipe of a trader if they are connected to the exchange
 void trader_write_to(trader*t, char* msg){
-	#ifdef TEST
-		PREFIX_EXCH
-		printf("Sending msg to child %d\n", t->id);
-	#endif
 	if (t->connected) fifo_write(t->fd_write, msg);
-
-	#ifdef TEST
-		PREFIX_EXCH
-		printf("Write successful\n");
-	#endif
 }
 
 // Signals a trader to read their pipe
@@ -730,72 +718,30 @@ void report(exch_data* exch){
 	sigset_t s;
 	sigemptyset(&s);
 	sigaddset(&s, SIGUSR1);
-	#ifndef TEST
-		sigprocmask(SIG_BLOCK, &s, NULL);
-		PREFIX_EXCH_L1
-		printf("--ORDERBOOK--\n");
-		order_book* buy_book = calloc(1, sizeof(order_book));
-		order_book* sell_book = calloc(1, sizeof(order_book));
-		for (int i = 0; i < exch->buy_books->used; i++){
-			dyn_array_get(exch->buy_books, i, buy_book);
-			dyn_array_get(exch->sell_books, i, sell_book);
-			report_book_for_product(buy_book, sell_book);
-		}
-		free(buy_book);
-		free(sell_book);
 
-		PREFIX_EXCH_L1
-		printf("--POSITIONS--\n");
-		trader* t = calloc(1, sizeof(trader));
-		for (int i = 0; i < exch->traders->used; i++){
-			dyn_array_get(exch->traders, i, t);
-			report_position_for_trader(t);
-		}
-		free(t);
-		sigprocmask(SIG_UNBLOCK, &s, NULL);
-	#else
-		PREFIX_EXCH_L1
-		printf("--ORDERBOOK--\n");
-		order_book* buy_book = calloc(1, sizeof(order_book));
-		order_book* sell_book = calloc(1, sizeof(order_book));
-		for (int i = 0; i < exch->buy_books->used; i++){
-			dyn_array_get(exch->buy_books, i, buy_book);
-			dyn_array_get(exch->sell_books, i, sell_book);
-			order* o = calloc(1, sizeof(order));
-			for (int j = 0; j < buy_book->orders->used; j++){
-				dyn_array_get(buy_book->orders, j, o);
-				INDENT
-				printf("Product: %s", o->product);
-				INDENT
-				INDENT
-				printf("[T%d] $%d Q%d UID:%d isbuy: %d\n", o->trader->id, o->price, o->qty, o->order_uid, o->is_buy);
-			}	
-			for (int j = 0; j < sell_book->orders->used; j++){
-				dyn_array_get(sell_book->orders, j, o);
+	sigprocmask(SIG_BLOCK, &s, NULL);
+	PREFIX_EXCH_L1
+	printf("--ORDERBOOK--\n");
+	order_book* buy_book = calloc(1, sizeof(order_book));
+	order_book* sell_book = calloc(1, sizeof(order_book));
+	for (int i = 0; i < exch->buy_books->used; i++){
+		dyn_array_get(exch->buy_books, i, buy_book);
+		dyn_array_get(exch->sell_books, i, sell_book);
+		report_book_for_product(buy_book, sell_book);
+	}
+	free(buy_book);
+	free(sell_book);
 
-				INDENT
-				printf("Product: %s", o->product);
-				INDENT
-				INDENT
-				printf("[T%d] $%d Q%d UID:%d isbuy: %d\n", o->trader->id, o->price, o->qty, o->order_uid, o->is_buy);
-			}	
-
-
-			free(o);
-		}
-		free(buy_book);
-		free(sell_book);
-
-		PREFIX_EXCH_L1
-		printf("--POSITIONS--\n");
-		trader* t = calloc(1, sizeof(trader));
-		for (int i = 0; i < exch->traders->used; i++){
-			dyn_array_get(exch->traders, i, t);
-			report_position_for_trader(t);
-		}
-		free(t);
-
-	#endif
+	PREFIX_EXCH_L1
+	printf("--POSITIONS--\n");
+	trader* t = calloc(1, sizeof(trader));
+	for (int i = 0; i < exch->traders->used; i++){
+		dyn_array_get(exch->traders, i, t);
+		report_position_for_trader(t);
+	}
+	free(t);
+	sigprocmask(SIG_UNBLOCK, &s, NULL);
+	
 }
 
 // SECTION: Transaction Handling functions
@@ -938,7 +884,7 @@ void process_trade(order* buy, order* sell,
 	_process_trade_signal_trader(sell, amt_filled);
 }
 
-// Reruns the order books against each other to see if any new trades are made for that product
+// Reruns the order books against each other to identify trades for some product
 void run_orders(order_book* ob, order_book* os, exch_data* exch){
 	order* buy_max = calloc(1, sizeof(order));
 	order* sell_min = calloc(1, sizeof(order));
@@ -1010,7 +956,7 @@ void process_order(char* msg, trader* t, exch_data* exch){
 order* get_order_by_id(int oid, trader* t, dyn_arr* books){
 	order* o = calloc(1, sizeof(order));
 	o->order_id = oid;
-	o->trader = t; //! t here is the original t passed by main
+	o->trader = t; 
 	order_book* curr = calloc(1, sizeof(order_book));
 	int idx = -1;
 	for (int i = 0; i < books->used; i++){
@@ -1021,9 +967,7 @@ order* get_order_by_id(int oid, trader* t, dyn_arr* books){
 			break;
 		}
 	}
-	#ifdef TEST
-		printf("Getting order by id: order_id %d trader_id %d\n", o->order_id, o->trader->id);
-	#endif
+	
 	free(curr);
 
 	if (idx != -1) return o;
