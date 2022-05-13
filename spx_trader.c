@@ -1,6 +1,6 @@
 #include "spx_trader.h" // Order of inclusion matters to sa_sigaction and siginfo_t
 #define PREFIX_CHILD(CHILD_ID) printf("[CHILD %d] ", CHILD_ID);
-#define STARTING_INTERVAL 100
+#define STARTING_INTERVAL 300
 volatile int msgs_to_read = 0;
 int ppid = 0;
 bool market_is_open = 0;
