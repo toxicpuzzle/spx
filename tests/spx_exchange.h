@@ -6,7 +6,6 @@
 
 #define PRODUCT_STRING_LEN 18
 #define LOG_PREFIX "[SPX]"
-// make some conveinet print function that automatically adds prefix
 
 // Data structure headers
 
@@ -31,7 +30,6 @@ int dyn_array_delete(dyn_arr* dyn, int idx);
 bool _dyn_array_is_valid_idx(dyn_arr* dyn, int idx);
 int dyn_array_set(dyn_arr* dyn, int idx, void* element);
 void dyn_array_free(dyn_arr *dyn);
-void dyn_array_print(dyn_arr* dyn, void (*elem_to_string) (void* element));
 int dyn_array_swap(dyn_arr* dyn, int idx1, int idx2);
 int dyn_array_sort(dyn_arr* dyn, int (*cmp) (const void* a, const void* b));
 dyn_arr* dyn_array_init_copy(dyn_arr* dyn);
@@ -40,32 +38,6 @@ void* dyn_array_get_literal(dyn_arr* dyn, int idx);
 // Priority queue methods
 int dyn_array_remove_min(dyn_arr* dyn, void* ret, int (*cmp) (const void* a, const void* b));
 int dyn_array_remove_max(dyn_arr* dyn, void* ret, int (*cmp) (const void* a, const void* b));
-
-// Linked list
-typedef struct node node;
-typedef struct linked_list linked_list;
-
-struct linked_list{
-    node* head;
-    node* tail;
-    int size;
-    int memb_size;
-};
-
-struct node{
-    void* object;
-    node* next;
-};  
-
-
-// Inserts the element as first element of list;
-linked_list* linked_list_init(size_t memb_size);
-void linked_list_push(linked_list* list, void* element);
-void linked_list_queue(linked_list* list, void* element);
-int linked_list_pop(linked_list* list, void* ret);
-bool linked_list_isempty(linked_list* list);
-void linked_list_free(linked_list* list);
-
 
 // Exchange headers 
 
@@ -166,11 +138,19 @@ void process_trade(order* buy, order* sell,
 void run_orders(order_book* ob, order_book* os, exch_data* exch);
 void process_order(char* msg, trader* t, exch_data* exch);
 order* get_order_by_id(int oid, trader* t, dyn_arr* books);
+void process_amend_execute(int order_id, int qty, int price, 
+							trader* t, exch_data* exch);
 void process_amend(char* msg, trader* t, exch_data* exch);
+void process_cancel_execute(int order_id, trader* t, exch_data* exch);
 void process_cancel(char* msg, trader* t, exch_data* exch);
 void process_message(char* msg, trader* t, exch_data* exch);
 
-
-
+// Command line validation functions
+bool str_check_for_each(char* str, int (*check)(int c));
+bool is_valid_price_qty(int price, int qty);
+bool is_existing_order(int oid, trader* t, exch_data* exch);
+bool is_valid_product(char* p, dyn_arr* books);
+bool is_valid_buy_sell_order_id(int oid, trader* t);
+bool is_valid_command(char* msg, trader* t, exch_data* exch);
 
 #endif

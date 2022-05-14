@@ -138,7 +138,10 @@ void process_trade(order* buy, order* sell,
 void run_orders(order_book* ob, order_book* os, exch_data* exch);
 void process_order(char* msg, trader* t, exch_data* exch);
 order* get_order_by_id(int oid, trader* t, dyn_arr* books);
+void process_amend_execute(int order_id, int qty, int price, 
+							trader* t, exch_data* exch);
 void process_amend(char* msg, trader* t, exch_data* exch);
+void process_cancel_execute(int order_id, trader* t, exch_data* exch);
 void process_cancel(char* msg, trader* t, exch_data* exch);
 void process_message(char* msg, trader* t, exch_data* exch);
 

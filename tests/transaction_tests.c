@@ -82,6 +82,16 @@ static trader t1 = {
     .process_id = -1
 };
 
+static trader t2 = {
+    .balances = NULL,
+    .connected = false,
+    .fd_read = -1,
+    .fd_write = -1,
+    .id = 2,
+    .next_order_id = -1,
+    .process_id = -1
+};
+
 // Initiate buy boooks
 static order_book bbs[] = {
     {"Oreos", true, NULL},
@@ -165,6 +175,36 @@ static order so_no_match[] = {
     {5, 5, 1, &t1, 0, 0, "Oreos", 25, 90, 0},
     {6, 6, 1, &t1, 0, 0, "Oreos", 25, 80, 0},
 };
+
+// TESTCASE: Amending test data
+
+static order bo_amend[] = {
+    {0, 1, 1, &t1, 0, 1, "Oreos", 12, 58, 0},
+    {0, 0, 2, &t2, 0, 1, "Oreos", 12, 58, 0},
+    {1, 3, 1, &t1, 0, 1, "Oreos", 3, 56, 0},
+    {1, 2, 2, &t2, 0, 1, "Oreos", 10, 30, 0},
+    {2, 4, 1, &t1, 0, 1, "Oreos", 8, 20, 0},
+};
+
+static order so_amend[] = {
+    {3, 1, 1, &t1, 0, 0, "Oreos", 12, 58, 0},
+    {2, 1, 2, &t2, 0, 0, "Oreos", 12, 58, 0},
+};
+
+static order bo_amend_after[] = {
+    {0, 1, 1, &t1, 0, 1, "Oreos", 12, 1, 0},
+    {0, 0, 2, &t2, 0, 1, "Oreos", 12, 2, 0},
+    {1, 3, 1, &t1, 0, 1, "Oreos", 3, 56, 0},
+    {1, 2, 2, &t2, 0, 1, "Oreos", 10, 30, 0},
+    {2, 4, 1, &t1, 0, 1, "Oreos", 8, 20, 0},
+};
+
+static order so_amend_after[] = {
+    {3, 1, 1, &t1, 0, 0, "Oreos", 12, 58, 0},
+    {2, 1, 2, &t2, 0, 0, "Oreos", 12, 58, 0},
+};
+
+
 
 static void setup_exch(order* buy_orders, order* sell_orders, int buy_len, int sell_len){
 
@@ -270,12 +310,10 @@ static void tests_run_orders_no_match(void** state){
 
 extern char msg[MAX_LINE];
 
-// static void tests_amend_orders(void** state){
-//     setup_exch(bo_sell_against_buy, so_sell_against_buy, sizeof(bo_sell_against_buy)/sizeof(order), sizeof(so_sell_against_buy)/sizeof(order));
-//     strcpy(msg, "BUY 7 Oreos 10 10");
-    
-//     process_order(msg, &t1, exch);
-// }
+static void tests_amend_orders(void** state){
+    setup_exch(bo_amend, so_amend, sizeof(bo_amend)/sizeof(order), sizeof(so_amend)/sizeof(order));
+    strcpy
+}
 
 
 static int destroy_state(void** state){
