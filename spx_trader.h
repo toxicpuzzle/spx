@@ -12,14 +12,9 @@
 // TODO: Fix invalid semicolon test
 
 
-
-// TODO: Add more unit tests? (1 hr)
-
-
-
 // TODO: Remove code used for testing purposes
 
-
+// TODO: remove runtests_many.sh
 
 
 

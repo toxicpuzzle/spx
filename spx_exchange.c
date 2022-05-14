@@ -1149,7 +1149,7 @@ bool is_valid_buy_sell_order_id(int oid, trader* t){
 // Returns true if the msg is a valid command for trader t in the exchange exch
 bool is_valid_command(char* msg, trader* t, exch_data* exch){
 	
-	if (strlen(msg) < 6) return false;
+	if (strlen(msg) < 6) return false; //TODO: Potentially get rid of magic nums.
 	// if (msg[strlen(msg)-1] != ';') return false; //TODO: Pass raw message to this function in main()
 
 	char** args;

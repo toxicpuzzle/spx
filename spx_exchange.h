@@ -153,4 +153,6 @@ bool is_valid_product(char* p, dyn_arr* books);
 bool is_valid_buy_sell_order_id(int oid, trader* t);
 bool is_valid_command(char* msg, trader* t, exch_data* exch);
 
+// TODO: Add more functions from the c file
+
 #endif

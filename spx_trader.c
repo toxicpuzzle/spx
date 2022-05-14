@@ -148,14 +148,14 @@ int main(int argc, char ** argv) {
     // TODO: IS the poll only approach okay?
     // dfddf
     // Poll to read if there are new signals
-    // struct pollfd poll_sp;
-	// poll_sp.fd = sig_pipe[0];
-	// poll_sp.events = POLLIN;
+    struct pollfd pfd;
+	pfd.fd = sig_pipe[0];
+	pfd.events = POLLIN;
 
     // Poll to read if there are additional messages for each signal (failsafe)
-    struct pollfd pfd;
-    pfd.fd = fd_read;
-    pfd.events = POLLIN;  
+    // struct pollfd pfd;
+    // pfd.fd = fd_read;
+    // pfd.events = POLLIN;  
 
     // Data structures for transaction processing
     int orders_awaiting_accept = 0;
