@@ -1,6 +1,9 @@
 #!/bin/bash
 
 # Trigger all your test cases with this script
+make clean
+make
+
 E2E="tests/e2e"
 DIRS=$(ls tests/e2e/)
 TESTS=0
@@ -50,3 +53,5 @@ for dir in $DIRS; do
 done;
 
 printf "Passed ${PASSED}/${TESTS} tests\n"
+
+make clean

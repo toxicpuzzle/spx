@@ -7,22 +7,6 @@
 volatile int msgs_to_read = 0;
 int ppid = 0;
 bool market_is_open = 0;
-// #define TEST
-// TODO: Use real time signals to signal parent within autotrader.
-//? Don't think real time signals is way to go as it !contains SIGUSR1
-//? Alternate approach -> Check if parent process has pending signal, if not then write
-
-// Feed commands via input command array;
-
-//! Absolute legend of a testcase, solved problem that I had could not find in 1.5 days!
-// TEST report book levels - probably don't test this on own
-// TODO: Could read from .in file and fill in commands from 
-// E.g. test_trader.c reads from test_trader.in
-// e.g. MARKET OPEN, BUY 0 GPU 10 20
-// e.g. MARKET SELL 10 20, BUY 1 GPU 10 30;
-// e.g. Trigger, Command
-// e.g. For the last line no comma just one line and its the disconnect trigger
-// Bash script must compile the c file in the directory containing the .in files
 
 typedef struct test_data test_data;
 typedef struct action action;

@@ -981,16 +981,9 @@ order* get_order_by_id(int oid, trader* t, dyn_arr* books){
 	}
 }
 
-
-// Processes amend command
-void process_amend(char* msg, trader* t, exch_data* exch){
-
-	// Get values from message
-	char** args = NULL;
-	get_args_from_msg(msg, &args);
-	int order_id = atoi(args[1]);
-	int qty = atoi(args[2]);
-	int price = atoi(args[3]);
+// Internal helper function used to execute amend command
+void process_amend_execute(int order_id, int qty, int price, 
+							trader* t, exch_data* exch){
 
 	// Get relevant order book(s) and order from order id and trader id
 	order_book* ob = calloc(1, sizeof(order_book));
@@ -1025,19 +1018,25 @@ void process_amend(char* msg, trader* t, exch_data* exch){
 	// Run order book for trades
 	run_orders(ob, os, exch);	
 
-	free(args);
 	free(o);
 	free(ob);
 	free(os);
 }
 
-// Processes the cancel command
-void process_cancel(char* msg, trader* t, exch_data* exch){
+// Processes amend command
+void process_amend(char* msg, trader* t, exch_data* exch){
 	// Get values from message
 	char** args = NULL;
 	get_args_from_msg(msg, &args);
 	int order_id = atoi(args[1]);
+	int qty = atoi(args[2]);
+	int price = atoi(args[3]);
+	
+	process_amend_execute(order_id, qty, price, t, exch);
+	free(args);
+}
 
+void process_cancel_execute(int order_id, trader* t, exch_data* exch){
 	// Get relevant order book(s) and order from order id
 	order_book* ob = calloc(1, sizeof(order_book));
 	order_book* os = calloc(1, sizeof(order_book));
@@ -1064,10 +1063,21 @@ void process_cancel(char* msg, trader* t, exch_data* exch){
 	success_msg_all_traders(other_traders, o);
 	dyn_array_free(other_traders);
 
-	free(args);
 	free(o);
 	free(ob);
 	free(os);
+}
+
+// Processes the cancel command
+void process_cancel(char* msg, trader* t, exch_data* exch){
+	// Get values from message
+	char** args = NULL;
+	get_args_from_msg(msg, &args);
+	int order_id = atoi(args[1]);
+
+	process_cancel_execute(order_id, t, exch);
+
+	free(args);
 }
 
 // Sends message to be processed by correct function
