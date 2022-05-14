@@ -234,6 +234,26 @@ static order bo_cancel_after[] = {
 static order so_cancel_after[] = {
 };
 
+// TESTCASE: test_process_orders data
+
+static order bo_process_order[] = {
+
+};
+
+static order so_process_order[] = {
+
+};
+
+static order bo_process_order_after[] = {
+   {0, 0, 1, &t1, 0, 1, "Oreos", 1, 1, 0}, 
+   {0, 1, 1, &t2, 0, 1, "Oreos", 1, 1, 0},
+};
+
+static order so_process_order_after[] = {
+   {1, 2, 1, &t1, 0, 0, "Oreos", 2, 2, 0}, 
+   {1, 3, 1, &t2, 0, 0, "Oreos", 2, 2, 0},
+};
+
 static void setup_exch(order* buy_orders, order* sell_orders, int buy_len, int sell_len){
 
     dyn_arr* t1_balance = dyn_array_init(sizeof(balance), NULL);
@@ -368,6 +388,7 @@ static void tests_amend_orders(void** state){
     is_same_array(oreo_book_buy->orders, bo_amend_after, sizeof(bo_amend_after)/sizeof(order));
     is_same_array(oreo_book_sell->orders, so_amend_after, sizeof(so_amend_after)/sizeof(order));
     
+    // Check that process_trades() has updated the trader's balances
     balance* t1_oreo_bal = t1.balances->array;
     balance* t2_oreo_bal = t2.balances->array;
     assert_true((t1_oreo_bal->balance) == 0);
@@ -392,7 +413,55 @@ static void tests_cancel_orders(void** state){
     is_same_array(oreo_book_buy->orders, bo_cancel_after, sizeof(bo_cancel_after)/sizeof(order));
     is_same_array(oreo_book_sell->orders, so_cancel_after, sizeof(so_cancel_after)/sizeof(order));
     
-    balance* t1_oreo_bal = t1.balances->array;
+    // Check that process_trades() has updated the trader's balances
+    balance* t1_oreo_bal = t1.balances->array;  
+    balance* t2_oreo_bal = t2.balances->array;
+    assert_true((t1_oreo_bal->balance) == 0);
+    assert_true((t2_oreo_bal->balance) == 0);
+}
+
+// Test that commands add the orders with the right attributes to the right orderbook
+static void tests_process_orders(void** state){
+    setup_exch(bo_process_order, so_process_order, 
+                sizeof(bo_process_order)/sizeof(order), 
+                sizeof(so_process_order)/sizeof(order));
+
+    order_book* oreo_book_buy = exch->buy_books->array;
+    order_book* oreo_book_sell = exch->sell_books->array;
+
+    char* msg1 = calloc(128, sizeof(char));
+    char* msg2 = calloc(128, sizeof(char));
+
+    strcpy(msg1, "BUY 0 Oreos 1 1");
+    strcpy(msg2, "SELL 1 Oreos 2 2");
+    process_order(msg1, &t1, exch);
+
+    strcpy(msg1, "BUY 0 Oreos 1 1");
+    strcpy(msg2, "SELL 1 Oreos 2 2");
+    process_order(msg1, &t2, exch);
+
+    strcpy(msg1, "BUY 0 Oreos 1 1");
+    strcpy(msg2, "SELL 1 Oreos 2 2");
+
+    process_order(msg2, &t1, exch);
+    strcpy(msg1, "BUY 0 Oreos 1 1");
+    strcpy(msg2, "SELL 1 Oreos 2 2");
+
+    process_order(msg2, &t2, exch);
+    strcpy(msg1, "BUY 0 Oreos 1 1");
+    strcpy(msg2, "SELL 1 Oreos 2 2");
+
+    free(msg1);
+    free(msg2);
+
+    dyn_array_sort(oreo_book_buy->orders, &descending_order_cmp);
+    dyn_array_sort(oreo_book_sell->orders, &descending_order_cmp);
+
+    is_same_array(oreo_book_buy->orders, bo_process_order_after, sizeof(bo_process_order_after)/sizeof(order));
+    is_same_array(oreo_book_sell->orders, so_process_order_after, sizeof(so_process_order_after)/sizeof(order));
+    
+    // Check that process_trades() has updated the trader's balances
+    balance* t1_oreo_bal = t1.balances->array;  
     balance* t2_oreo_bal = t2.balances->array;
     assert_true((t1_oreo_bal->balance) == 0);
     assert_true((t2_oreo_bal->balance) == 0);
@@ -438,7 +507,9 @@ int main(void){
         cmocka_unit_test_setup_teardown(tests_amend_orders,
                                         NULL, destroy_state),    
          cmocka_unit_test_setup_teardown(tests_cancel_orders,
-                                        NULL, destroy_state),                                                                    
+                                        NULL, destroy_state),
+        cmocka_unit_test_setup_teardown(tests_process_orders,
+                                        NULL, destroy_state),             
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

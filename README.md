@@ -22,4 +22,4 @@ Each folder contains
 2. script to run the exchange, product-files, and expected trader/exchange out files
 
 E2E tests is used for testing all functions. They read test input from their compiled C-file’s name except with a “.in” suffix, where each of its command is triggered by some message from the exchange. Disconnect messages of traders indeterministic and so are ignored in testing as traders cannot know when other traders disconnect, and because when a trader receives the trigger to disconnect depends on the system scheduler.
-Unit testing via CMocka is focused on testing the dynamic array structure which is heavily relied on for all operations within the exchange, and order book matching functions.
+Unit testing via CMocka is focused on testing the dynamic array structure which is heavily relied on for all operations within the exchange, and orderbook matching functions.

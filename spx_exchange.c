@@ -942,12 +942,13 @@ void process_order(char* msg, trader* t, exch_data* exch){
 	}
 
 	// Message order maker and other traders
+	#ifndef UNIT
 	success_msg(order_added->trader, "ACCEPTED", order_added->order_id);
 	dyn_arr* other_traders = dyn_array_init_copy(exch->traders);
 	other_traders = get_arr_without_trader(other_traders, order_added->trader);
 	success_msg_all_traders(other_traders, order_added);
-
 	dyn_array_free(other_traders);
+	#endif
 
 	run_orders(ob, os, exch);
 
