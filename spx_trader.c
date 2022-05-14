@@ -184,6 +184,8 @@ int main(int argc, char ** argv) {
         resignal_times_tried = 0;
 
         // Read from parent if we have received a signal
+        int buf = 0;
+        read(sig_pipe[0], &buf, sizeof(int));
         char* result = fifo_read(fd_read);
    
         if (strlen(result) > 0) {
