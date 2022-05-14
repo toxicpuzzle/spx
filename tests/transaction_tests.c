@@ -516,6 +516,8 @@ static void test_create_order_from_message(void** state){
                 sizeof(bo_cancel)/sizeof(order), 
                 sizeof(so_cancel)/sizeof(order));
 
+
+    // Test BUY order
     char* msg1 = calloc(128, sizeof(char));
     strcpy(msg1, "BUY 3 Oreos 1 500");
 
@@ -527,6 +529,20 @@ static void test_create_order_from_message(void** state){
                 o->qty == 1 &&
                 o->trader->id == t1.id &&
                 o->order_uid == 7);
+
+
+    // Test Sell order for different trader
+    strcpy(msg1, "SELL 4 Oreos 2 600");
+    free(o);
+    o = order_init_from_msg(msg1, &t2, exch);
+    assert_true(o->is_buy == false &&
+                o->order_id == 4 &&
+                !strcmp(o->product, "Oreos") &&
+                o->price == 600 &&
+                o->qty == 2 &&
+                o->trader->id == t2.id &&
+                o->order_uid == 8);
+    
     free(o);
     free(msg1);
 }

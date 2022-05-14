@@ -15,11 +15,12 @@ Using signals to receive messages is unreliable as the scheduler may let the par
 
 3. Describe your tests and how to run them.
 
-To run the E2E tests, first make the exchange/traders, and then run runtests.sh. The unit tests are ran via "make unit", and then running the binaries in /tests.
+To run the E2E tests, run runtests.sh. The unit tests are run using rununit.sh
 
 Each folder contains 
+
 1. .in files which are fed to the corresponding traders
 2. script to run the exchange, product-files, and expected trader/exchange out files
 
-E2E tests is used for testing all functions. They read test input from their compiled C-file’s name except with a “.in” suffix, where each of its command is triggered by some message from the exchange. Disconnect messages of traders indeterministic and so are ignored in testing as traders cannot know when other traders disconnect, and because when a trader receives the trigger to disconnect depends on the system scheduler.
-Unit testing via CMocka is focused on testing the dynamic array structure which is heavily relied on for all operations within the exchange, and orderbook matching functions.
+E2E tests is used for testing all functions thoroughly (including the autotrader). They read test input from their compiled C-file’s name except with a “.in” suffix, where each of its command is triggered by some message from the exchange. The order of disconnect messages from traders is indeterministic because a trader cannot know when other traders disconnect and when the trader receives a trigger to disconnect from the exchange depends on the scheduler, and so disconnection orders are ignored during testing. 
+Unit testing via Cmocka is focused on testing the dynamic array structure which is heavily relied on for all operations within the exchange, and basic orderbook matching functions.
