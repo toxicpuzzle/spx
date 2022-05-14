@@ -82,6 +82,12 @@ static trader t1 = {
     .process_id = -1
 };
 
+static balance oreo_bal2 = {
+    .balance = 0,
+    .product = "Oreos",
+    .qty = 0
+};
+
 static trader t2 = {
     .balances = NULL,
     .connected = false,
@@ -187,30 +193,57 @@ static order bo_amend[] = {
 };
 
 static order so_amend[] = {
-    {3, 1, 1, &t1, 0, 0, "Oreos", 12, 58, 0},
-    {2, 1, 2, &t2, 0, 0, "Oreos", 12, 58, 0},
+    {3, 5, 1, &t1, 0, 0, "Oreos", 12, 90, 0},
+    {2, 6, 2, &t2, 0, 0, "Oreos", 12, 80, 0},
 };
 
 static order bo_amend_after[] = {
-    {0, 1, 1, &t1, 0, 1, "Oreos", 12, 1, 0},
-    {0, 0, 2, &t2, 0, 1, "Oreos", 12, 2, 0},
+    {1, 3, 1, &t1, 0, 1, "Oreos", 3, 56, 0},
+    {1, 2, 2, &t2, 0, 1, "Oreos", 10, 30, 0},
+    {2, 4, 1, &t1, 0, 1, "Oreos", 8, 20, 0},
+    {0, 8, 2, &t2, 0, 1, "Oreos", 1, 1, 0},
+    {0, 7, 1, &t1, 0, 1, "Oreos", 1, 1, 0},
+};
+
+static order so_amend_after[] = {
+    {2, 10, 2, &t2, 0, 0, "Oreos", 99999, 99999, 0},
+    {3, 9, 1, &t1, 0, 0, "Oreos", 99999, 99999, 0},
+};
+
+// TESTCASE: Cancelling test data
+
+static order bo_cancel[] = {
+    {0, 1, 1, &t1, 0, 1, "Oreos", 12, 58, 0},
+    {0, 0, 2, &t2, 0, 1, "Oreos", 12, 58, 0},
     {1, 3, 1, &t1, 0, 1, "Oreos", 3, 56, 0},
     {1, 2, 2, &t2, 0, 1, "Oreos", 10, 30, 0},
     {2, 4, 1, &t1, 0, 1, "Oreos", 8, 20, 0},
 };
 
-static order so_amend_after[] = {
-    {3, 1, 1, &t1, 0, 0, "Oreos", 12, 58, 0},
-    {2, 1, 2, &t2, 0, 0, "Oreos", 12, 58, 0},
+static order so_cancel[] = {
+    {3, 5, 1, &t1, 0, 0, "Oreos", 12, 90, 0},
+    {2, 6, 2, &t2, 0, 0, "Oreos", 12, 80, 0},
 };
 
+static order bo_cancel_after[] = {
+    {1, 3, 1, &t1, 0, 1, "Oreos", 3, 56, 0},
+    {1, 2, 2, &t2, 0, 1, "Oreos", 10, 30, 0},
+    {2, 4, 1, &t1, 0, 1, "Oreos", 8, 20, 0},
+};
 
+static order so_cancel_after[] = {
+};
 
 static void setup_exch(order* buy_orders, order* sell_orders, int buy_len, int sell_len){
 
     dyn_arr* t1_balance = dyn_array_init(sizeof(balance), NULL);
     dyn_array_append(t1_balance, &oreo_bal);
     t1.balances = t1_balance;
+
+    dyn_arr* t2_balance = dyn_array_init(sizeof(balance), NULL);
+    dyn_array_append(t2_balance, &oreo_bal2);
+    t2.balances = t2_balance;
+
 
     // Convert order arrays to orderbooks;
     bbs[0].orders = dyn_array_init(sizeof(order), NULL);
@@ -227,10 +260,18 @@ static void setup_exch(order* buy_orders, order* sell_orders, int buy_len, int s
     array_to_dyn_array(exch->sell_books, sbs, sizeof(sbs)/sizeof(order_book));
     exch->traders = dyn_array_init(sizeof(trader), NULL);
     dyn_array_append(exch->traders, &t1);
+    dyn_array_append(exch->traders, &t2);
+
 
     exch->order_uid = 7;
 
 }
+
+// static void setup_trader_on_heap(trader* t1){
+
+// }
+
+// static void 
 
 // Test orderbook matching matches based on price time priority
 static void tests_run_orders_sell_against_buy(void** state){
@@ -290,7 +331,7 @@ static void tests_run_orders_buy_against_sell_same_price(void** state){
     assert_true((t1_oreo_bal->balance) == -8);
 }
 
-
+// Check that the orders are not matched 
 static void tests_run_orders_no_match(void** state){
     setup_exch(bo_no_match, so_no_match, sizeof(bo_no_match)/sizeof(order), sizeof(so_no_match)/sizeof(order));
     
@@ -308,11 +349,53 @@ static void tests_run_orders_no_match(void** state){
     assert_true((t1_oreo_bal->balance) == 0);
 }
 
-extern char msg[MAX_LINE];
-
+// Test amending wihtout creating any orders works as intended 
+// i.e. only order for specific trader is amended
 static void tests_amend_orders(void** state){
     setup_exch(bo_amend, so_amend, sizeof(bo_amend)/sizeof(order), sizeof(so_amend)/sizeof(order));
-    strcpy
+
+    order_book* oreo_book_buy = exch->buy_books->array;
+    order_book* oreo_book_sell = exch->sell_books->array;
+
+    process_amend_execute(0, 1, 1, &t1, exch);
+    process_amend_execute(0, 1, 1, &t2, exch);
+    process_amend_execute(3, 99999, 99999, &t1, exch);
+    process_amend_execute(2, 99999, 99999, &t2, exch);
+
+    dyn_array_sort(oreo_book_buy->orders, &descending_order_cmp);
+    dyn_array_sort(oreo_book_sell->orders, &descending_order_cmp);
+
+    is_same_array(oreo_book_buy->orders, bo_amend_after, sizeof(bo_amend_after)/sizeof(order));
+    is_same_array(oreo_book_sell->orders, so_amend_after, sizeof(so_amend_after)/sizeof(order));
+    
+    balance* t1_oreo_bal = t1.balances->array;
+    balance* t2_oreo_bal = t2.balances->array;
+    assert_true((t1_oreo_bal->balance) == 0);
+    assert_true((t2_oreo_bal->balance) == 0);
+}
+
+// Test that the right orders are cancelled for each trader.
+static void tests_cancel_orders(void** state){
+    setup_exch(bo_cancel, so_cancel, sizeof(bo_cancel)/sizeof(order), sizeof(so_cancel)/sizeof(order));
+
+    order_book* oreo_book_buy = exch->buy_books->array;
+    order_book* oreo_book_sell = exch->sell_books->array;
+
+    process_cancel_execute(0, &t1, exch);
+    process_cancel_execute(0, &t2, exch);
+    process_cancel_execute(3, &t1, exch);
+    process_cancel_execute(2, &t2, exch);
+
+    dyn_array_sort(oreo_book_buy->orders, &descending_order_cmp);
+    dyn_array_sort(oreo_book_sell->orders, &descending_order_cmp);
+
+    is_same_array(oreo_book_buy->orders, bo_cancel_after, sizeof(bo_cancel_after)/sizeof(order));
+    is_same_array(oreo_book_sell->orders, so_cancel_after, sizeof(so_cancel_after)/sizeof(order));
+    
+    balance* t1_oreo_bal = t1.balances->array;
+    balance* t2_oreo_bal = t2.balances->array;
+    assert_true((t1_oreo_bal->balance) == 0);
+    assert_true((t2_oreo_bal->balance) == 0);
 }
 
 
@@ -351,7 +434,11 @@ int main(void){
         cmocka_unit_test_setup_teardown(tests_run_orders_no_match,
                                         NULL, destroy_state),    
         cmocka_unit_test_setup_teardown(tests_run_orders_buy_against_sell_same_price,
-                                        NULL, destroy_state),                                        
+                                        NULL, destroy_state),  
+        cmocka_unit_test_setup_teardown(tests_amend_orders,
+                                        NULL, destroy_state),    
+         cmocka_unit_test_setup_teardown(tests_cancel_orders,
+                                        NULL, destroy_state),                                                                    
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

@@ -1009,11 +1009,13 @@ void process_amend_execute(int order_id, int qty, int price,
 	dyn_array_set(contains->orders, order_idx, o);
 
 	/// Message t and other traders
+	#ifndef UNIT
 	success_msg(t, "AMENDED", order_id);
 	dyn_arr* other_traders = dyn_array_init_copy(exch->traders);
 	other_traders = get_arr_without_trader(other_traders, t);
 	success_msg_all_traders(other_traders, o);
 	dyn_array_free(other_traders);
+	#endif
 
 	// Run order book for trades
 	run_orders(ob, os, exch);	
@@ -1057,16 +1059,19 @@ void process_cancel_execute(int order_id, trader* t, exch_data* exch){
 	o->price = 0;
 
 	// Message t and other traders
+	#ifndef UNIT
 	success_msg(t, "CANCELLED", order_id);
 	dyn_arr* other_traders = dyn_array_init_copy(exch->traders);
 	other_traders = get_arr_without_trader(other_traders, t);
 	success_msg_all_traders(other_traders, o);
 	dyn_array_free(other_traders);
+	#endif
 
 	free(o);
 	free(ob);
 	free(os);
 }
+
 
 // Processes the cancel command
 void process_cancel(char* msg, trader* t, exch_data* exch){
