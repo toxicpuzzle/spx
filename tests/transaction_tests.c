@@ -23,33 +23,7 @@
 
 #include "spx_exchange.h"
 
-// Test transaction handling functions
-
-// struct trader{
-//     int id; 
-//     int process_id; 
-//     int next_order_id;
-//     int fd_write;
-//     int fd_read;
-//     char fd_write_name[MAX_LINE];
-//     char fd_read_name[MAX_LINE];
-//     bool connected;
-//     dyn_arr* balances; // Stores balance objects for every product.
-// };
-
-// struct order{
-//     int order_id;
-//     int order_uid;
-//     int trader_list_idx;
-//     trader* trader; // Trader that made the order //! a copy of original trader. must be freed //! Problematic as the copie's connected attribute is not updatd
-//     int order_book_idx;// index of order book in ob dyn_arr to which order belongs //! A copy of the order book. must be freed
-//     bool is_buy;
-//     char product[PRODUCT_STRING_LEN];
-//     int qty;
-//     int price;
-//     int _num_orders; // Private attribute used for reporting
-// };
-
+// Test orderbook matching functions
 
 void is_same_array(dyn_arr* dyn, void* arr, int exp_len){
     bool same_array = (memcmp(dyn->array, arr, exp_len) == 0);
@@ -305,12 +279,6 @@ static void setup_exch(order* buy_orders, order* sell_orders, int buy_len, int s
 
 }
 
-// static void setup_trader_on_heap(trader* t1){
-
-// }
-
-// static void 
-
 // Test orderbook matching matches based on price time priority
 static void tests_run_orders_sell_against_buy(void** state){
     setup_exch(bo_sell_against_buy, so_sell_against_buy, sizeof(bo_sell_against_buy)/sizeof(order), sizeof(so_sell_against_buy)/sizeof(order));
@@ -525,6 +493,44 @@ static void tests_process_orders_causes_fill(void** state){
     assert_true((t2_oreo_bal->balance) == 2881);
 }
 
+// Check that get_order helper gets the order for the right trader
+static void tests_get_order_by_id(void** state){
+    setup_exch(bo_cancel, so_cancel, 
+                sizeof(bo_cancel)/sizeof(order), 
+                sizeof(so_cancel)/sizeof(order));
+
+    // Get order 1 of trader 1 in oreo product books
+    order* buy_result = get_order_by_id(1, &t1, exch->buy_books);
+    order* sell_result = get_order_by_id(1, &t1, exch->sell_books);
+    assert_true(sell_result == NULL);
+    assert_true(buy_result->is_buy == true
+                && buy_result->order_uid == 3
+                && buy_result->price == 56 
+                && buy_result->qty == 3);
+    free(buy_result);
+}
+
+// Test that we create a correct order based on command string
+static void test_create_order_from_message(void** state){
+    setup_exch(bo_cancel, so_cancel, 
+                sizeof(bo_cancel)/sizeof(order), 
+                sizeof(so_cancel)/sizeof(order));
+
+    char* msg1 = calloc(128, sizeof(char));
+    strcpy(msg1, "BUY 3 Oreos 1 500");
+
+    order* o = order_init_from_msg(msg1, &t1, exch);
+    assert_true(o->is_buy == true &&
+                o->order_id == 3 &&
+                !strcmp(o->product, "Oreos") &&
+                o->price == 500 &&
+                o->qty == 1 &&
+                o->trader->id == t1.id &&
+                o->order_uid == 7);
+    free(o);
+    free(msg1);
+}
+
 
 static int destroy_state(void** state){
     // Free traders
@@ -569,7 +575,11 @@ int main(void){
         cmocka_unit_test_setup_teardown(tests_process_orders,
                                         NULL, destroy_state), 
         cmocka_unit_test_setup_teardown(tests_process_orders_causes_fill,
-                                        NULL, destroy_state),             
+                                        NULL, destroy_state),      
+        cmocka_unit_test_setup_teardown(tests_get_order_by_id,
+                                        NULL, destroy_state),                  
+        cmocka_unit_test_setup_teardown(test_create_order_from_message,
+                                        NULL, destroy_state),      
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
