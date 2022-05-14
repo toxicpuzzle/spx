@@ -254,6 +254,24 @@ static order so_process_order_after[] = {
    {1, 3, 1, &t2, 0, 0, "Oreos", 2, 2, 0},
 };
 
+// TESTCASE: test_process_orders_causes_fill data
+
+static order bo_process_order_causes_fill[] = {
+   {0, 0, 1, &t1, 0, 1, "Oreos", 10, 100, 0}, 
+   {0, 1, 1, &t2, 0, 1, "Oreos", 10, 90, 0},
+};
+
+static order so_process_order_causes_fill[] = {
+   {1, 2, 1, &t1, 0, 0, "Oreos", 10, 200, 0}, 
+   {1, 3, 1, &t2, 0, 0, "Oreos", 10, 190, 0},
+};
+
+static order bo_process_order_causes_fill_after[] = {
+};
+
+static order so_process_order_causes_fill_after[] = {
+};
+
 static void setup_exch(order* buy_orders, order* sell_orders, int buy_len, int sell_len){
 
     dyn_arr* t1_balance = dyn_array_init(sizeof(balance), NULL);
@@ -467,6 +485,46 @@ static void tests_process_orders(void** state){
     assert_true((t2_oreo_bal->balance) == 0);
 }
 
+// Test process orders causes existing orders to get filled
+static void tests_process_orders_causes_fill(void** state){
+    setup_exch(bo_process_order_causes_fill, so_process_order_causes_fill, 
+                sizeof(bo_process_order_causes_fill)/sizeof(order), 
+                sizeof(so_process_order_causes_fill)/sizeof(order));
+
+    order_book* oreo_book_buy = exch->buy_books->array;
+    order_book* oreo_book_sell = exch->sell_books->array;
+
+    char* msg1 = calloc(128, sizeof(char));
+    char* msg2 = calloc(128, sizeof(char));
+
+    strcpy(msg1, "BUY 2 Oreos 20 200");
+    strcpy(msg2, "SELL 2 Oreos 20 90");
+    process_order(msg1, &t1, exch);
+
+    strcpy(msg1, "BUY 2 Oreos 20 200");
+    strcpy(msg2, "SELL 2 Oreos 20 90");
+    process_order(msg2, &t2, exch);
+
+    free(msg1);
+    free(msg2);
+
+    dyn_array_sort(oreo_book_buy->orders, &descending_order_cmp);
+    dyn_array_sort(oreo_book_sell->orders, &descending_order_cmp);
+
+    is_same_array(oreo_book_buy->orders, bo_process_order_causes_fill_after, 
+                sizeof(bo_process_order_causes_fill_after)/sizeof(order));
+    is_same_array(oreo_book_sell->orders, so_process_order_causes_fill_after, 
+                sizeof(so_process_order_causes_fill_after)/sizeof(order));
+    
+    // Check that process_trades() has updated the trader's balances
+    balance* t1_oreo_bal = t1.balances->array;  
+    balance* t2_oreo_bal = t2.balances->array;
+    assert_true((t1_oreo_bal->qty) == 20);
+    assert_true((t2_oreo_bal->qty) == -20);
+    assert_true((t1_oreo_bal->balance) == -2939);
+    assert_true((t2_oreo_bal->balance) == 2881);
+}
+
 
 static int destroy_state(void** state){
     // Free traders
@@ -509,6 +567,8 @@ int main(void){
          cmocka_unit_test_setup_teardown(tests_cancel_orders,
                                         NULL, destroy_state),
         cmocka_unit_test_setup_teardown(tests_process_orders,
+                                        NULL, destroy_state), 
+        cmocka_unit_test_setup_teardown(tests_process_orders_causes_fill,
                                         NULL, destroy_state),             
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
