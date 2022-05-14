@@ -1,8 +1,0 @@
-MARKET OPEN,SELL 0 Router 10 50;
-ACCEPTED 0,SELL 1 Cake 100 500;
-ACCEPTED 1,SELL 2 GPU 1 2000;
-ACCEPTED 2,SELL 3 Router 1000 5000;
-ACCEPTED 3
-# THIs is a race condition testcase for the exchange -> might place too many 
-signals on exchange at once -> so implement repeated signalling approach,
-but that means the test trader must also do the same if their order fails.

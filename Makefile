@@ -1,7 +1,5 @@
 CC=gcc
 CFLAGS=-Wall -Werror -Wvla -O0 -std=c11 -g -fsanitize=address,leak -fprofile-arcs -ftest-coverage
-
-# CFLAGS=-Wall -Wvla -O0 -std=c11 -g -fsanitize=address,leak
 OFLAGS=-c $(CFLAGS)
 
 CTESTFLAGS = -Wall -Werror -Wvla -O0 -std=c11 -g -fsanitize=address,leak 
@@ -18,10 +16,6 @@ all: spx_exchange.o test_trader.o spx_trader.o test_trader2.o
 	$(CC) $(LDFLAGS) $(CFLAGS) spx_trader.o -o spx_trader  
 	$(CC) $(LDFLAGS) $(CFLAGS) test_trader2.o -o test_trader2
 
-
-# $(CC) $(LDFLAGS) $(CFLAGS) test_trader2.o -o test_trader2  
-# $(CC) $(LDFLAGS) $(CFLAGS) test_trader3.o -o test_trader3  
-
 spx_exchange.o: spx_exchange.c
 	$(CC) $(LDFLAGS) $(OFLAGS) spx_exchange.c -o spx_exchange.o 
 
@@ -33,14 +27,6 @@ test_trader2.o: test_trader2.c
 
 spx_trader.o: spx_trader.c
 	$(CC) $(LDFLAGS) $(OFLAGS) spx_trader.c -o spx_trader.o
-
-
-# test_trader2.o: test_trader2.c
-# 	$(CC) $(LDFLAGS) $(OFLAGS) test_trader2.c -o test_trader2.o
-
-# test_trader3.o: test_trader3.c
-# 	$(CC) $(LDFLAGS) $(OFLAGS) test_trader3.c -o test_trader3.o
-# all: $(BINARIES)
 
 # Call make unit to make the binaries for the unit testcases
 unit: spx_exchange.o 
