@@ -2,4 +2,13 @@
 [T0] Received: ACCEPTED 0
 [T0] Received: ACCEPTED 1
 [T0] Received: ACCEPTED 2
+[T0] Received: MARKET BUY BTC 30 50000
+[T0] Received: MARKET BUY ETH 30 4000
+[T0] Received: MARKET BUY DOGE 1100 2
+[T0] Received: MARKET SELL BTC 50 40000
+[T0] Received: FILL 0 30
+[T0] Received: MARKET SELL ETH 60 2000
+[T0] Received: FILL 1 30
+[T0] Received: MARKET SELL DOGE 100000 1
+[T0] Received: FILL 2 1000
 [T0] Event: DISCONNECT

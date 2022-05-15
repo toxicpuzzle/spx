@@ -511,23 +511,32 @@ void fifo_write(int fd_write, char* str){
     struct pollfd p;
     p.fd = fd_write;
     p.events = POLLOUT;
-    int result = poll(&p, 1, 0);
+    poll(&p, 1, 0);
 
-	// Keep polling until we get either 1 or 0 (i.e. not interrupted by signal)
-    while (result == -1){
-        result = poll(&p, 1, 0);
-    }
+	sigset_t s;
+	sigemptyset(&s);
+	sigaddset(&s, SIGPIPE);
+	sigprocmask(SIG_BLOCK, &s, NULL);
 
-	if (result == 0) {
-		perror("NO POLLOUT");
-		return;
-    }  
+	// // Keep polling until we get either 1 or 0 (i.e. not interrupted by signal)
+    // while (result == -1){
+    //     result = poll(&p, 1, 0);
+    // }
 
+	// // If we cannot write then we return to main function
+	// if (result == 0) {
+	// 	perror("NO POLLOUT");
+	// 	return;
+    // }  
+
+	//
     if (!(p.revents & POLLERR)){
         if (write(fd_write, str, strlen(str)) == -1){
                 perror("Write unsuccesful\n");
         }   
     }
+	sigprocmask(SIG_UNBLOCK, &s, NULL);
+
 }
 
 // Reads message until ";" or EOF if fd_read has POLLIN 

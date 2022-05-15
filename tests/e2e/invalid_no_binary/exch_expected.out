@@ -1,7 +1,0 @@
-[SPX] Starting
-[SPX] Trading 3 products: GPU Router Cake
-[SPX] Created FIFO /tmp/spx_exchange_0
-[SPX] Created FIFO /tmp/spx_trader_0
-[SPX] Starting trader 0 (./non_existant_trader)
-[SPX] Exchange shutting down due to error
-[SPX] Exchange has cleared all memory

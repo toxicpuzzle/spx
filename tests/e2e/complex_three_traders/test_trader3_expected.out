@@ -12,4 +12,6 @@
 [T2] Received: FILL 1 30
 [T2] Received: FILL 1 30
 [T2] Received: ACCEPTED 2
+[T2] Received: FILL 2 1000
+[T2] Received: FILL 2 1100
 [T2] Event: DISCONNECT

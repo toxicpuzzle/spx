@@ -1,5 +1,0 @@
-Trader 0 sells cakes and routers
-Then Trader 1 buys some cakes
-Then trader 0 sells some more routers 
-Then Trader 1 buys more routers 
-Then trader 0 sends terminating order SELL 6 Cake 1 1000;

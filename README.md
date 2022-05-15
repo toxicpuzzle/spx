@@ -1,10 +1,10 @@
 1. Describe how your exchange works.
 
-    1.	Setup - For each trader the exchange forks a new process and execs the trader binary. Separate orderbooks are kept for each product and their buy/sell orders. The process_id, id, pipe fds and other trader information is stored as struct within dynamic arrays (for matching/reporting/signalling). Any errors detected during the setup will terminate the exchange.
+    1.	Setup – Forked/launched traders open read/write pipes in read->write order to avoid blocking. Separate orderbooks are kept for each product and their buy and sell orders to make searching/matching/reporting orders via dynamic-array methods easy. The process_id, id, pipe fds and other trader information is stored as struct within dynamic-arrays. Any errors detected during the setup will terminate the exchange.
+    2.	Communication/Command processing – Within the sighandler, process ids of signals received are written to a “Self-pipe”, which serves as a queue for signals. Then in the main()/user-space the pids are used to find the corresponding trader to read/process commands from their pipes. The exchange will poll (with infinite timeout) until either 1) a trader disconnects or 2) its self-pipe/signal-queue has POLLIN before processing disconnections/commands, which avoid busy waiting loops.
+    3.	Orderbook matching –  Comparators for buy/sell orders are used to remove the highest priority orders from each book’s dynamic-arrays during matching, and for printing out orders in descending price order.
+    4.	Disconnection/Teardown – Any trader processes not already terminated are sent a SIGKILL, and then collected via waitpid(), then all memory is freed.
 
-    2.	Communication/Command processing – Within the sighandler, process ids of signals received are written to a “Self-pipe”, which serves as a queue for signals. Then in the main()/user-space the pids are used to find the corresponding trader to read/process commands from their pipes. The exchange will poll (with infinite timeout) until either 1) a trader disconnects or 2) its self-pipe/signal-queue has POLLIN before processing disconnections/commands, which avoid busy waiting loops (Figure 1).
-
-    3.	Disconnection/Teardown – Any trader processes not already terminated are sent a SIGKILL, and then collected via waitpid(), then all memory is freed.
 
 2. Describe your design decisions for the trader and how it's fault-tolerant.
 
