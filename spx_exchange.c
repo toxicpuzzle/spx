@@ -511,8 +511,19 @@ void fifo_write(int fd_write, char* str){
     struct pollfd p;
     p.fd = fd_write;
     p.events = POLLOUT;
-    poll(&p, 1, 0);
-    if (!(p.revents & POLLERR) && (p.revents & POLLOUT)){
+    int result = poll(&p, 1, 0);
+
+	// Keep polling until we get either 1 or 0 (i.e. not interrupted by signal)
+    while (result == -1){
+        result = poll(&p, 1, 0);
+    }
+
+	if (result == 0) {
+		perror("NO POLLOUT");
+		return;
+    }  
+
+    if (!(p.revents & POLLERR)){
         if (write(fd_write, str, strlen(str)) == -1){
                 perror("Write unsuccesful\n");
         }   

@@ -22,6 +22,7 @@ for dir in $DIRS; do
     # Copy binaries to directories so they can launch traders
     cp test_trader ${E2E}/${dir}/test_trader
     cp test_trader2 ${E2E}/${dir}/test_trader2
+    cp test_trader3 ${E2E}/${dir}/test_trader3
     cp spx_trader ${E2E}/${dir}/spx_trader
     cp spx_exchange ${E2E}/${dir}/spx_exchange
 
@@ -47,6 +48,7 @@ for dir in $DIRS; do
     # Remove files from directory to save space
     rm ${E2E}/${dir}/test_trader
     rm ${E2E}/${dir}/test_trader2
+    rm ${E2E}/${dir}/test_trader3
     rm ${E2E}/${dir}/spx_exchange
     rm ${E2E}/${dir}/spx_trader
 

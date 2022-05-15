@@ -23,6 +23,58 @@ struct test_data{
     char disconnect_trigger[MAX_LINE];
 };
 
+// Writes the message to the trader if the other end of the pipe is open
+void fifo_write(int fd_write, char* str){
+    struct pollfd p;
+    p.fd = fd_write;
+    p.events = POLLOUT;
+    poll(&p, 1, 0);
+    if (!(p.revents & POLLERR) && (p.revents & POLLOUT)){
+        if (write(fd_write, str, strlen(str)) == -1){
+                perror("Write unsuccesful\n");
+        }   
+    }
+}
+
+// Reads message until ";" or EOF if fd_read has POLLIN 
+char* fifo_read(int fd_read){
+    int size = 1;
+    char* str = calloc(MAX_LINE, sizeof(char));
+    char curr;
+
+    struct pollfd p;
+    p.fd = fd_read;
+    p.events = POLLIN;
+
+    errno = 0;
+    int result = poll(&p, 1, 0);
+
+	// Keep polling until we get either 1 or 0 (i.e. not interrupted by signal)
+    while (result == -1){
+        result = poll(&p, 1, 0);
+    }
+
+	// Return null string immediately if there is nothing to read
+    if (result == 0) {
+        return str;
+    }  
+
+	// Keep reading until entire message is read.
+    while (true){
+        if (read(fd_read, (void*) &curr, 1*sizeof(char)) <= 0 || curr == ';') break;
+        
+        memmove(str+size-1, &curr, 1);
+        if (size > MAX_LINE) str = realloc(str, ++size);
+        else ++size;
+    }
+
+    str[size-1] = '\0';    
+  
+    return str;
+}
+
+
+
 void signal_parent(){
     kill(ppid, SIGUSR1);
 }

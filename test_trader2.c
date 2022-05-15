@@ -29,13 +29,25 @@ void fifo_write(int fd_write, char* str){
     struct pollfd p;
     p.fd = fd_write;
     p.events = POLLOUT;
-    poll(&p, 1, 0);
+    int result = poll(&p, 1, 0);
+
+	// Keep polling until we get either 1 or 0 (i.e. not interrupted by signal)
+    while (result == -1){
+        result = poll(&p, 1, 0);
+    }
+
+	if (result == 0) {
+		perror("NO POLLOUT");
+		return;
+    }  
+
     if (!(p.revents & POLLERR)){
         if (write(fd_write, str, strlen(str)) == -1){
                 perror("Write unsuccesful\n");
         }   
     }
 }
+
 
 // Reads message until ";" or EOF if fd_read has POLLIN 
 char* fifo_read(int fd_read){
@@ -228,7 +240,7 @@ int main(int argc, char ** argv) {
     bool has_signal = false; 
 
     while (true){
-    
+        
         while (!has_signal){
             has_signal = poll(&pfd, 1, RESIGNAL_INTERVAL);
            

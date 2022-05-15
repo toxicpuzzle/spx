@@ -1,5 +1,5 @@
 #!/bin/bash
-END=50
+END=200
 for ((i=1;i<=END;i++)); do
-    bash runtests_valgrind.sh >> temp.out
+    bash runtests.sh >> temp.out
 done
