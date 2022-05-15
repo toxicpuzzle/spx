@@ -7,22 +7,6 @@
 volatile int msgs_to_read = 0;
 int ppid = 0;
 bool market_is_open = 0;
-// #define TEST
-// TODO: Use real time signals to signal parent within autotrader.
-//? Don't think real time signals is way to go as it !contains SIGUSR1
-//? Alternate approach -> Check if parent process has pending signal, if not then write
-
-// Feed commands via input command array;
-
-//! Absolute legend of a testcase, solved problem that I had could not find in 1.5 days!
-// TEST report book levels - probably don't test this on own
-// TODO: Could read from .in file and fill in commands from 
-// E.g. test_trader.c reads from test_trader.in
-// e.g. MARKET OPEN, BUY 0 GPU 10 20
-// e.g. MARKET SELL 10 20, BUY 1 GPU 10 30;
-// e.g. Trigger, Command
-// e.g. For the last line no comma just one line and its the disconnect trigger
-// Bash script must compile the c file in the directory containing the .in files
 
 typedef struct test_data test_data;
 typedef struct action action;
@@ -177,7 +161,7 @@ int main(int argc, char ** argv) {
     fclose(in);
     FILE* out = get_file_with_extension(__FILE__, "_actual.out", "w");
 
-    //! Setup poll so that when signals are unreliable we use poll to read msgs
+   
     struct pollfd pfd;
     pfd.fd = fd_read;
     pfd.events = POLLIN;   
@@ -185,14 +169,6 @@ int main(int argc, char ** argv) {
     // Data structures for transaction processing
     int orders_awaiting_accept = 0;
     bool has_signal = false; 
-
-    // Setup timeout so trader quits if 
-    // time_t start = time(NULL);
-    // sigset_t s;
-    // sigemptyset(&s);
-    // sigaddset(&s, SIGUSR1);
-    // struct timespec t;
-    // t.tv_sec = 5;
     
     while (true){
     
@@ -213,13 +189,7 @@ int main(int argc, char ** argv) {
                 PREFIX_CHILD(id);
                 printf("Received message: %s\n", result);
             #endif
-            // TODO: Output to text file
             fprintf(out, "[T%d] Received: %s\n", id, result);
-                // fwrite(result, strlen(result), 1, out);
-                // Get exec file name -> turn it into directory full of .out files
-                // Diff output of trader against actual out file.
-                // TODO: alternatively, store output in some text buffer/file
-                // Then when trader quits
 
             char** args = 0;
             char* result_cpy = calloc(strlen(result)+1, sizeof(char));
@@ -239,13 +209,13 @@ int main(int argc, char ** argv) {
                     orders_awaiting_accept--;
                 }
                 
-                // TODO: Ensure parent waits to become available
+                
                 if (t.current_act < t.size_act && 
                     !strcmp(result, t.acts[t.current_act].trigger)){
-                    // printf("Child 1 is sending command to parent %s\n", )
+                    
+                    // Only writes to the parent and does not signal to read
                     fifo_write(fd_write, t.acts[t.current_act++].command);
-                    // orders_awaiting_accept++;
-                    // TODO: insert close pipe to test half close scenarios
+                    
                 } else if (t.current_act == t.size_act &&
                     !strcmp(result, t.disconnect_trigger)){
                     #ifdef TEST
