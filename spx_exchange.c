@@ -797,10 +797,10 @@ order* order_init_from_msg(char* msg, trader* t, exch_data* exch){
 	int idx = -1;
 	order_book* b = calloc(1, sizeof(order_book));
 	memmove(b->product, o->product, PRODUCT_STRING_LEN);
-	if (strcmp(cmd_type, "BUY") == 0){
+	if (!strcmp(cmd_type, "BUY")){
 		o->is_buy = true;
 		idx = dyn_array_find(exch->buy_books, b, obook_cmp);
-	} else if (strcmp(cmd_type, "SELL") == 0){
+	} else if (!strcmp(cmd_type, "SELL")){
 		o->is_buy = false;
 		idx = dyn_array_find(exch->sell_books, b, obook_cmp);
 	} 	
@@ -1089,7 +1089,7 @@ void process_cancel(char* msg, trader* t, exch_data* exch){
 
 	free(args);
 }
-//TODO
+
 // Sends message to be processed by correct function
 void process_message(char* msg, trader* t, exch_data* exch){ 
 
