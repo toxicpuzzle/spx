@@ -209,7 +209,6 @@ int main(int argc, char ** argv) {
                         free(result);
                         close(fd_write);
                         close(fd_read);
-                        // TODO: Close pipes
                         close(sig_pipe[0]);
                         close(sig_pipe[1]);
                         free(fifo_exch);

@@ -1311,6 +1311,8 @@ int main(int argc, char **argv) {
 	exch->sell_books = sell_order_books;
 	check_product_file(product_file);
 	if (!precheck_for_quit(exch)) {
+		close(sig_pipe[0]);
+		close(sig_pipe[1]);
 		dyn_array_free(traders_bins);
 		return 1;
 	}
@@ -1322,7 +1324,11 @@ int main(int argc, char **argv) {
 	dyn_arr* traders = create_traders(traders_bins, product_file);
 	dyn_array_free(traders_bins);
 	exch->traders = traders;
-	if (!precheck_for_quit(exch)) return 1;
+	if (!precheck_for_quit(exch)) {
+		close(sig_pipe[0]);
+		close(sig_pipe[1]);
+	 	return 1;
+	}
 
 	// Construct poll data structure to detect disconnects/signals
 	int connected_traders = traders->used;
@@ -1417,6 +1423,8 @@ int main(int argc, char **argv) {
 	printf("Exchange fees collected: $%ld\n", exch->fees);
 
 	free_program(exch, poll_fds);
+	close(sig_pipe[0]);
+	close(sig_pipe[1]);
 
 	return 0;
 }
