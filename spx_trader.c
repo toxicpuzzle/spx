@@ -38,14 +38,10 @@ char* fifo_read(int fd_read){
     int result = poll(&p, 1, 0);
 
 	// Keep polling until we get either 1 or 0 (i.e. not interrupted by signal)
-    while (result == -1){
-        result = poll(&p, 1, 0);
-    }
+    while (result == -1) result = poll(&p, 1, 0);
 
 	// Return null string immediately if there is nothing to read
-    if (result == 0) {
-        return str;
-    }  
+    if (result == 0) return str;
 
 	// Keep reading until entire message is read.
     while (true){
