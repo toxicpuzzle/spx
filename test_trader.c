@@ -36,14 +36,13 @@ void fifo_write(int fd_write, char* str){
 	sigset_t s;
 	sigemptyset(&s);
 	sigaddset(&s, SIGPIPE);
-	sigprocmask(SIG_BLOCK, &s, NULL);
+    sigprocmask(SIG_BLOCK, &s, NULL);
 
     if (!(p.revents & POLLERR)){
         if (write(fd_write, str, strlen(str)) == -1){
                 perror("Write unsuccesful\n");
         }   
     }
-	sigprocmask(SIG_UNBLOCK, &s, NULL);
 
 }
 

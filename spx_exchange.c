@@ -525,7 +525,6 @@ void fifo_write(int fd_write, char* str){
                 perror("Write unsuccesful\n");
         }   
     }
-	sigprocmask(SIG_UNBLOCK, &s, NULL);
 
 }
 
