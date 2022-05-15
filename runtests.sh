@@ -4,8 +4,8 @@
 make clean
 make
 
-E2E="tests/e2e"
-DIRS=$(ls tests/e2e/)
+E2E="tests/E2E"
+DIRS=$(ls tests/E2E/)
 TESTS=0
 PASSED=0
 
@@ -29,7 +29,7 @@ for dir in $DIRS; do
     (cd ${E2E}/${dir}; ./run.sh) | cat -> ${E2E}/${dir}/exch_actual.out
 
     # Diff the output (ignoring disconnect messages) to see how many testcases pass
-    OUTFILES=$(ls tests/e2e/${dir}/*_actual.out | sed -e 's/\_actual.out$//')
+    OUTFILES=$(ls tests/E2E/${dir}/*_actual.out | sed -e 's/\_actual.out$//')
     HAS_PASSED=1
     for OUT in $OUTFILES; do
         if [[ $(diff ${OUT}_actual.out ${OUT}_expected.out -I disconnected) ]]; then

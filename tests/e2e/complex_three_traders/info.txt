@@ -1,8 +1,0 @@
-3 Traders
-Trader 0 makes buy orders
-Trader 1 makes buy orders
-Trader 1 makes sell orders
-Trader 2 makes sell orders which fills t0 t1
-t1 amends orders and fills against self and t0
-t2 makes more sell orders which fills all orders
-
