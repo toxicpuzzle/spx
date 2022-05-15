@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # Trigger all your test cases with this script
-make clean
+#? Comment make clean below if you want to see spx_trader coverage
+#? Run again after first make
+# make clean
 make
 
 E2E="tests/E2E"
