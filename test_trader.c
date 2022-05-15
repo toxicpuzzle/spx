@@ -191,7 +191,7 @@ void read_input_file(FILE* in, test_data* t){
 
 
 
-// When you use exec to execute a program, the first arg becomes arg[0] instead of arg[0]
+// When you use exec to execute a program, the first arg becomes arg[0] 
 int main(int argc, char ** argv) {
     if (argc < 1) {
         printf("Not enough arguments\n");
@@ -263,11 +263,7 @@ int main(int argc, char ** argv) {
             char* result_cpy = calloc(strlen(result)+1, sizeof(char));
             memmove(result_cpy, result, strlen(result)+1);
             get_args_from_msg(result_cpy, &args);
-            
-            #ifdef TEST
-                printf("Current action: %s via trigger %s\n", t.acts[t.current_act].command, t.acts[t.current_act].trigger);
-                printf("Disconnect trigger: %s\n", t.disconnect_trigger);
-            #endif
+         
             if (!strcmp(args[0], "MARKET") && 
                 !strcmp(args[1], "OPEN")) market_is_open = true;
 
