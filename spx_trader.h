@@ -9,7 +9,6 @@
     
 
     
-// TODO: Fix invalid semicolon test
 
 
 // TODO: Remove code used for testing purposes

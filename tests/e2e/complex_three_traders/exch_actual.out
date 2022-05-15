@@ -60,7 +60,6 @@
 [SPX]	Trader 0: BTC 0 ($0), ETH 0 ($0), DOGE 0 ($0)
 [SPX]	Trader 1: BTC 0 ($0), ETH 0 ($0), DOGE 0 ($0)
 [SPX]	Trader 2: BTC 0 ($0), ETH 0 ($0), DOGE 0 ($0)
-[SPX] Trader 0 disconnected
 [SPX] [T1] Parsing command: <BUY 1 ETH 30 4000>
 [SPX]	--ORDERBOOK--
 [SPX]	Product: BTC; Buy levels: 1; Sell levels: 0
@@ -85,7 +84,7 @@
 [SPX]	Trader 0: BTC 0 ($0), ETH 0 ($0), DOGE 0 ($0)
 [SPX]	Trader 1: BTC 0 ($0), ETH 0 ($0), DOGE 0 ($0)
 [SPX]	Trader 2: BTC 0 ($0), ETH 0 ($0), DOGE 0 ($0)
-[SPX] Trader 1 disconnected
+[SPX] Trader 0 disconnected
 [SPX] [T2] Parsing command: <SELL 0 BTC 50 40000>
 [SPX] Match: Order 0 [T0], New Order 0 [T2], value: $1500000, fee: $15000.
 [SPX] Match: Order 0 [T1], New Order 0 [T2], value: $1000000, fee: $10000.
@@ -100,6 +99,7 @@
 [SPX]	Trader 0: BTC 30 ($-1500000), ETH 0 ($0), DOGE 0 ($0)
 [SPX]	Trader 1: BTC 20 ($-1000000), ETH 0 ($0), DOGE 0 ($0)
 [SPX]	Trader 2: BTC -50 ($2475000), ETH 0 ($0), DOGE 0 ($0)
+[SPX] Trader 1 disconnected
 [SPX] [T2] Parsing command: <SELL 1 ETH 60 2000>
 [SPX] Match: Order 1 [T0], New Order 1 [T2], value: $120000, fee: $1200.
 [SPX] Match: Order 1 [T1], New Order 1 [T2], value: $120000, fee: $1200.
