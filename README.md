@@ -1,6 +1,6 @@
 1. Describe how your exchange works.
 
-    1.	Setup - For each trader the exchange forks a new process and execs the trader binary there. Separate orderbooks are kept for each product and their buy and sell orders. The process_id, id, pipe fds and other trader information is stored as struct within dynamic arrays. Any errors detected during the setup will terminate the exchange.
+    1.	Setup - For each trader the exchange forks a new process and execs the trader binary. Separate orderbooks are kept for each product and their buy/sell orders. The process_id, id, pipe fds and other trader information is stored as struct within dynamic arrays (for matching/reporting/signalling). Any errors detected during the setup will terminate the exchange.
 
     2.	Communication/Command processing – Within the sighandler, process ids of signals received are written to a “Self-pipe”, which serves as a queue for signals. Then in the main()/user-space the pids are used to find the corresponding trader to read/process commands from their pipes. The exchange will poll (with infinite timeout) until either 1) a trader disconnects or 2) its self-pipe/signal-queue has POLLIN before processing disconnections/commands, which avoid busy waiting loops (Figure 1).
 
