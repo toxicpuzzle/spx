@@ -42,13 +42,11 @@ char* fifo_read(int fd_read){
 
 	// Return null string immediately if there is nothing to read
     if (result == 0) {
-        // perror("Returning empty string");
         return str;
     }  
 
 	// Keep reading until entire message is read.
     while (true){
-        // perror("Reading a char");
         if (read(fd_read, (void*) &curr, 1*sizeof(char)) <= 0 || curr == ';') break;
         
         memmove(str+size-1, &curr, 1);
@@ -147,8 +145,6 @@ int main(int argc, char ** argv) {
         return -1;
     }
     
-    // TODO: IS the poll only approach okay?
-    // dfddf
     // Poll to read if there are new signals
     struct pollfd poll_sp;
 	poll_sp.fd = sig_pipe[0];
@@ -188,13 +184,13 @@ int main(int argc, char ** argv) {
         // Read from parent if we have received a signal
         // TODO: Make it so that the trader reads from all of fd_read when ti receives signal
         // LIke I do with the exchange
+        // Read from pipe to record that signal has been acknowledged
         int buf = 0;
         read(sig_pipe[0], &buf, sizeof(int)); 
-        // perror("Reading from fd_read");
 
+        // Read all messages from pipe after after signal since there might be loss
         while (poll(&pfd, 1, 0) == 1){
             char* result = fifo_read(fd_read);
-            // fprintf(stderr, "Finished reading from fd_read %s\n", result);
 
             if (strlen(result) > 0) {
 
