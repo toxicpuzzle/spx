@@ -20,7 +20,7 @@ Each folder contains
 1. .in files which are fed to the corresponding traders
 2. script to run the exchange, product-files, and expected trader/exchange out files. 
 
-Exch/trader binaries are copied from spx/ to test sub-folder and then removd by the bash script.
-E2E tests is used for testing all functions (including autotrader). They read test input from their compiled C-file’s name except with a “.in” suffix, where each of its command is triggered by some message from the exchange. The order of disconnect messages from traders is indeterministic because a trader cannot know when other traders disconnect and when the trader receives a trigger to disconnect depends on the scheduler, and so disconnection orders are ignored during testing. 
+Exch/trader binaries are copied from spx/ to test sub-folder and then removed by the bash script.
+E2E tests is used for testing all functions (including autotrader). They read test input from their compiled C-file’s name except with a “.in” suffix, where each of its command is triggered by some message from the exchange. Output of traders/exchange/autotrader are compared with "[binary_name]_expected.out" files. The order of disconnect messages from traders is indeterministic because a trader cannot know when other traders disconnect and when the trader receives a trigger to disconnect depends on the scheduler, and so disconnection orders are ignored during testing. 
 
-Unit testing via Cmocka is focused on testing the dynamic array structure which is heavily relied on for all operations within the exchange, and basic orderbook matching functions.
+Unit testing via Cmocka is focused on testing the dynamic array structure which is heavily relied on for all operations within the exchange, and basic orderbook matching functions (e.g. buy against sell,no matches, amending e.t.c.).
