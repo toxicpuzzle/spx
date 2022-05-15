@@ -209,6 +209,9 @@ int main(int argc, char ** argv) {
                         free(result);
                         close(fd_write);
                         close(fd_read);
+                        // TODO: Close pipes
+                        close(sig_pipe[0]);
+                        close(sig_pipe[1]);
                         free(fifo_exch);
                         free(fifo_trader);
                         return 0;
@@ -240,7 +243,6 @@ int main(int argc, char ** argv) {
 
         has_signal = false;
     }
-    // TODO: Close pipes
     free(fifo_exch);
     free(fifo_trader);
     return 1;
