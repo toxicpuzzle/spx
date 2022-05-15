@@ -31,23 +31,13 @@ void fifo_write(int fd_write, char* str){
     p.events = POLLOUT;
     poll(&p, 1, 0);
 
+	// Mask the sigpipe signal so that trader cannot terminate the exchange
+	// and so the exchange can catch error of writing to closed pipe
 	sigset_t s;
 	sigemptyset(&s);
 	sigaddset(&s, SIGPIPE);
 	sigprocmask(SIG_BLOCK, &s, NULL);
 
-	// // Keep polling until we get either 1 or 0 (i.e. not interrupted by signal)
-    // while (result == -1){
-    //     result = poll(&p, 1, 0);
-    // }
-
-	// // If we cannot write then we return to main function
-	// if (result == 0) {
-	// 	perror("NO POLLOUT");
-	// 	return;
-    // }  
-
-	//
     if (!(p.revents & POLLERR)){
         if (write(fd_write, str, strlen(str)) == -1){
                 perror("Write unsuccesful\n");
