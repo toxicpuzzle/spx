@@ -129,8 +129,8 @@ int main(int argc, char ** argv) {
     // connect to named pipes
     ppid = getppid();
     int id = atoi(argv[1]);
-    char* fifo_exch = malloc(sizeof(char) * 128);
-    char* fifo_trader = malloc(sizeof(char) * 128);
+    char* fifo_exch = malloc(sizeof(char) * MAX_LINE); 
+    char* fifo_trader = malloc(sizeof(char) * MAX_LINE);
     sprintf(fifo_exch, FIFO_EXCHANGE, id);
     sprintf(fifo_trader, FIFO_TRADER, id);
     int fd_read = open(fifo_exch, O_RDONLY);

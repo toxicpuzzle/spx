@@ -1,5 +1,6 @@
-make clean
+# make clean
 make unit
 ./tests/unit-test
 ./tests/transaction_tests
-make clean
+#! Uncomment if you'd like testcase to clean files after wards
+# make clean

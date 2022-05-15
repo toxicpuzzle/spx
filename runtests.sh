@@ -54,4 +54,5 @@ done;
 
 printf "Passed ${PASSED}/${TESTS} tests\n"
 
-make clean
+#! Uncomment if you'd like testcase to clean files after wards
+# make clean
