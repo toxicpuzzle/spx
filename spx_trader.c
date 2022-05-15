@@ -1,7 +1,9 @@
-#include "spx_trader.h" // Order of inclusion matters to sa_sigaction and siginfo_t
+#include "spx_trader.h" 
 #define PREFIX_CHILD(CHILD_ID) printf("[CHILD %d] ", CHILD_ID);
 #define STARTING_INTERVAL 300
 #define MAX_INTERVAL 4000
+#define BASE 2.0
+#define DISCONNECT_QTY 1000
 volatile int msgs_to_read = 0;
 int ppid = 0;
 bool market_is_open = 0;
@@ -168,7 +170,7 @@ int main(int argc, char ** argv) {
         // So that if parent loses signal they will eventually get it
         while (!has_signal){
             
-            resignal_interval = STARTING_INTERVAL * pow(2.0, resignal_times_tried);
+            resignal_interval = STARTING_INTERVAL * pow(BASE, resignal_times_tried);
             if (resignal_interval > MAX_INTERVAL) resignal_interval = MAX_INTERVAL;
 
             has_signal = poll(&poll_sp, 1, resignal_interval);   
@@ -181,14 +183,11 @@ int main(int argc, char ** argv) {
 
         resignal_times_tried = 0;
 
-        // Read from parent if we have received a signal
-        // TODO: Make it so that the trader reads from all of fd_read when ti receives signal
-        // LIke I do with the exchange
         // Read from pipe to record that signal has been acknowledged
         int buf = 0;
         read(sig_pipe[0], &buf, sizeof(int)); 
 
-        // Read all messages from pipe after after signal since there might be loss
+        // Read all messages from pipe after each signal since there might be loss
         while (poll(&pfd, 1, 0) == 1){
             char* result = fifo_read(fd_read);
 
@@ -207,7 +206,7 @@ int main(int argc, char ** argv) {
                     // Disconnect if you get >= 100 qty market buy order
                     if (!strcmp(args[0], "MARKET") && 
                         !strcmp(args[1], "SELL") && 
-                        atoi(args[3]) >= 1000){
+                        atoi(args[3]) >= DISCONNECT_QTY){
             
                         // DISCONNECT
                         free(args);
@@ -228,7 +227,7 @@ int main(int argc, char ** argv) {
                         buy(order_id++, product, qty, price, fd_write);
                         orders_awaiting_accept++;
                     
-                    // Reduce orders_awaiting accepted if one of our orders was accepted
+                    // Reduce orders_awaiting accepted if an order was accepted
                     } else if (!strcmp(args[0], "ACCEPTED")){
                         orders_awaiting_accept--;
                     }     

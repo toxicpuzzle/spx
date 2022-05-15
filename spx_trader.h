@@ -13,7 +13,6 @@
 
 // TODO: Remove code used for testing purposes
 
-// TODO: remove runtests_many.sh
 
 
 

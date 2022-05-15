@@ -14,6 +14,11 @@
 #define AMEND_CMD_SIZE 4
 #define BUYSELL_CMD_SIZE 5
 #define CANCEL_CMD_SIZE 2
+#define BUY_STR_LEN 3
+#define SELL_STR_LEN 4
+#define AMEND_STR_LEN 5
+#define CANCEL_STR_LEN 6
+#define MIN_MSG_LENGTH 6
 
 // Queue containing most recent signals received from child processes
 int sig_pipe[2] = {0, 0};
@@ -711,7 +716,6 @@ void report_position_for_trader(trader* t){
 		dyn_array_get(t->balances, i, curr);
 		printf("%s %d ($%ld), ", curr->product, curr->qty, curr->balance);
 	}
-	//TODO: edge case of no balances
 	dyn_array_get(t->balances, t->balances->used-1, curr);
 	printf("%s %d ($%ld)\n", curr->product, curr->qty, curr->balance);
 	free(curr);
@@ -870,7 +874,7 @@ void process_trade(order* buy, order* sell,
 		old_order = sell;
 		new_order = buy;
 	}
-	fee = round((int64_t)value * 0.01);
+	fee = round((int64_t)value * ((double)FEE_PERCENTAGE/(double)100));
 	
 	// Charge fee to trader placing latest order.
 	_process_trade_add_to_trader(old_order, amt_filled, value);
@@ -1085,15 +1089,15 @@ void process_cancel(char* msg, trader* t, exch_data* exch){
 
 	free(args);
 }
-
+//TODO
 // Sends message to be processed by correct function
 void process_message(char* msg, trader* t, exch_data* exch){ 
 
-	if (!strncmp(msg, "BUY", 3) || !strncmp(msg, "SELL", 4)){
+	if (!strncmp(msg, "BUY", BUY_STR_LEN) || !strncmp(msg, "SELL", SELL_STR_LEN)){
 		process_order(msg, t, exch);
-	} else if (!strncmp(msg, "AMEND", 5)){
+	} else if (!strncmp(msg, "AMEND", AMEND_STR_LEN)){
 		process_amend(msg, t, exch);
-	} else if (!strncmp(msg, "CANCEL", 6)){ 
+	} else if (!strncmp(msg, "CANCEL", CANCEL_STR_LEN)){ 
 		process_cancel(msg, t, exch);
 	} 
 
@@ -1149,8 +1153,7 @@ bool is_valid_buy_sell_order_id(int oid, trader* t){
 // Returns true if the msg is a valid command for trader t in the exchange exch
 bool is_valid_command(char* msg, trader* t, exch_data* exch){
 	
-	if (strlen(msg) < 6) return false; //TODO: Potentially get rid of magic nums.
-	// if (msg[strlen(msg)-1] != ';') return false; //TODO: Pass raw message to this function in main()
+	if (strlen(msg) < MIN_MSG_LENGTH) return false; 
 
 	char** args;
 	char* copy_msg = calloc(strlen(msg)+1, sizeof(char));
@@ -1171,8 +1174,6 @@ bool is_valid_command(char* msg, trader* t, exch_data* exch){
 			is_valid_product(args[2], exch->buy_books) &&
 			is_valid_price_qty(atoi(args[4]), atoi(args[3])) &&
 			is_valid_buy_sell_order_id(atoi(args[1]), t);
-			
-		// TODO: Check if trader already has the product
 
 	} else if (!strcmp(cmd, "AMEND")){
 		
