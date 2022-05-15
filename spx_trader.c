@@ -42,11 +42,13 @@ char* fifo_read(int fd_read){
 
 	// Return null string immediately if there is nothing to read
     if (result == 0) {
+        // perror("Returning empty string");
         return str;
     }  
 
 	// Keep reading until entire message is read.
     while (true){
+        // perror("Reading a char");
         if (read(fd_read, (void*) &curr, 1*sizeof(char)) <= 0 || curr == ';') break;
         
         memmove(str+size-1, &curr, 1);
@@ -148,14 +150,14 @@ int main(int argc, char ** argv) {
     // TODO: IS the poll only approach okay?
     // dfddf
     // Poll to read if there are new signals
-    struct pollfd pfd;
-	pfd.fd = sig_pipe[0];
-	pfd.events = POLLIN;
+    struct pollfd poll_sp;
+	poll_sp.fd = sig_pipe[0];
+	poll_sp.events = POLLIN;
 
     // Poll to read if there are additional messages for each signal (failsafe)
-    // struct pollfd pfd;
-    // pfd.fd = fd_read;
-    // pfd.events = POLLIN;  
+    struct pollfd pfd;
+    pfd.fd = fd_read;
+    pfd.events = POLLIN;  
 
     // Data structures for transaction processing
     int orders_awaiting_accept = 0;
@@ -173,7 +175,7 @@ int main(int argc, char ** argv) {
             resignal_interval = STARTING_INTERVAL * pow(2.0, resignal_times_tried);
             if (resignal_interval > MAX_INTERVAL) resignal_interval = MAX_INTERVAL;
 
-            has_signal = poll(&pfd, 1, resignal_interval);   
+            has_signal = poll(&poll_sp, 1, resignal_interval);   
 
             if (orders_awaiting_accept > 0 && !has_signal){
                 resignal_times_tried++;
@@ -184,57 +186,68 @@ int main(int argc, char ** argv) {
         resignal_times_tried = 0;
 
         // Read from parent if we have received a signal
+        // TODO: Suspend signal during open
+        // TODO: Make it so that the trader reads from all of fd_read when ti receives signal
+        // LIke I do with the exchange
         int buf = 0;
-        read(sig_pipe[0], &buf, sizeof(int));
-        char* result = fifo_read(fd_read);
-   
-        if (strlen(result) > 0) {
+        read(sig_pipe[0], &buf, sizeof(int)); 
+        // perror("Reading from fd_read");
 
-            char** args = 0;
-            char* result_cpy = calloc(strlen(result)+1, sizeof(char));
-            memmove(result_cpy, result, strlen(result)+1);
-            get_args_from_msg(result_cpy, &args);
-            
-            if (!strcmp(args[0], "MARKET") && 
-                !strcmp(args[1], "OPEN")) market_is_open = true;
+        while (poll(&pfd, 1, 0) == 1){
+            char* result = fifo_read(fd_read);
+            // fprintf(stderr, "Finished reading from fd_read %s\n", result);
 
-            if (market_is_open){
+            if (strlen(result) > 0) {
+
+                char** args = 0;
+                char* result_cpy = calloc(strlen(result)+1, sizeof(char));
+                memmove(result_cpy, result, strlen(result)+1);
+                get_args_from_msg(result_cpy, &args);
                 
-                // Disconnect if you get >= 100 qty market buy order
                 if (!strcmp(args[0], "MARKET") && 
-                    !strcmp(args[1], "SELL") && 
-                    atoi(args[3]) >= 1000){
-        
-                    // DISCONNECT
-                    free(args);
-                    free(result);
-                    close(fd_write);
-                    close(fd_read);
-                    free(fifo_exch);
-                    free(fifo_trader);
-                    return 0;
-                
-                // Make buy order if we received a sell order from exchange
-                } else if (!strcmp(args[0], "MARKET") && 
-                    !strcmp(args[1], "SELL")){
-                    
-                    char* product = args[2];
-                    int qty = atoi(args[3]);
-                    int price = atoi(args[4]);
-                    buy(order_id++, product, qty, price, fd_write);
-                    orders_awaiting_accept++;
-                
-                // Reduce orders_awaiting accepted if one of our orders was accepted
-                } else if (!strcmp(args[0], "ACCEPTED")){
-                    orders_awaiting_accept--;
-                }     
-            }
+                    !strcmp(args[1], "OPEN")) market_is_open = true;
 
-            free(args);
-            free(result_cpy);
+                if (market_is_open){
+                    
+                    // Disconnect if you get >= 100 qty market buy order
+                    if (!strcmp(args[0], "MARKET") && 
+                        !strcmp(args[1], "SELL") && 
+                        atoi(args[3]) >= 1000){
+            
+                        // DISCONNECT
+                        free(args);
+                        free(result);
+                        close(fd_write);
+                        close(fd_read);
+                        free(fifo_exch);
+                        free(fifo_trader);
+                        return 0;
+                    
+                    // Make buy order if we received a sell order from exchange
+                    } else if (!strcmp(args[0], "MARKET") && 
+                        !strcmp(args[1], "SELL")){
+                        
+                        char* product = args[2];
+                        int qty = atoi(args[3]);
+                        int price = atoi(args[4]);
+                        buy(order_id++, product, qty, price, fd_write);
+                        orders_awaiting_accept++;
+                    
+                    // Reduce orders_awaiting accepted if one of our orders was accepted
+                    } else if (!strcmp(args[0], "ACCEPTED")){
+                        orders_awaiting_accept--;
+                    }     
+                }
+
+                free(args);
+                free(result_cpy);
+            }
+            free(result);
+
         }
 
-        free(result);
+       
+
         has_signal = false;
     }
     free(fifo_exch);
