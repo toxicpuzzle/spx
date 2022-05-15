@@ -54,4 +54,4 @@ done;
 
 printf "Passed ${PASSED}/${TESTS} tests\n"
 
-# make clean
+make clean
