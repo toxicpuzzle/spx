@@ -6,4 +6,6 @@
 [T0] Received: FILL 1 10
 [T0] Received: FILL 2 10
 [T0] Received: AMENDED 2
+[T0] Received: FILL 0 20
+[T0] Received: FILL 2 20
 [T0] Event: DISCONNECT

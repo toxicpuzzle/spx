@@ -512,7 +512,7 @@ void fifo_write(int fd_write, char* str){
     p.fd = fd_write;
     p.events = POLLOUT;
     poll(&p, 1, 0);
-    if (!(p.revents & POLLERR)){
+    if (!(p.revents & POLLERR) && (p.revents & POLLOUT)){
         if (write(fd_write, str, strlen(str)) == -1){
                 perror("Write unsuccesful\n");
         }   
