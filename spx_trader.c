@@ -186,7 +186,6 @@ int main(int argc, char ** argv) {
         resignal_times_tried = 0;
 
         // Read from parent if we have received a signal
-        // TODO: Suspend signal during open
         // TODO: Make it so that the trader reads from all of fd_read when ti receives signal
         // LIke I do with the exchange
         int buf = 0;
