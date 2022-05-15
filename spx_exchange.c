@@ -307,6 +307,7 @@ dyn_arr* _create_traders_setup_trader_balances(char* product_file_path){
 		dyn_array_append(balances, b);
 		free(b);
 	}
+	fclose(f);
 	return balances;
 }
 
@@ -448,6 +449,7 @@ void check_product_file(char* product_file_path){
 	str_remove_new_line(buf);
 	if (!str_check_for_each(buf, &isdigit)){
 		perror("Product file is incorrect");
+		fclose(f);
 		error_during_init = true;
 		return;
 	}
@@ -456,6 +458,7 @@ void check_product_file(char* product_file_path){
 	int num_products = atoi(buf);
 	if (num_products == 0){
 		perror("Product file is incorrect");
+		fclose(f);
 		error_during_init = true;
 		return;
 	}	
@@ -465,12 +468,13 @@ void check_product_file(char* product_file_path){
 
 		if (strlen(buf) == 0 || !str_check_for_each(buf, &isalnum)) {
 			perror("Product file is incorrect");
+			fclose(f);
 			error_during_init = true;
 			return;
 		}
 		
 	}
-
+	fclose(f);
 }
 
 // Creates dynamic array storing orderbooks
@@ -495,6 +499,7 @@ void setup_product_order_books(dyn_arr* buy_order_books,
 		_setup_product_order_book(buy_order_books, buf, true);
 		_setup_product_order_book(sell_order_books, buf, false);
 	}
+	fclose(f);
 
 	printf("\n");
 }

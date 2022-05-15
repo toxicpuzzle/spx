@@ -1,2 +1,2 @@
 #!/bin/bash
-./spx_exchange products.txt ./pipe_only_trader ./test_trader
+valgrind --leak-check=full --show-leak-kinds=all ./spx_exchange products.txt ./pipe_only_trader ./test_trader

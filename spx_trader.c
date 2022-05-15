@@ -240,6 +240,7 @@ int main(int argc, char ** argv) {
 
         has_signal = false;
     }
+    // TODO: Close pipes
     free(fifo_exch);
     free(fifo_trader);
     return 1;
