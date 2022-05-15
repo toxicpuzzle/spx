@@ -3,8 +3,4 @@
 
 #include "spx_common.h"
 
-
-
-// TODO: Complete readme within word count (30 min) Yep
-    
 #endif
