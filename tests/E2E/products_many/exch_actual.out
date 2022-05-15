@@ -1,0 +1,35 @@
+[SPX] Starting
+[SPX] Trading 20 products: GOOG TSLA CCL META MSFT AMZN NFLX GME AAPL ADBE ATVI ABMD KO BIGNAMECOMPANYAB EA JUNK RANDOM PRODUCT POG ETSY
+[SPX] Created FIFO /tmp/spx_exchange_0
+[SPX] Created FIFO /tmp/spx_trader_0
+[SPX] Starting trader 0 (./test_trader)
+[SPX] Connected to /tmp/spx_exchange_0
+[SPX] Connected to /tmp/spx_trader_0
+[SPX] [T0] Parsing command: <BUY 0 BIGNAMECOMPANYAB 1 1>
+[SPX]	--ORDERBOOK--
+[SPX]	Product: GOOG; Buy levels: 0; Sell levels: 0
+[SPX]	Product: TSLA; Buy levels: 0; Sell levels: 0
+[SPX]	Product: CCL; Buy levels: 0; Sell levels: 0
+[SPX]	Product: META; Buy levels: 0; Sell levels: 0
+[SPX]	Product: MSFT; Buy levels: 0; Sell levels: 0
+[SPX]	Product: AMZN; Buy levels: 0; Sell levels: 0
+[SPX]	Product: NFLX; Buy levels: 0; Sell levels: 0
+[SPX]	Product: GME; Buy levels: 0; Sell levels: 0
+[SPX]	Product: AAPL; Buy levels: 0; Sell levels: 0
+[SPX]	Product: ADBE; Buy levels: 0; Sell levels: 0
+[SPX]	Product: ATVI; Buy levels: 0; Sell levels: 0
+[SPX]	Product: ABMD; Buy levels: 0; Sell levels: 0
+[SPX]	Product: KO; Buy levels: 0; Sell levels: 0
+[SPX]	Product: BIGNAMECOMPANYAB; Buy levels: 1; Sell levels: 0
+[SPX]		BUY 1 @ $1 (1 order)
+[SPX]	Product: EA; Buy levels: 0; Sell levels: 0
+[SPX]	Product: JUNK; Buy levels: 0; Sell levels: 0
+[SPX]	Product: RANDOM; Buy levels: 0; Sell levels: 0
+[SPX]	Product: PRODUCT; Buy levels: 0; Sell levels: 0
+[SPX]	Product: POG; Buy levels: 0; Sell levels: 0
+[SPX]	Product: ETSY; Buy levels: 0; Sell levels: 0
+[SPX]	--POSITIONS--
+[SPX]	Trader 0: GOOG 0 ($0), TSLA 0 ($0), CCL 0 ($0), META 0 ($0), MSFT 0 ($0), AMZN 0 ($0), NFLX 0 ($0), GME 0 ($0), AAPL 0 ($0), ADBE 0 ($0), ATVI 0 ($0), ABMD 0 ($0), KO 0 ($0), BIGNAMECOMPANYAB 0 ($0), EA 0 ($0), JUNK 0 ($0), RANDOM 0 ($0), PRODUCT 0 ($0), POG 0 ($0), ETSY 0 ($0)
+[SPX] Trader 0 disconnected
+[SPX] Trading completed
+[SPX] Exchange fees collected: $0
