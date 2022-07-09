@@ -1,4 +1,4 @@
-# SPX Exchange - Assignment 3
+# SPX Exchange - Assignment 3 (30/30 Mark)
 ##### Tim Yang - Semester 1 2021, Completed as part of the COMP2017 (Systems Programming) Course
 ##### Please do not copy or redistribute this project. 
 
