@@ -1,3 +1,7 @@
+# SPX Exchange - Assignment 3
+##### Tim Yang - Semester 1 2021, Completed as part of the COMP2017 (Systems Programming) Course
+##### Please do not copy or redistribute this project. 
+
 1. Describe how your exchange works.
 
     1.	Setup – Forked/launched traders open read/write pipes in read->write order to avoid blocking. Separate orderbooks are kept for each product and their buy and sell orders to make searching/matching/reporting orders via dynamic-array methods easy. The process_id, id, pipe fds and other trader information is stored as struct within dynamic-arrays. Any errors detected during the setup will terminate the exchange.
